@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\File;
 use App\CourseProgress;
 use App\ScormPackage as AppScormPackage;
 use ZipArchive;
@@ -18,82 +18,88 @@ class ScormController extends Controller
 
 public function upload(Request $request)
 {
-    try {
-        Log::info('🚀 SCORM Upload Start');
+    Log::info("🚀 SCORM Upload Start");
 
-        $request->validate([
-            'title' => 'required|string',
-            'zip_file' => 'required|mimes:zip|max:1024000',
-        ]);
-        Log::info('✅ Validation Passed');
+    $request->validate([
+        'title' => 'required|string',
+        'zip_file' => 'required|mimes:zip|max:1024000',
+    ]);
 
-        $zip = $request->file('zip_file');
-        Log::info('📁 File received: ' . $zip->getClientOriginalName());
+    Log::info("✅ Validation Passed");
 
-        $folderName = 'scorm_' . time();
-        $extractPath = public_path('scorm_packages/' . $folderName);
-        Log::info('📁 Extract path: ' . $extractPath);
+    $zip = $request->file('zip_file');
+    $folderName = 'scorm_' . time();
+    $extractPath = public_path('scorm_packages/' . $folderName);
 
-        if (!mkdir($extractPath, 0775, true)) {
-            Log::error('❌ Could not create folder: ' . $extractPath);
-            return back()->with('error', 'Could not create folder for SCORM.');
-        }
+    File::makeDirectory($extractPath, 0755, true);
+    $zipPath = $extractPath . '/' . $zip->getClientOriginalName();
 
-        $zipPath = $extractPath . '/' . $zip->getClientOriginalName();
-        $zip->move($extractPath, $zip->getClientOriginalName());
-        Log::info('📦 Zip moved to: ' . $zipPath);
+    $zip->move($extractPath, $zip->getClientOriginalName());
+    Log::info("📁 Extract path: $extractPath");
+    Log::info("📦 Zip moved to: $zipPath");
 
-        $zipArchive = new ZipArchive;
-        if ($zipArchive->open($zipPath)) {
-            $zipArchive->extractTo($extractPath);
-            $zipArchive->close();
-            Log::info('✅ Zip extracted successfully');
-            unlink($zipPath);
-        } else {
-            Log::error('❌ Failed to open zip file');
-            return back()->with('error', 'Failed to open zip file');
-        }
-
-        $manifestPath = $extractPath . '/imsmanifest.xml';
-        Log::info('🔍 Checking manifest at: ' . $manifestPath);
-
-        $launchFile = null;
-        if (file_exists($manifestPath)) {
-            $xml = simplexml_load_file($manifestPath);
-            $xml->registerXPathNamespace('ns', 'http://www.imsproject.org/xsd/imscp_rootv1p1p2');
-            $resource = $xml->xpath('//ns:resource')[0] ?? null;
-
-            if ($resource) {
-                $base = (string) $resource['base'] ?? '';
-                $href = (string) $resource['href'];
-                $launchFile = $base ? ($base . '/' . $href) : $href;
-                Log::info('🎯 Launch file found: ' . $launchFile);
-            } else {
-                Log::warning('⚠️ No resource found in manifest');
-            }
-        } else {
-            Log::error('❌ imsmanifest.xml not found');
-        }
-
-        if (!$launchFile || !file_exists($extractPath . '/' . $launchFile)) {
-            Log::error('❌ Launch file does not exist: ' . $extractPath . '/' . $launchFile);
-            return back()->with('error', 'Launch file not found.');
-        }
-
-        AppScormPackage::create([
-            'title' => $request->title,
-            'folder_name' => $folderName,
-            'launch_file' => $launchFile,
-        ]);
-
-        Log::info('✅ SCORM saved in DB successfully');
-        return back()->with('success', 'SCORM course uploaded successfully.');
-    } catch (\Throwable $e) {
-        Log::error('🔥 Exception: ' . $e->getMessage());
-        return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    $zipArchive = new ZipArchive;
+    if ($zipArchive->open($zipPath)) {
+        $zipArchive->extractTo($extractPath);
+        $zipArchive->close();
+        unlink($zipPath);
+        Log::info("✅ Zip extracted successfully");
+    } else {
+        Log::error("❌ Zip could not be opened.");
+        return back()->with('error', 'Zip extraction failed.');
     }
+
+    // ✅ 🔍 Find imsmanifest.xml recursively
+    $manifestPath = $this->findManifest($extractPath);
+    Log::info("🔍 Searching manifest: $manifestPath");
+
+    if (!$manifestPath || !file_exists($manifestPath)) {
+        Log::error("❌ imsmanifest.xml not found");
+        return back()->with('error', 'SCORM manifest file not found inside zip.');
+    }
+
+    // ✅ Parse launch file
+    $launchFile = null;
+    $xml = simplexml_load_file($manifestPath);
+    $xml->registerXPathNamespace('ns', 'http://www.imsproject.org/xsd/imscp_rootv1p1p2');
+    $resource = $xml->xpath('//ns:resource')[0] ?? null;
+
+    if ($resource) {
+        $base = (string) $resource['base'] ?? '';
+        $href = (string) $resource['href'];
+        $launchFile = $base ? ($base . '/' . $href) : $href;
+    }
+
+    $launchFullPath = dirname($manifestPath) . '/' . $launchFile;
+
+    if (!$launchFile || !file_exists($launchFullPath)) {
+        Log::error("❌ Launch file does not exist: $launchFullPath");
+        return back()->with('error', 'Launch file not found inside extracted folder.');
+    }
+
+    // ✅ Save to DB
+    AppScormPackage::create([
+        'title' => $request->title,
+        'folder_name' => $folderName,
+        'launch_file' => str_replace($extractPath . '/', '', $launchFullPath),
+    ]);
+
+    Log::info("✅ SCORM uploaded and saved successfully.");
+    return back()->with('success', 'SCORM course uploaded successfully!');
 }
 
+/**
+ * 🔍 Recursively find imsmanifest.xml in extracted folders
+ */
+private function findManifest($dir)
+{
+    foreach (File::allFiles($dir) as $file) {
+        if ($file->getFilename() === 'imsmanifest.xml') {
+            return $file->getPathname();
+        }
+    }
+    return null;
+}
 public function view($id)
 {
     $package = AppScormPackage::findOrFail($id);
