@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 
 use App\CourseProgress;
 use App\ScormPackage as AppScormPackage;
@@ -15,8 +16,9 @@ class ScormController extends Controller
         return view('upload');
     }
 
-   public function upload(Request $request)
-    {
+public function upload(Request $request)
+{
+    try {
         $request->validate([
             'title' => 'required|string',
             'zip_file' => 'required|mimes:zip|max:1024000', 
@@ -53,7 +55,7 @@ class ScormController extends Controller
         }
 
         if (!$launchFile || !file_exists($extractPath . '/' . $launchFile)) {
-            return back()->with('error', 'Launch file not found.');
+            return back()->with('error', 'Launch file not found in SCORM zip.');
         }
 
         AppScormPackage::create([
@@ -62,7 +64,12 @@ class ScormController extends Controller
             'launch_file' => $launchFile,
         ]);
 
-    return back()->with('success', 'SCORM course uploaded ');    }
+        return back()->with('success', 'SCORM course uploaded successfully.');
+    } catch (\Throwable $e) {
+        Log::error('SCORM Upload Error: ' . $e->getMessage());
+        return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    }
+}
 
 public function view($id)
 {
