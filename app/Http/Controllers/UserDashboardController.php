@@ -55,6 +55,40 @@ public function resumeupdate(Request $request)
 
     return response()->json(['status' => 'success']);
 }
+public function userindex()
+{
+    $userId = auth()->id();
+
+    // All course progress with course details
+    $courses = CourseProgress::with('course')
+                ->where('user_id', $userId)
+                ->get();
+
+    // Completed courses count
+    $completedCourses = $courses->filter(function ($course) {
+        return $course->cmi_core_lesson_status === 'completed';
+    });
+
+    // In progress courses
+    $inProgressCourses = $courses->filter(function ($course) {
+        return $course->cmi_core_lesson_status !== 'completed';
+    });
+
+    // Total unique courses purchased
+    $totalCourses = $courses->pluck('course_id')->unique()->count();
+
+    // Total watch time in seconds
+    $totalWatchTime = $courses->sum('session_time');
+
+    return view('user.dashboard', [
+        'courses' => $courses,
+        'pendingCourses' => $inProgressCourses,
+        'completedCourses' => $completedCourses->count(),
+        'inProgressCount' => $inProgressCourses->count(),
+        'totalCourses' => $totalCourses,
+        'totalWatchTime' => $totalWatchTime,
+    ]);
+}
 
 
 }

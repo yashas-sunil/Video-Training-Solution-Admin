@@ -9,17 +9,6 @@ use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
     /**
@@ -39,18 +28,28 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     * Modify credentials to include role check.
+     */
     protected function credentials(Request $request)
     {
         $credentials = $request->only($this->username(), 'password');
-
-    //         dd([
-    //     'input' => $credentials,
-    //     'username' => $this->username(),
-    //     'full_request' => $request->all()
-    // ]);
-        $credentials['role'] = ['1','3','8', '9', '10','12','13','14','15','16'];
-
+        $credentials['role'] = ['1','2','3','8','9','10','12','13','14','15','16'];
         return $credentials;
     }
+
+    /**
+     * Redirect after login based on role.
+     */
+protected function authenticated(Request $request, $user)
+{
+    if ($user->role == 2) {
+        return redirect()->route('user.dashboard');
+    }
+
+    
+
+    return redirect()->intended($this->redirectTo);
+}
 
 }

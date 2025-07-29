@@ -583,6 +583,8 @@ Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard'
 Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->middleware('auth');
 
 // routes/web.php
+Route::get('/user/dashboard', 'UserDashboardController@userindex')->name('user.dashboard')->middleware('auth');
+
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
 Route::get('/course/progress/get/{id}', 'CourseProgressController@get');
 
