@@ -137,13 +137,13 @@
     @forelse($courses as $progress)
         @php
             $course = $progress->course;
-            $duration = $course->duration_in_seconds ?? 0;
+            $duration = optional($course)->duration_in_seconds ?? 0;
             $watched = $progress->session_time ?? 0;
             $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
         @endphp
 
         <div class="course-card">
-            <div class="course-title">{{ $course->title ?? 'Untitled Course' }}</div>
+            <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
             <div class="course-info">
                 Status: <strong>{{ $progress->cmi_core_lesson_status ?? 'incomplete' }}</strong><br>
                 Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
@@ -160,15 +160,19 @@
     {{-- Pending --}}
     <h2>⏳ Pending Courses</h2>
     @forelse($pendingCourses as $pending)
+        @php
+            $course = $pending->course;
+            $duration = optional($course)->duration_in_seconds ?? 0;
+            $watched = $pending->session_time ?? 0;
+            $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+        @endphp
+
         <div class="course-card">
-            <div class="course-title">{{ $pending->course->title ?? 'Untitled Course' }}</div>
+            <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
             <div class="course-info">
-                Watched: {{ gmdate("H:i:s", $pending->session_time ?? 0) }} / 
-                         {{ gmdate("H:i:s", $pending->course->duration_in_seconds ?? 0) }}
+                Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
                 <div class="progress-bar">
-                    <div class="progress-fill" 
-                         style="width: {{ $pending->course->duration_in_seconds > 0 ? round(($pending->session_time / $pending->course->duration_in_seconds) * 100, 2) : 0 }}%;">
-                    </div>
+                    <div class="progress-fill" style="width: {{ $percent }}%;"></div>
                 </div>
                 <a href="/view/{{ $pending->course_id }}" class="btn-resume">▶ Resume</a>
             </div>

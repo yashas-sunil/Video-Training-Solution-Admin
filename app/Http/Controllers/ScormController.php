@@ -104,25 +104,33 @@ public function view($id)
 {
     $package = AppScormPackage::findOrFail($id);
 
+    // Full path for checking file existence
     $launchPath = public_path('scorm_packages/' . $package->folder_name . '/' . $package->launch_file);
     if (!file_exists($launchPath)) {
         abort(404, 'Launch file not found on server');
     }
 
+    // Public URL for iframe
     $launchUrl = asset('scorm_packages/' . $package->folder_name . '/' . $package->launch_file);
 
     $userId = auth()->id();
     $progress = AppCourseProgress::where('user_id', $userId)
-                ->where('course_id', $id)
-                ->first();
+        ->where('course_id', $id)
+        ->first();
 
+    // Prepare resume values
+    $resumeTime = optional($progress)->resume_from_time ?? 0;
+    $lastLocation = optional($progress)->cmi_core_lesson_location ?? '';
+//dd($lastLocation);
     return view('view', [
-        'launchUrl' => $launchUrl,
-        'title' => $package->title,
-        'courseId' => $id,
-        'lastLocation' => optional($progress)->cmi_core_lesson_location,
+        'launchUrl'     => $launchUrl,
+        'title'         => $package->title,
+        'courseId'      => $id,
+        'resumeTime'    => $resumeTime,
+        'lastLocation'  => $lastLocation,
     ]);
 }
+
 
 
     public function saveProgress(Request $request)
