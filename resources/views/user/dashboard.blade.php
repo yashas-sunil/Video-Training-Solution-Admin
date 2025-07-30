@@ -121,7 +121,6 @@
 </div>
 
 <div class="container">
-    {{-- Overview Cards --}}
     <div class="stats">
         <div class="stat-card">
             <h2>{{ $courses->count() }}</h2>
@@ -132,7 +131,7 @@
             <p>Completed Courses</p>
         </div>
         <div class="stat-card">
-            <h2>{{ gmdate("H \H\r i \M\i\n s \S\e\c", $totalWatchTime) }}</h2>
+            <h2>{{ gmdate("H : i : s ", $totalWatchTime) }}</h2>
             <p>Total Watch Time</p>
         </div>
         <div class="stat-card">
@@ -161,7 +160,7 @@
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $percent }}%;"></div>
                     </div>
-                    <a href="/view/{{ $progress->course_id }}" class="btn-resume">▶ Resume</a>
+                    <a href="javascript:void(0);" class="btn-resume" onclick="openScormWindow({{ $progress->course_id }})">▶ Resume</a>
                 </div>
             </div>
         @empty
@@ -186,7 +185,7 @@
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $percent }}%;"></div>
                     </div>
-                    <a href="/view/{{ $pending->course_id }}" class="btn-resume">▶ Resume</a>
+                    <a href="javascript:void(0);" class="btn-resume" onclick="openScormWindow({{ $pending->course_id }})">▶ Resume</a>
                 </div>
             </div>
         @empty
@@ -196,7 +195,13 @@
 </div>
 
 <script>
-    // 🔍 Search Filter
+    function openScormWindow(courseId) {
+        const popup = window.open(`/view/${courseId}`, '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+        if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+            alert("Please allow popups for this site to view the course.");
+        }
+    }
+
     document.getElementById("courseSearch").addEventListener("keyup", function () {
         const searchValue = this.value.toLowerCase();
         const courses = document.querySelectorAll(".course-card");
