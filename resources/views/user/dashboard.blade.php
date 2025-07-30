@@ -48,12 +48,20 @@
             margin-top: 2rem;
             color: #333;
         }
+        .courses-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem;
+        }
         .course-card {
             background: white;
             padding: 1rem 1.5rem;
             margin-bottom: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            width: 48%;
+            box-sizing: border-box;
         }
         .course-title {
             font-size: 1.2rem;
@@ -93,6 +101,11 @@
             border: 1px solid #ccc;
             font-size: 16px;
         }
+        @media (max-width: 768px) {
+            .course-card {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -129,57 +142,57 @@
     </div>
 
     <h2>📚 Your Courses</h2>
-
-    {{-- 🔍 Search Bar --}}
     <input type="text" id="courseSearch" placeholder="Search your courses...">
 
-    {{-- List of All Courses --}}
-    @forelse($courses as $progress)
-        @php
-            $course = $progress->course;
-            $duration = optional($course)->duration_in_seconds ?? 0;
-            $watched = $progress->session_time ?? 0;
-            $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-        @endphp
+    <div class="courses-grid">
+        @forelse($courses as $progress)
+            @php
+                $course = $progress->course;
+                $duration = optional($course)->duration_in_seconds ?? 0;
+                $watched = $progress->session_time ?? 0;
+                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+            @endphp
 
-        <div class="course-card">
-            <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
-            <div class="course-info">
-                Status: <strong>{{ $progress->cmi_core_lesson_status ?? 'incomplete' }}</strong><br>
-                Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ $percent }}%;"></div>
+            <div class="course-card">
+                <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
+                <div class="course-info">
+                    Status: <strong>{{ $progress->cmi_core_lesson_status ?? 'incomplete' }}</strong><br>
+                    Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ $percent }}%;"></div>
+                    </div>
+                    <a href="/view/{{ $progress->course_id }}" class="btn-resume">▶ Resume</a>
                 </div>
-                <a href="/view/{{ $progress->course_id }}" class="btn-resume">▶ Resume</a>
             </div>
-        </div>
-    @empty
-        <p>No courses started yet.</p>
-    @endforelse
+        @empty
+            <p>No courses started yet.</p>
+        @endforelse
+    </div>
 
-    {{-- Pending --}}
     <h2>⏳ Pending Courses</h2>
-    @forelse($pendingCourses as $pending)
-        @php
-            $course = $pending->course;
-            $duration = optional($course)->duration_in_seconds ?? 0;
-            $watched = $pending->session_time ?? 0;
-            $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-        @endphp
+    <div class="courses-grid">
+        @forelse($pendingCourses as $pending)
+            @php
+                $course = $pending->course;
+                $duration = optional($course)->duration_in_seconds ?? 0;
+                $watched = $pending->session_time ?? 0;
+                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+            @endphp
 
-        <div class="course-card">
-            <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
-            <div class="course-info">
-                Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ $percent }}%;"></div>
+            <div class="course-card">
+                <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
+                <div class="course-info">
+                    Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ $percent }}%;"></div>
+                    </div>
+                    <a href="/view/{{ $pending->course_id }}" class="btn-resume">▶ Resume</a>
                 </div>
-                <a href="/view/{{ $pending->course_id }}" class="btn-resume">▶ Resume</a>
             </div>
-        </div>
-    @empty
-        <p>All courses are completed.</p>
-    @endforelse
+        @empty
+            <p>All courses are completed.</p>
+        @endforelse
+    </div>
 </div>
 
 <script>
