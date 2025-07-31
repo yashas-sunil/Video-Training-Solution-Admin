@@ -9,17 +9,21 @@
             padding: 0;
             background: #f7f7f7;
         }
+        .top-logo-bar {
+            text-align: left;
+            padding: 10px;
+            background: white;
+        }
+        .top-logo-bar img {
+            height: 60px;
+        }
         .navbar {
             background: #007bff;
             padding: 1rem 2rem;
             color: white;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-        }
-        .company-logo img {
-            height: 50px;
-            object-fit: contain;
         }
         .navbar .user-info {
             display: flex;
@@ -126,15 +130,15 @@
 </head>
 <body>
 
-<div class="navbar">
-    <!-- Left: Company Logo -->
-    <div class="company-logo">
-        <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
-    </div>
+<!-- Logo on top -->
+<div class="top-logo-bar">
+    <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
+</div>
 
-    <!-- Right: User Info -->
+<!-- Navbar below logo -->
+<div class="navbar">
     <div class="user-info">
-        <div style="text-align: right;">
+        <div style="text-align: left;">
             <div style="font-size: 0.85rem;">Welcome back,</div>
             <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
         </div>
@@ -171,13 +175,11 @@
     <div class="courses-grid">
         @forelse($courses as $progress)
             @php
-    $course = $progress->course;
-    $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0; // Convert minutes to seconds
-    $watched = $progress->session_time ?? 0;
-    $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-   @endphp
-
-
+                $course = $progress->course;
+                $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
+                $watched = $progress->session_time ?? 0;
+                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+            @endphp
             <div class="course-card">
                 <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
                 <div class="course-info">
@@ -186,7 +188,7 @@
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $percent }}%;"></div>
                     </div>
-<a href="javascript:void(0);" onclick="openScormWindow({{ $progress->course_id }})" class="btn-resume">▶ Resume</a>
+                    <a href="javascript:void(0);" onclick="openScormWindow({{ $progress->course_id }})" class="btn-resume">▶ Resume</a>
                 </div>
             </div>
         @empty
@@ -196,7 +198,7 @@
 </div>
 
 <script>
-  function openScormWindow(courseId) {
+    function openScormWindow(courseId) {
         const width = screen.availWidth;
         const height = screen.availHeight;
         const popup = window.open(
@@ -210,16 +212,6 @@
             popup.focus();
         }
     }
-
-    document.getElementById("courseSearch").addEventListener("keyup", function () {
-        const searchValue = this.value.toLowerCase();
-        const courses = document.querySelectorAll(".course-card");
-
-        courses.forEach(function (card) {
-            const title = card.querySelector(".course-title").textContent.toLowerCase();
-            card.style.display = title.includes(searchValue) ? "block" : "none";
-        });
-    });
 
     document.getElementById("courseSearch").addEventListener("keyup", function () {
         const searchValue = this.value.toLowerCase();
