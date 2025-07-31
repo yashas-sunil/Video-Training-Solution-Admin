@@ -17,23 +17,30 @@
             justify-content: space-between;
             align-items: center;
         }
+        .company-logo img {
+            height: 50px;
+            object-fit: contain;
+        }
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
         .container {
             padding: 2rem;
         }
         .stats {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
         }
         .stat-card {
             background: white;
             padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            width: 23%;
             text-align: center;
-            margin-bottom: 1rem;
         }
         .stat-card h2 {
             margin: 0;
@@ -101,7 +108,16 @@
             border: 1px solid #ccc;
             font-size: 16px;
         }
-        @media (max-width: 768px) {
+
+        @media (max-width: 992px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 576px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
             .course-card {
                 width: 100%;
             }
@@ -111,9 +127,18 @@
 <body>
 
 <div class="navbar">
-    <div>Welcome back, {{ auth()->user()->name }}</div>
-    <div>
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white;">Logout</a>
+    <!-- Left: Company Logo -->
+    <div class="company-logo">
+        <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
+    </div>
+
+    <!-- Right: User Info -->
+    <div class="user-info">
+        <div style="text-align: right;">
+            <div style="font-size: 0.85rem;">Welcome back,</div>
+            <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
+        </div>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white; text-decoration: underline;">Logout</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             @csrf
         </form>
@@ -131,7 +156,7 @@
             <p>Completed Courses</p>
         </div>
         <div class="stat-card">
-            <h2>{{ gmdate("H : i : s ", $totalWatchTime) }}</h2>
+            <h2>{{ gmdate("H:i:s", $totalWatchTime) }}</h2>
             <p>Total Watch Time</p>
         </div>
         <div class="stat-card">
@@ -146,11 +171,12 @@
     <div class="courses-grid">
         @forelse($courses as $progress)
             @php
-                $course = $progress->course;
-                $duration = optional($course)->duration_in_seconds ?? 0;
-                $watched = $progress->session_time ?? 0;
-                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-            @endphp
+    $course = $progress->course;
+    $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0; // Convert minutes to seconds
+    $watched = $progress->session_time ?? 0;
+    $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+   @endphp
+
 
             <div class="course-card">
                 <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
@@ -160,47 +186,40 @@
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $percent }}%;"></div>
                     </div>
-                    <a href="javascript:void(0);" class="btn-resume" onclick="openScormWindow({{ $progress->course_id }})">▶ Resume</a>
+<a href="javascript:void(0);" onclick="openScormWindow({{ $progress->course_id }})" class="btn-resume">▶ Resume</a>
                 </div>
             </div>
         @empty
             <p>No courses started yet.</p>
         @endforelse
     </div>
-
-    <h2>⏳ Pending Courses</h2>
-    <div class="courses-grid">
-        @forelse($pendingCourses as $pending)
-            @php
-                $course = $pending->course;
-                $duration = optional($course)->duration_in_seconds ?? 0;
-                $watched = $pending->session_time ?? 0;
-                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-            @endphp
-
-            <div class="course-card">
-                <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
-                <div class="course-info">
-                    Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{ $percent }}%;"></div>
-                    </div>
-                    <a href="javascript:void(0);" class="btn-resume" onclick="openScormWindow({{ $pending->course_id }})">▶ Resume</a>
-                </div>
-            </div>
-        @empty
-            <p>All courses are completed.</p>
-        @endforelse
-    </div>
 </div>
 
 <script>
-    function openScormWindow(courseId) {
-        const popup = window.open(`/view/${courseId}`, '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes');
-        if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+  function openScormWindow(courseId) {
+        const width = screen.availWidth;
+        const height = screen.availHeight;
+        const popup = window.open(
+            `/view/${courseId}`,
+            '_blank',
+            `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`
+        );
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
             alert("Please allow popups for this site to view the course.");
+        } else {
+            popup.focus();
         }
     }
+
+    document.getElementById("courseSearch").addEventListener("keyup", function () {
+        const searchValue = this.value.toLowerCase();
+        const courses = document.querySelectorAll(".course-card");
+
+        courses.forEach(function (card) {
+            const title = card.querySelector(".course-title").textContent.toLowerCase();
+            card.style.display = title.includes(searchValue) ? "block" : "none";
+        });
+    });
 
     document.getElementById("courseSearch").addEventListener("keyup", function () {
         const searchValue = this.value.toLowerCase();

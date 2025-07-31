@@ -38,6 +38,7 @@ use App\Models\Quiz\Paragraph;
 use App\Models\Quiz\Test;
 use App\Models\Quiz\Question;
 use App\AdminCourse;
+use App\ScormPackage;
 
 class ActivityLog
 {
@@ -94,7 +95,7 @@ class ActivityLog
                 
               // }
               if($module=='courses'){
-    $course = AdminCourse::find($id); 
+    $course = ScormPackage::find($id); 
     $course1['name'] = $course->title; 
     $course1['display'] = $course->description ?? ''; 
     $dataold = base64_encode(serialize($course1));

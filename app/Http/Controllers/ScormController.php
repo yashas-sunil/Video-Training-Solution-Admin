@@ -18,14 +18,17 @@ class ScormController extends Controller
 
 public function upload(Request $request)
 {
-    Log::info("🚀 SCORM Upload Start");
+    Log::info(" SCORM Upload Start");
 
     $request->validate([
         'title' => 'required|string',
         'zip_file' => 'required|mimes:zip|max:1024000',
+        'watch_time' => 'required|numeric|min:1',
+        'view_limit_option' => 'required|string',
+        'view_limit' => 'nullable|numeric|min:1',
     ]);
 
-    Log::info("✅ Validation Passed");
+    Log::info(" Validation Passed");
 
     $zip = $request->file('zip_file');
     $folderName = 'scorm_' . time();
@@ -35,30 +38,30 @@ public function upload(Request $request)
     $zipPath = $extractPath . '/' . $zip->getClientOriginalName();
 
     $zip->move($extractPath, $zip->getClientOriginalName());
-    Log::info("📁 Extract path: $extractPath");
-    Log::info("📦 Zip moved to: $zipPath");
+    Log::info("Extract path: $extractPath");
+    Log::info(" Zip moved to: $zipPath");
 
     $zipArchive = new ZipArchive;
     if ($zipArchive->open($zipPath)) {
         $zipArchive->extractTo($extractPath);
         $zipArchive->close();
         unlink($zipPath);
-        Log::info("✅ Zip extracted successfully");
+        Log::info("Zip extracted successfully");
     } else {
-        Log::error("❌ Zip could not be opened.");
+        Log::error("Zip could not be opened.");
         return back()->with('error', 'Zip extraction failed.');
     }
 
-    // ✅ 🔍 Find imsmanifest.xml recursively
+    //  Find imsmanifest.xml recursively
     $manifestPath = $this->findManifest($extractPath);
-    Log::info("🔍 Searching manifest: $manifestPath");
+    Log::info(" Searching manifest: $manifestPath");
 
     if (!$manifestPath || !file_exists($manifestPath)) {
-        Log::error("❌ imsmanifest.xml not found");
+        Log::error("imsmanifest.xml not found");
         return back()->with('error', 'SCORM manifest file not found inside zip.');
     }
 
-    // ✅ Parse launch file
+    //  Parse launch file
     $launchFile = null;
     $xml = simplexml_load_file($manifestPath);
     $xml->registerXPathNamespace('ns', 'http://www.imsproject.org/xsd/imscp_rootv1p1p2');
@@ -73,20 +76,28 @@ public function upload(Request $request)
     $launchFullPath = dirname($manifestPath) . '/' . $launchFile;
 
     if (!$launchFile || !file_exists($launchFullPath)) {
-        Log::error("❌ Launch file does not exist: $launchFullPath");
+        Log::error(" Launch file does not exist: $launchFullPath");
         return back()->with('error', 'Launch file not found inside extracted folder.');
     }
 
-    // ✅ Save to DB
+    // Handle view_limit
+    $viewLimit = $request->view_limit_option === 'custom'
+        ? $request->view_limit
+        : intval($request->view_limit_option);
+
+    // Save to DB
     AppScormPackage::create([
         'title' => $request->title,
         'folder_name' => $folderName,
         'launch_file' => str_replace($extractPath . '/', '', $launchFullPath),
+        'watch_time' => $request->watch_time,
+        'view_limit' => $viewLimit,
     ]);
 
-    Log::info("✅ SCORM uploaded and saved successfully.");
+    Log::info(" SCORM uploaded and saved successfully.");
     return back()->with('success', 'SCORM course uploaded successfully!');
 }
+
 
 /**
  * 🔍 Recursively find imsmanifest.xml in extracted folders

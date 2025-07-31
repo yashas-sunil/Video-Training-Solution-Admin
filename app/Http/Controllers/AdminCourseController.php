@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\AdminCourse;
+use App\ScormPackage;
 use Illuminate\Http\Request;
 
 class AdminCourseController extends Controller
@@ -14,7 +15,7 @@ class AdminCourseController extends Controller
      */
     public function index()
    {
-    $courses = AdminCourse::all();
+    $courses = ScormPackage::all();
     return view('courses.index', compact('courses'));
 }
 
@@ -75,7 +76,7 @@ class AdminCourseController extends Controller
      */
     public function edit($id)
     {
-          $course = AdminCourse::findOrFail($id);
+          $course = ScormPackage::findOrFail($id);
         return view('courses.edit', compact('course'));
     }
 
@@ -86,21 +87,29 @@ class AdminCourseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-        ]);
+  public function update(Request $request, $id)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        // 'description' => 'required|string',
+        'watch_time' => 'nullable|integer',
+        'view_limit' => 'nullable|integer',
+    ]);
 
-        $course = AdminCourse::findOrFail($id);
-        $course->title = $request->title;
-        $course->description = $request->description;
-        $course->save();
+    $course = ScormPackage::find($id);
 
-        return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
-    
+    if (!$course) {
+        return redirect()->route('courses.index')->with('error', 'Course not found.');
     }
+
+    $course->title = $request->title;
+    // $course->description = $request->description;
+    $course->watch_time = $request->watch_time;
+    $course->view_limit = $request->view_limit;
+    $course->save();
+
+    return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
+}
 
     /**
      * Remove the specified resource from storage.
@@ -110,7 +119,7 @@ class AdminCourseController extends Controller
      */
     public function destroy($id)
     {
-        $course = AdminCourse::findOrFail($id);
+        $course = ScormPackage::findOrFail($id);
         $course->delete();
        return redirect()->route('courses.index')->with('success', 'Course deleted successfully!');
     }

@@ -23,7 +23,8 @@
                     <tr>
                         <th>#</th>
                         <th>Course Title</th>
-                        <th>Description</th>
+                        <th>Watch Time (mins)</th>
+                        <th>View Limit</th>
                         <th>Created At</th>
                         <th>Actions</th>
                     </tr>
@@ -33,7 +34,8 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $course->title }}</td>
-                            <td>{{ Str::limit($course->description, 50) }}</td>
+                            <td>{{ $course->watch_time ?? '-' }}</td>
+                            <td>{{ $course->view_limit ?? '-' }}</td>
                             <td>{{ $course->created_at->format('d-m-Y') }}</td>
                             <td>
                                 <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-sm btn-warning">✏️ Edit</a>

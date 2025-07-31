@@ -14,5 +14,7 @@ class ScormPackage extends Model
         'zip_path',
         'user_id',
          'launch_file',
+         'watch_time',
+         'view_limit',
     ];
 }

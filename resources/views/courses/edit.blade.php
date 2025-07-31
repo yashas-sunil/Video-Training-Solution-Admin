@@ -30,9 +30,19 @@
                             <input type="text" name="title" id="title" value="{{ old('title', $course->title) }}" class="form-control" required>
                         </div>
 
-                        <div class="mb-3">
+                        {{-- <div class="mb-3">
                             <label for="description" class="form-label">Course Description</label>
                             <textarea name="description" id="description" rows="4" class="form-control" required>{{ old('description', $course->description) }}</textarea>
+                        </div> --}}
+
+                        <div class="mb-3">
+                            <label for="view_limit" class="form-label">View Limit</label>
+                            <input type="number" name="view_limit" id="view_limit" class="form-control" value="{{ old('view_limit', $course->view_limit) }}" min="0" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="watch_time" class="form-label">Watch Time (in minutes)</label>
+                            <input type="number" name="watch_time" id="watch_time" class="form-control" value="{{ old('watch_time', $course->watch_time) }}" min="0" required>
                         </div>
 
                         <div class="d-flex justify-content-between">
