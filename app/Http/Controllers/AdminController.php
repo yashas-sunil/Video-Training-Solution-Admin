@@ -108,42 +108,40 @@ class AdminController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|alpha_spaces',
-            'email' => 'required|email|unique:users',
-            'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
-            'role' => 'required',
-        ]);
+  public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|alpha_spaces',
+        'email' => 'required|email|unique:users',
+        'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
+        'role' => 'required',
+        'password' => 'required|min:6' 
+    ]);
+//dd($request->all());
 
-        $admin = new Admin();
-        $admin->name = $request->name;
-        $admin->email = $request->email;
-        $admin->country_code = $request->mobile_code;
-        $admin->phone = $request->mobile;
-        $password = Str::random(8);
-        $admin->password = Hash::make($password);
-        $admin->role = $request->role;
+    $admin = new Admin();
+    $admin->name = $request->name;
+    $admin->email = $request->email;
+    $admin->country_code = $request->mobile_code;
+    $admin->phone = $request->mobile;
+    $admin->password = Hash::make($request->password); 
+    $admin->role = $request->role;
+//dd($admin->all());
+    $user_details['name'] = $admin->name;
+    $user_details['email'] = $admin->email;
+    $user_details['password'] = $request->password; 
+    $user_details['phone'] = $admin->phone;
 
-        $user_details['name'] = $admin->name;
-        $user_details['email'] = $admin->email;
-        $user_details['password'] = $password;
-        $user_details['phone'] = $admin->phone;
-        try{
-            // Mail::send(new ProfessorRegisterMail($user_details));
-            Mail::send(new AdminRolesMail($user_details));
-        }
-        catch (\Exception $exception) {
-            info($exception->getMessage(), ['exception' => $exception]);
-        }
-
-
-
-        $admin->save();
-
-        return redirect(route('admins.index'))->with('success', 'Admin successfully created');
+    try {
+        Mail::send(new AdminRolesMail($user_details));
+    } catch (\Exception $exception) {
+        info($exception->getMessage(), ['exception' => $exception]);
     }
+
+    $admin->save();
+
+    return redirect(route('admins.index'))->with('success', 'Admin successfully created');
+}
 
     /**
      * Display the specified resource.
