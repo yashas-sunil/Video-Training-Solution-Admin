@@ -30,10 +30,13 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Auth::routes([
-//     'register' => false
-// ]);
-Auth ::routes();
+Auth::routes(['register' => false]);
+
+// Just in case someone manually goes to /register
+Route::get('/register', function () {
+    return redirect()->route('login');
+});
+
 
 
 Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
