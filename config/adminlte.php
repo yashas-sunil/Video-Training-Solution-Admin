@@ -218,418 +218,418 @@ return [
             'url'         => 'admins',
             'icon'        => 'far fa-user',
         ],
-         [
-            'text'        => 'Ask A Question',
-            'url'         => 'questions/professors',
-            'icon'        => 'fa fa-question'
-        ],
-        [
-            'text'        => 'Associates',
-            'url'         => 'agents',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'    => 'Blogs',
-            'icon'    => 'fa fa-file',
-            'submenu' => [
-                [
-                    'text'        => 'Blogs',
-                    'url'         => 'blogs',
-                    'icon'        => 'fa fa-blog',
-                ],
-                [
-                    'text'        => 'Categories',
-                    'url'         => 'blogs/categories',
-                ],
-                [
-                    'text'        => 'Tags',
-                    'url'         => 'blogs/tags',
-                ],
-            ],
-        ],
-        [
-            'text'        => 'Call Requests',
-            'url'         => 'call-requests',
-            'icon'        => 'fa fa-phone',
-        ],
-        [
-            'text'    => 'Campaigns',
-            'icon'    => 'fa fa-bullhorn',
-            'submenu' => [
+        //  [
+        //     'text'        => 'Ask A Question',
+        //     'url'         => 'questions/professors',
+        //     'icon'        => 'fa fa-question'
+        // ],
+        // [
+        //     'text'        => 'Associates',
+        //     'url'         => 'agents',
+        //     'icon'        => 'fa fa-users',
+        // ],
+        // [
+        //     'text'    => 'Blogs',
+        //     'icon'    => 'fa fa-file',
+        //     'submenu' => [
+        //         [
+        //             'text'        => 'Blogs',
+        //             'url'         => 'blogs',
+        //             'icon'        => 'fa fa-blog',
+        //         ],
+        //         [
+        //             'text'        => 'Categories',
+        //             'url'         => 'blogs/categories',
+        //         ],
+        //         [
+        //             'text'        => 'Tags',
+        //             'url'         => 'blogs/tags',
+        //         ],
+        //     ],
+        // ],
+        // [
+        //     'text'        => 'Call Requests',
+        //     'url'         => 'call-requests',
+        //     'icon'        => 'fa fa-phone',
+        // ],
+        // [
+        //     'text'    => 'Campaigns',
+        //     'icon'    => 'fa fa-bullhorn',
+        //     'submenu' => [
               
-                [
-                    'text'        => 'Campaign Registration',
-                    'url'         => 'campaign-registrations'
-                ],
-                [
-                    'text'        => 'Spin Wheel Campaign',
-                    'url'         => 'spin-wheel-campaigns',
-                ]
-            ],
-        ],
-        [
-            'text'        => 'Can Not Find Enquiry',
-            'url'         => 'can-not-find-enquire',
-            'icon'        => 'fas fa-envelope'
-        ],
-        [
-            'text'        => 'CSEET Students',
-            'url'         => 'cseet-students',
-            'icon'        => 'fa fa-users'
-        ],
-        [
-            'text'    => ' Deal Of the day',
-            'icon'    => 'fa fa-book-reader',
-            'url'     => 'deal_of_day',
+        //         [
+        //             'text'        => 'Campaign Registration',
+        //             'url'         => 'campaign-registrations'
+        //         ],
+        //         [
+        //             'text'        => 'Spin Wheel Campaign',
+        //             'url'         => 'spin-wheel-campaigns',
+        //         ]
+        //     ],
+        // ],
+        // [
+        //     'text'        => 'Can Not Find Enquiry',
+        //     'url'         => 'can-not-find-enquire',
+        //     'icon'        => 'fas fa-envelope'
+        // ],
+        // [
+        //     'text'        => 'CSEET Students',
+        //     'url'         => 'cseet-students',
+        //     'icon'        => 'fa fa-users'
+        // ],
+        // [
+        //     'text'    => ' Deal Of the day',
+        //     'icon'    => 'fa fa-book-reader',
+        //     'url'     => 'deal_of_day',
 
-        ],
-        [
-            'text'        => 'Dispatch',
-            'url'         => 'purchases',
-            'icon'        => 'far fa-paper-plane',
-        ],
-        [
-            'text'        => 'Free Resources',
-            'url'         => 'free-resource',
-            'icon'        => 'far fa-fw fa-file',
-        ],
-        [
-            'text'        => 'Home Page',
-            'icon'        => 'far fa-images',
-            'submenu'     =>[
-                [
-                    'text'        => 'Banners',
-                    'url'         => 'banners',
-                ],
-                [
-                    'text'        => 'Count Setting',
-                    'url'         => 'count-setting',
-                    ],
-                [
-                    'text'        => 'Sections',
-                    'url'         => 'sections',
+        // ],
+        // [
+        //     'text'        => 'Dispatch',
+        //     'url'         => 'purchases',
+        //     'icon'        => 'far fa-paper-plane',
+        // ],
+        // [
+        //     'text'        => 'Free Resources',
+        //     'url'         => 'free-resource',
+        //     'icon'        => 'far fa-fw fa-file',
+        // ],
+        // [
+        //     'text'        => 'Home Page',
+        //     'icon'        => 'far fa-images',
+        //     'submenu'     =>[
+        //         [
+        //             'text'        => 'Banners',
+        //             'url'         => 'banners',
+        //         ],
+        //         [
+        //             'text'        => 'Count Setting',
+        //             'url'         => 'count-setting',
+        //             ],
+        //         [
+        //             'text'        => 'Sections',
+        //             'url'         => 'sections',
     
-                ],
+        //         ],
                 
 
-            ]
-        ],
-        [
-            'text'        => 'Import Students',
-            'url'         => 'students/import',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'        => 'Invoice Regenerate',
-            'url'         => 'invoiceRegenerate',
-            'icon'        => 'fa fa-file'
-        ],
+        //     ]
+        // ],
+        // [
+        //     'text'        => 'Import Students',
+        //     'url'         => 'students/import',
+        //     'icon'        => 'fa fa-users',
+        // ],
+        // [
+        //     'text'        => 'Invoice Regenerate',
+        //     'url'         => 'invoiceRegenerate',
+        //     'icon'        => 'fa fa-file'
+        // ],
         [
             'text'    => 'Masters',
             'icon'    => 'fas fa-users-cog',
             'submenu' => [
-                [
-                    'text'        => 'Chapters',
-                    'url'         => 'chapters'
-                ],
-                [
-                    'text'        => 'Courier Partners',
-                    'url'         => 'couriers'
-                ],
+                // [
+                //     'text'        => 'Chapters',
+                //     'url'         => 'chapters'
+                // ],
+                // [
+                //     'text'        => 'Courier Partners',
+                //     'url'         => 'couriers'
+                // ],
                 [
                     'text'        => 'Courses',
                     'url'         => 'courses'
                 ],
-                [
-                    'text'        => 'Levels',
-                    'url'         => 'levels'
-                ],
-                [
-                    'text'        => 'Modules',
-                    'url'         => 'modules'
-                ],
-                [
-                    'text'        => 'SMS Master',
-                    'url'         => 'sms'
-                ],
-                [
-                    'text'        => 'Subjects',
-                    'url'         => 'subjects'
-                ],
-                [
-                    'text'        => 'Study Materials',
-                    'url'         => 'study-materials'
-                ],
-                [
-                    'text'        => 'Types',
-                    'url'         => 'type'
-                ],
+                // [
+                //     'text'        => 'Levels',
+                //     'url'         => 'levels'
+                // ],
+                // [
+                //     'text'        => 'Modules',
+                //     'url'         => 'modules'
+                // ],
+                // [
+                //     'text'        => 'SMS Master',
+                //     'url'         => 'sms'
+                // ],
+                // [
+                //     'text'        => 'Subjects',
+                //     'url'         => 'subjects'
+                // ],
+                // [
+                //     'text'        => 'Study Materials',
+                //     'url'         => 'study-materials'
+                // ],
+                // [
+                //     'text'        => 'Types',
+                //     'url'         => 'type'
+                // ],
                    
             ],
         ],
-        [
-            'text'    => 'Notifications',
-            'icon'    => 'fas fa-bell',
-            'submenu' => [
-                [
-                    'text'        => 'Custom Notifications',
-                    'url'         => 'custom-notifications'
-                ],
-                [
-                    'text'        => 'High Priority Notifications',
-                    'url'         => 'high-priority-notifications'
-                ],
-            ],
-        ],
-        [
-            'text'    => 'Offers',
-            'icon'    => 'fas fa-fw fa-tags',
-            'submenu' => [
-                [
-                    'text'        => 'Create Coupons',
-                    'url'         => 'coupons/create',
-                ],
-                [
-                    'text'        => 'Holiday Scheme',
-                    'url'         => 'holiday-scheme',
-                ],
-                [
-                    'text'        => 'Holiday Scheme Usage',
-                    'url'         => 'holiday-scheme-usage',
-                ],
-                [
-                    'text'        => 'J-Koin Settings',
-                    'url'         => 'j-money-settings/create',
-                ],
-                [
-                    'text'        => 'J-Koin Usage',
-                    'url'         => 'j-money',
-                ],
-                [
-                    'text'        => 'List Coupons',
-                    'url'         => 'coupons',
-                ],
+        // [
+        //     'text'    => 'Notifications',
+        //     'icon'    => 'fas fa-bell',
+        //     'submenu' => [
+        //         [
+        //             'text'        => 'Custom Notifications',
+        //             'url'         => 'custom-notifications'
+        //         ],
+        //         [
+        //             'text'        => 'High Priority Notifications',
+        //             'url'         => 'high-priority-notifications'
+        //         ],
+        //     ],
+        // ],
+        // [
+        //     'text'    => 'Offers',
+        //     'icon'    => 'fas fa-fw fa-tags',
+        //     'submenu' => [
+        //         [
+        //             'text'        => 'Create Coupons',
+        //             'url'         => 'coupons/create',
+        //         ],
+        //         [
+        //             'text'        => 'Holiday Scheme',
+        //             'url'         => 'holiday-scheme',
+        //         ],
+        //         [
+        //             'text'        => 'Holiday Scheme Usage',
+        //             'url'         => 'holiday-scheme-usage',
+        //         ],
+        //         [
+        //             'text'        => 'J-Koin Settings',
+        //             'url'         => 'j-money-settings/create',
+        //         ],
+        //         [
+        //             'text'        => 'J-Koin Usage',
+        //             'url'         => 'j-money',
+        //         ],
+        //         [
+        //             'text'        => 'List Coupons',
+        //             'url'         => 'coupons',
+        //         ],
                
-            ],
-        ],
-        [
-            'text' => 'Orders',
-            'url'  => 'agent-orders',
-            'icon'  => 'fas fa-user',
-        ],
-        [
-            'text'    => 'Packages',
-            'icon'    => 'fa fa-book-reader',
-            'submenu' => [
-//                [
-//                    'text'        => 'All Packages',
-//                    'url'         => 'packages'
-//                ],
-                [
-                    'text' => 'All packages',
-                    'url'  => 'all-packages'
-                ],
-                [
-                    'text' => 'Archived packages',
-                    'url'  => 'archived-packages'
+        //     ],
+        // ],
+        // [
+        //     'text' => 'Orders',
+        //     'url'  => 'agent-orders',
+        //     'icon'  => 'fas fa-user',
+        // ],
+//         [
+//             'text'    => 'Packages',
+//             'icon'    => 'fa fa-book-reader',
+//             'submenu' => [
+// //                [
+// //                    'text'        => 'All Packages',
+// //                    'url'         => 'packages'
+// //                ],
+//                 [
+//                     'text' => 'All packages',
+//                     'url'  => 'all-packages'
+//                 ],
+//                 [
+//                     'text' => 'Archived packages',
+//                     'url'  => 'archived-packages'
 
-                ],
-                [
-                    'text'        => 'Chapter Level Package',
-                    'url'         => 'packages/chapter/create'
-                ],
-                [
-                    'text'        => 'Customize Package',
-                    'url'         => 'packages/customize/create'
-                ],
-                [
-                    'text' => 'Drafted Packages',
-                    'url'  => 'drafted-packages'
+//                 ],
+//                 [
+//                     'text'        => 'Chapter Level Package',
+//                     'url'         => 'packages/chapter/create'
+//                 ],
+//                 [
+//                     'text'        => 'Customize Package',
+//                     'url'         => 'packages/customize/create'
+//                 ],
+//                 [
+//                     'text' => 'Drafted Packages',
+//                     'url'  => 'drafted-packages'
 
-                ],
-                [
-                    'text'        => 'Package Extensions',
-                    'url'         => 'package-extensions'
-                ],
-                [
-                    'text'        => 'Professor Revenues',
-                    'url'         => 'packages/professor/revenues'
-                ],
-                [
-                    'text' => 'Published Packages',
-                    'url'  => 'published-packages'
+//                 ],
+//                 [
+//                     'text'        => 'Package Extensions',
+//                     'url'         => 'package-extensions'
+//                 ],
+//                 [
+//                     'text'        => 'Professor Revenues',
+//                     'url'         => 'packages/professor/revenues'
+//                 ],
+//                 [
+//                     'text' => 'Published Packages',
+//                     'url'  => 'published-packages'
 
-                ],
-//                [
-//                    'text' => 'Archived packages',
-//                    'url'  => 'archived-packages'
-//
-//                ],
+//                 ],
+// //                [
+// //                    'text' => 'Archived packages',
+// //                    'url'  => 'archived-packages'
+// //
+// //                ],
                
-                [
-                    'text'        => 'Subject Level Package',
-                    'url'         => 'packages/subject/create'
-                ],
+//                 [
+//                     'text'        => 'Subject Level Package',
+//                     'url'         => 'packages/subject/create'
+//                 ],
                
                 
               
-            ],
-        ],
-        [
-            'text'        => 'Prepaid',
-            'url'         => 'prepaid-packages',
-            'icon'        => 'fas fa-file'
-        ],
-        [
-            'text'        => 'Professors',
-            'url'         => 'professors',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'    => 'Quiz',
-            'icon'    => 'fa fa-question',
-            'submenu' => [
-                [
-                    'text'        => 'Master',
-                    'icon'        => 'fas fa-table',
-                    'submenu' => [
-                [
-                    'text'        => 'Instruction',
-                    'icon'        => 'far fa-circle',
-                    'url'         => 'quiz/instruction',
-                ],],
-                ],
-                [
-                    'text'        => 'Paragraph',
-                    'icon'        => 'fas fa-paragraph',
-                    'url'         => 'quiz/paragraph',
-                ],
-                [
-                    'text'        => 'Question Bank',
-                    'icon'        => 'fas fa-money-check',
-                    'url'         => 'quiz/question',
-                ],
-                // [
-                //     'text'        => 'Modules',
-                //     'icon'        => 'fas fa-archive',
-                //     'url'         => 'quiz/module',
-                // ],
-                [
-                    'text'        => 'Test',
-                    'icon'        => 'fas fa-box',
-                    'url'         => 'quiz/test',
-                ],
-                // [
-                //     'text'        => 'Event',
-                //     'icon'        => 'fas fa-calendar-week',
-                //     'url'         => 'quiz/event',
-                // ],
-            ],
-        ],
-        [
-            'text'        => 'Refund',
-            'url'         => 'refunds',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'    => 'Reports',
-            'icon'    => 'fa fa-file',
-            'submenu' => [
-                [
+//             ],
+//         ],
+//         [
+//             'text'        => 'Prepaid',
+//             'url'         => 'prepaid-packages',
+//             'icon'        => 'fas fa-file'
+//         ],
+//         [
+//             'text'        => 'Professors',
+//             'url'         => 'professors',
+//             'icon'        => 'fa fa-users',
+//         ],
+//         [
+//             'text'    => 'Quiz',
+//             'icon'    => 'fa fa-question',
+//             'submenu' => [
+//                 [
+//                     'text'        => 'Master',
+//                     'icon'        => 'fas fa-table',
+//                     'submenu' => [
+//                 [
+//                     'text'        => 'Instruction',
+//                     'icon'        => 'far fa-circle',
+//                     'url'         => 'quiz/instruction',
+//                 ],],
+//                 ],
+//                 [
+//                     'text'        => 'Paragraph',
+//                     'icon'        => 'fas fa-paragraph',
+//                     'url'         => 'quiz/paragraph',
+//                 ],
+//                 [
+//                     'text'        => 'Question Bank',
+//                     'icon'        => 'fas fa-money-check',
+//                     'url'         => 'quiz/question',
+//                 ],
+//                 // [
+//                 //     'text'        => 'Modules',
+//                 //     'icon'        => 'fas fa-archive',
+//                 //     'url'         => 'quiz/module',
+//                 // ],
+//                 [
+//                     'text'        => 'Test',
+//                     'icon'        => 'fas fa-box',
+//                     'url'         => 'quiz/test',
+//                 ],
+//                 // [
+//                 //     'text'        => 'Event',
+//                 //     'icon'        => 'fas fa-calendar-week',
+//                 //     'url'         => 'quiz/event',
+//                 // ],
+//             ],
+//         ],
+//         [
+//             'text'        => 'Refund',
+//             'url'         => 'refunds',
+//             'icon'        => 'fa fa-users',
+//         ],
+//         [
+//             'text'    => 'Reports',
+//             'icon'    => 'fa fa-file',
+//             'submenu' => [
+//                 [
 
-                    'text'        => 'Admin Activity',
-                    'url'         => 'admin-activity',
-                ],
-                [
+//                     'text'        => 'Admin Activity',
+//                     'url'         => 'admin-activity',
+//                 ],
+//                 [
 
-                    'text'        => 'Admin Activity Action',
-                    'url'         => 'admin-activity-action',
-                ],
-                [
-                    'text'        => 'Associate Orders',
-                    'url'         => 'reports/associate-orders',
-                ],
-                [
-                    'text'        => 'Call Requests',
-                    'url'         => 'call-requests',
-                ],
-                [
-                    'text'        => 'Email Log Report',
-                    'url'         => 'email-log',
-                ],
-                [
-                    'text'        => 'Imported Students',
-                    'url'         => 'reports/imported-students',
-                ],
-                [
+//                     'text'        => 'Admin Activity Action',
+//                     'url'         => 'admin-activity-action',
+//                 ],
+//                 [
+//                     'text'        => 'Associate Orders',
+//                     'url'         => 'reports/associate-orders',
+//                 ],
+//                 [
+//                     'text'        => 'Call Requests',
+//                     'url'         => 'call-requests',
+//                 ],
+//                 [
+//                     'text'        => 'Email Log Report',
+//                     'url'         => 'email-log',
+//                 ],
+//                 [
+//                     'text'        => 'Imported Students',
+//                     'url'         => 'reports/imported-students',
+//                 ],
+//                 [
 
-                    'text'        => 'Mobile Sign-Up Users',
-                    'url'         => 'user-list',
+//                     'text'        => 'Mobile Sign-Up Users',
+//                     'url'         => 'user-list',
 
-                ],
-                [
-                    'text'        => 'Order Revenue',
-                    'url'         => 'order-revenue',
-                ],
-                [
-                    'text'        => 'Orders',
-                    'url'         => 'orders',
-                ],
-                [
-                    'text'        => 'Packages',
-                    'url'         => 'package-reports',
-                ],
-                [
-                    'text'        => 'Payments',
-                    'url'         => 'reports/payments',
-                ],
-                [
-                    'text'        => 'Professor revenues',
-                    'url'         => 'professor-revenues',
-                ],
-                [
-                    'text'        => 'Sales',
-                    'url'         => 'sales'
-                ],
-                [
+//                 ],
+//                 [
+//                     'text'        => 'Order Revenue',
+//                     'url'         => 'order-revenue',
+//                 ],
+//                 [
+//                     'text'        => 'Orders',
+//                     'url'         => 'orders',
+//                 ],
+//                 [
+//                     'text'        => 'Packages',
+//                     'url'         => 'package-reports',
+//                 ],
+//                 [
+//                     'text'        => 'Payments',
+//                     'url'         => 'reports/payments',
+//                 ],
+//                 [
+//                     'text'        => 'Professor revenues',
+//                     'url'         => 'professor-revenues',
+//                 ],
+//                 [
+//                     'text'        => 'Sales',
+//                     'url'         => 'sales'
+//                 ],
+//                 [
 
-                    'text'        => 'Sales Revenue',
-                    'url'         => 'salesrevenue',
+//                     'text'        => 'Sales Revenue',
+//                     'url'         => 'salesrevenue',
 
-                ],
-                [
+//                 ],
+//                 [
 
-                    'text'        => 'Student Analytics',
-                    'url'         => 'student-analytics',
-                ],
-                [
-                    'text'        => 'Students',
-                    'url'         => 'students',
-                ],
-                [
+//                     'text'        => 'Student Analytics',
+//                     'url'         => 'student-analytics',
+//                 ],
+//                 [
+//                     'text'        => 'Students',
+//                     'url'         => 'students',
+//                 ],
+//                 [
 
-                    'text'        => 'Thane Vaibhav Registration',
-                    'url'         => 'reports/vaibhav-registration-details',
+//                     'text'        => 'Thane Vaibhav Registration',
+//                     'url'         => 'reports/vaibhav-registration-details',
 
-                ],
-//                [
-//                    'text'        => 'Agents',
-//                    'url'         => 'reports/agents',
-//                ],
+//                 ],
+// //                [
+// //                    'text'        => 'Agents',
+// //                    'url'         => 'reports/agents',
+// //                ],
               
-                [
-                    'text'        => 'Third Party Orders',
-                    'url'         => 'reports/third-party-orders',
-                ],
+//                 [
+//                     'text'        => 'Third Party Orders',
+//                     'url'         => 'reports/third-party-orders',
+//                 ],
               
-//                [
-//                    'text'        => 'Professor Payouts',
-//                    'url'         => 'reports/professor-payouts',
-//                ]
-                [
-                    'text'        => 'Videos',
-                    'url'         => 'reports/videos',
-                ],
+// //                [
+// //                    'text'        => 'Professor Payouts',
+// //                    'url'         => 'reports/professor-payouts',
+// //                ]
+//                 [
+//                     'text'        => 'Videos',
+//                     'url'         => 'reports/videos',
+//                 ],
                
               
                
@@ -638,90 +638,90 @@ return [
              
               
                
-            ],
-        ],
-        [
-            'text'        => 'Settings',
-            'url'         => 'settings',
-            'icon'        => 'fas fa-cog'
-        ],
-        [
-            'text'        => 'Student Usage',
-            'url'         => 'users/usage',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'    => 'Study Materials',
-            'icon'    => 'fas fa-fw fa-tags',
-            'submenu' => [
-                [
-                    'text'        => 'Package Study Materials',
-                    'url'         => 'package-study-materials',
-                ],
-            ],
-        ],
-        [
-            'text'        => 'Tech Support',
-            'url'         => 'techsupport',
-            'icon'        => 'fa fa-question'
-        ],
-        [
-            'text'    => ' Testimonials',
-            'icon'    => 'fas fa-quote-left',
-            'submenu' => [
+//             ],
+//         ],
+//         [
+//             'text'        => 'Settings',
+//             'url'         => 'settings',
+//             'icon'        => 'fas fa-cog'
+//         ],
+//         [
+//             'text'        => 'Student Usage',
+//             'url'         => 'users/usage',
+//             'icon'        => 'fa fa-users',
+//         ],
+//         [
+//             'text'    => 'Study Materials',
+//             'icon'    => 'fas fa-fw fa-tags',
+//             'submenu' => [
+//                 [
+//                     'text'        => 'Package Study Materials',
+//                     'url'         => 'package-study-materials',
+//                 ],
+//             ],
+//         ],
+//         [
+//             'text'        => 'Tech Support',
+//             'url'         => 'techsupport',
+//             'icon'        => 'fa fa-question'
+//         ],
+//         [
+//             'text'    => ' Testimonials',
+//             'icon'    => 'fas fa-quote-left',
+//             'submenu' => [
               
-                [
-                    'text'        => 'Custom Testimonials',
-                    'url'         => 'custom-testimonials',
-                ],
-                [
-                    'text'        => 'Feedback',
-                    'url'         => 'feedback',
-                ],
-                [
-                    'text'        => 'Feedback List',
-                    'url'         => 'feedback-list',
-                ],
-                [
-                    'text'        => 'Student Testimonials',
-                    'url'         => 'student-testimonials',
-                ],
-            ],
-        ],
-        [
-            'text'        => 'Third Party',
-            'url'         => 'third-party-agents',
-            'icon'        => 'fa fa-users',
-        ],
-        [
-            'text'        => 'Videos',
-            'url'         => 'videos',
-            'icon'        => 'fa fa-file-video',
-        ],
-        [
-            'text'        => 'S3 Videos',
-            'url'         => 's3-videos/create',
-            'icon'        => 'fa fa-file-video',
-        ],
-        [
-            'text'        => 'Rulebook',
-            'url'         => 'rule-book',
-            'icon'        => 'fa fa-file',
-        ],
+//                 [
+//                     'text'        => 'Custom Testimonials',
+//                     'url'         => 'custom-testimonials',
+//                 ],
+//                 [
+//                     'text'        => 'Feedback',
+//                     'url'         => 'feedback',
+//                 ],
+//                 [
+//                     'text'        => 'Feedback List',
+//                     'url'         => 'feedback-list',
+//                 ],
+//                 [
+//                     'text'        => 'Student Testimonials',
+//                     'url'         => 'student-testimonials',
+//                 ],
+//             ],
+//         ],
+//         [
+//             'text'        => 'Third Party',
+//             'url'         => 'third-party-agents',
+//             'icon'        => 'fa fa-users',
+//         ],
+//         [
+//             'text'        => 'Videos',
+//             'url'         => 'videos',
+//             'icon'        => 'fa fa-file-video',
+//         ],
+//         [
+//             'text'        => 'S3 Videos',
+//             'url'         => 's3-videos/create',
+//             'icon'        => 'fa fa-file-video',
+//         ],
+//         [
+//             'text'        => 'Rulebook',
+//             'url'         => 'rule-book',
+//             'icon'        => 'fa fa-file',
+//         ],
       
         
-        [
-            'text' => 'blog',
-            'url'  => 'admin/blog',
-            'can'  => 'manage-blog',
-        ],
+//         [
+//             'text' => 'blog',
+//             'url'  => 'admin/blog',
+//             'can'  => 'manage-blog',
+//         ],
        
         
-        [
-            'text'        => 'New Order',
-            'url'         => 'third-party-orders',
-            'icon'        => 'fa fa-users',
-        ],
+//         [
+//             'text'        => 'New Order',
+//             'url'         => 'third-party-orders',
+//             'icon'        => 'fa fa-users',
+//         ],
        
        
            
