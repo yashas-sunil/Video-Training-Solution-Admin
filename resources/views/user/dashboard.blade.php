@@ -104,6 +104,16 @@
             border-radius: 4px;
             font-size: 0.9rem;
         }
+        .btn-attempts {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 6px 12px;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -112,7 +122,6 @@
             border: 1px solid #ccc;
             font-size: 16px;
         }
-
         @media (max-width: 992px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -126,16 +135,44 @@
                 width: 100%;
             }
         }
+
+        /* Modal Styles */
+        #attemptModal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        #attemptModalContent {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<!-- Logo on top -->
+<!-- Logo -->
 <div class="top-logo-bar">
     <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
 </div>
 
-<!-- Navbar below logo -->
+<!-- Navbar -->
 <div class="navbar">
     <div class="user-info">
         <div style="text-align: left;">
@@ -149,24 +186,13 @@
     </div>
 </div>
 
+<!-- Main Content -->
 <div class="container">
     <div class="stats">
-        <div class="stat-card">
-            <h2>{{ $courses->count() }}</h2>
-            <p>Courses in Progress</p>
-        </div>
-        <div class="stat-card">
-            <h2>{{ $completedCourses }}</h2>
-            <p>Completed Courses</p>
-        </div>
-        <div class="stat-card">
-            <h2>{{ gmdate("H:i:s", $totalWatchTime) }}</h2>
-            <p>Total Watch Time</p>
-        </div>
-        <div class="stat-card">
-            <h2>{{ $totalCourses }}</h2>
-            <p>Total Courses Purchased</p>
-        </div>
+        <div class="stat-card"><h2>{{ $courses->count() }}</h2><p>Courses in Progress</p></div>
+        <div class="stat-card"><h2>{{ $completedCourses }}</h2><p>Completed Courses</p></div>
+        <div class="stat-card"><h2>{{ gmdate("H:i:s", $totalWatchTime) }}</h2><p>Total Watch Time</p></div>
+        <div class="stat-card"><h2>{{ $totalCourses }}</h2><p>Total Courses Purchased</p></div>
     </div>
 
     <h2>📚 Your Courses</h2>
@@ -185,10 +211,9 @@
                 <div class="course-info">
                     Status: <strong>{{ $progress->cmi_core_lesson_status ?? 'incomplete' }}</strong><br>
                     Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{ $percent }}%;"></div>
-                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: {{ $percent }}%;"></div></div>
                     <a href="javascript:void(0);" onclick="openScormWindow({{ $progress->course_id }})" class="btn-resume">▶ Resume</a>
+                    <a href="javascript:void(0);" class="btn-attempts" onclick="showAttempts('{{ optional($course)->title }}')">📊 View Attempts</a>
                 </div>
             </div>
         @empty
@@ -197,15 +222,20 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="attemptModal">
+    <div id="attemptModalContent">
+        <span class="close-btn" onclick="document.getElementById('attemptModal').style.display='none'">&times;</span>
+        <h3>Quiz Attempts</h3>
+        <div id="attemptContent">Loading...</div>
+    </div>
+</div>
+
 <script>
     function openScormWindow(courseId) {
         const width = screen.availWidth;
         const height = screen.availHeight;
-        const popup = window.open(
-            `/view/${courseId}`,
-            '_blank',
-            `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`
-        );
+        const popup = window.open(`/view/${courseId}`, '_blank', `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`);
         if (!popup || popup.closed || typeof popup.closed === 'undefined') {
             alert("Please allow popups for this site to view the course.");
         } else {
@@ -216,12 +246,37 @@
     document.getElementById("courseSearch").addEventListener("keyup", function () {
         const searchValue = this.value.toLowerCase();
         const courses = document.querySelectorAll(".course-card");
-
         courses.forEach(function (card) {
             const title = card.querySelector(".course-title").textContent.toLowerCase();
             card.style.display = title.includes(searchValue) ? "block" : "none";
         });
     });
+
+ function showAttempts(quizName) {
+    fetch(`/get-attempts?quiz_name=${encodeURIComponent(quizName)}`)
+        .then(res => res.json())
+        .then(data => {
+            const box = document.getElementById('attemptContent');
+            if (data.length === 0) {
+                box.innerHTML = "<p>No attempts found.</p>";
+            } else {
+                box.innerHTML = data.map(attempt => `
+                    <div style="border:1px solid #eee; padding:10px; margin-bottom:10px; background:#f9f9f9;">
+                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
+                        <strong>Chapter:</strong> ${attempt.chapter_name}<br>
+                        <strong>Score:</strong> ${attempt.score_percent}%
+                    </div>
+                `).join('');
+            }
+            document.getElementById('attemptModal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Failed to load attempts.");
+        });
+}
+
+
 </script>
 
 </body>

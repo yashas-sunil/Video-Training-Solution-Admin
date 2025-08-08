@@ -8,7 +8,7 @@ use App\ScormPackage as AppScormPackage;
 use ZipArchive;
 use Illuminate\Http\Request;
 use App\CourseProgress as AppCourseProgress;
-
+use App\Services\ScormCloudService;
 class ScormController extends Controller
 {
      public function showForm()
@@ -132,15 +132,22 @@ public function view($id)
     // Prepare resume values
     $resumeTime = optional($progress)->resume_from_time ?? 0;
     $lastLocation = optional($progress)->cmi_core_lesson_location ?? '';
-//dd($lastLocation);
+    $lessonStatus = optional($progress)->cmi_core_lesson_status ?? '';
+    $score = optional($progress)->cmi_core_score_raw ?? ''; // Optional: if you're tracking score
+    $suspendData = optional($progress->progress_data)['suspend_data'] ?? ''; //  Pass suspend_data
+
     return view('view', [
         'launchUrl'     => $launchUrl,
         'title'         => $package->title,
         'courseId'      => $id,
         'resumeTime'    => $resumeTime,
         'lastLocation'  => $lastLocation,
+        'lessonStatus'  => $lessonStatus,
+        'score'         => $score,
+        'suspendData'   => $suspendData, 
     ]);
 }
+
 
 
 
@@ -161,4 +168,11 @@ public function view($id)
     return response()->json(['status' => 'saved']);
 }
 
+    public function showCourses(ScormCloudService $scorm)
+    {
+       // dd(config('scorm.app_id'), config('scorm.secret'));
+
+        $courses = $scorm->getCourses();
+        return response()->json($courses);
+    }
 }
