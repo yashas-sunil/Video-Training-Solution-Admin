@@ -20,6 +20,6 @@ class QuizAttempt extends Model
         'attempt_number'
     ];
     protected $casts = [
-    'question_ids' => 'array', // ✅ Auto-convert to array when accessing
+    'question_ids' => 'array', 
 ];
 }

@@ -589,7 +589,12 @@ Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->
 Route::get('/user/dashboard', 'UserDashboardController@userindex')->name('user.dashboard')->middleware('auth');
 
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
+
 Route::get('/course/progress/get/{id}', 'CourseProgressController@get');
 
+Route::post('/quiz/save', 'CourseProgressController@store')->name('quiz.save');
 
+Route::get('/scorm-courses', 'ScormController@showCourses');
+// routes/web.php
+Route::get('/get-attempts', 'CourseProgressController@getAttempts');
 
