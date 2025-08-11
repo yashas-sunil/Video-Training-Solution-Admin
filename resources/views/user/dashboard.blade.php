@@ -252,7 +252,8 @@
         });
     });
 
- function showAttempts(quizName) {
+ // Pehle attempts ka summary list dikhana
+function showAttempts(quizName) {
     fetch(`/get-attempts?quiz_name=${encodeURIComponent(quizName)}`)
         .then(res => res.json())
         .then(data => {
@@ -260,29 +261,18 @@
             if (data.length === 0) {
                 box.innerHTML = "<p>No attempts found.</p>";
             } else {
-                box.innerHTML = data.map(attempt => `
-                    <div style="border:1px solid #ccc; padding:15px; margin-bottom:15px; background:#fff; border-radius:8px;">
-                        <div style="margin-bottom:10px;">
-                            <strong>Attempt:</strong> ${attempt.attempt_number}<br>
-                            <strong>Chapter:</strong> ${attempt.chapter_name}<br>
-                            <strong>Score:</strong> ${attempt.score_percent}%
-                        </div>
-                        <div>
-                            <strong>Questions:</strong>
-                            <ol style="padding-left: 20px; margin-top: 10px;">
-                              ${attempt.questions.map(q => `
-                                <li style="margin-bottom: 15px; padding:8px; background:#f9f9f9; border-radius:6px;">
-                                  <div style="font-weight:bold;">${q.question_id}</div>
-                                  ${q.correct_answer ? `<div>✅ <strong>Correct Answer:</strong> ${q.correct_answer}</div>` : ''}
-                                  <div>🧍 <strong>Your Answer:</strong> ${q.user_answer ?? 'N/A'}</div>
-                                  <div style="color:${q.is_correct ? 'green' : 'red'}; font-weight:bold;">
-                                  </div>
-                                </li>
-                              `).join('')}
-                            </ol>
-                        </div>
+                box.innerHTML = data.map((attempt, idx) => `
+                    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; background:#f9f9f9;">
+                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
+                        <strong>Chapter:</strong> ${attempt.chapter_name}<br>
+                        <strong>Score:</strong> ${attempt.score_percent}%<br>
+                        <button onclick="viewAttemptQuestions(${idx}, '${quizName}')"
+                            style="margin-top:8px; padding:4px 8px;">View Questions</button>
                     </div>
                 `).join('');
+
+                // Data ko global store karte hain taki dobara fetch na karna pade
+                window.attemptData = data;
             }
             document.getElementById('attemptModal').style.display = 'block';
         })
@@ -291,6 +281,29 @@
             alert("Failed to load attempts.");
         });
 }
+
+// Specific attempt ke questions dikhana
+function viewAttemptQuestions(index, quizName) {
+    const attempt = window.attemptData[index];
+    const box = document.getElementById('attemptContent');
+
+    box.innerHTML = `
+        <button onclick="showAttempts('${quizName}')"
+            style="margin-bottom:15px; padding:4px 8px;">⬅ Back</button>
+        <h3>Attempt: ${attempt.attempt_number}</h3>
+        <h4>Chapter: ${attempt.chapter_name}</h4>
+        <h4>Score: ${attempt.score_percent}%</h4>
+        <ul style="padding-left:20px; margin-top:10px;">
+            ${attempt.questions.map(q => `
+                <li style="margin-bottom:12px;">
+                    <div><strong>${q.question_id}</strong></div>
+                    <div>🧍 Your Answer: ${q.user_answer}</div>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+}
+
 
 
 
