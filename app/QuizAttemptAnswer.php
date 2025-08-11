@@ -13,5 +13,7 @@ class QuizAttemptAnswer extends Model
         'question_id',
         'user_answer',
         'attempt_number',
+        'correct_answer',
+        'is_correct'
     ];
 }

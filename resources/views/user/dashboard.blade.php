@@ -300,21 +300,34 @@ function viewAttemptQuestions(index, quizName) {
         </div>
 
         <div>
-            ${attempt.questions.map((q, i) => `
-                <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                    <div style="font-weight:bold; margin-bottom:6px;">
-                        Q${i + 1}: ${q.question_id}
-                    </div>
+            ${attempt.questions.map((q, i) => {
+                const isCorrect = q.is_correct ? '✅ Correct' : '❌ Wrong';
+                const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
-                    <div style="margin:3px 0; color:#555;">
-                        🧍 Your Answer: ${q.user_answer}
+                return `
+                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                        <div style="font-weight:bold; margin-bottom:6px;">
+                            Q${i + 1}: ${q.question_id}
+                        </div>
+
+                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                            🧍 Your Answer: ${q.user_answer || '-'}
+                        </div>
+
+                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                            📌 Correct Answer: ${q.correct_answer || '-'}
+                        </div>
+
+                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                            ${isCorrect}
+                        </div>
                     </div>
-                    </div>
-                </div>
-            `).join('')}
+                `;
+            }).join('')}
         </div>
     `;
 }
+
 
 </script>
 

@@ -70,7 +70,7 @@
 
         // Parse quiz data
         const quizData = {};
-        const regex = /cmi\.interactions\.(\d+)\.(id|result|student_response)/;
+        const regex = /cmi\.interactions\.(\d+)\.(id|result|student_response|correct_responses\.0\.pattern)/;
 
         for (const key in rawInteractions) {
             const match = key.match(regex);
@@ -78,10 +78,15 @@
             const index = match[1];
             const field = match[2];
             if (!quizData[index]) quizData[index] = {};
-            quizData[index][field] = rawInteractions[key];
+
+            if (field === 'correct_responses.0.pattern') {
+                quizData[index]['correct_answer'] = rawInteractions[key];
+            } else {
+                quizData[index][field] = rawInteractions[key];
+            }
         }
 
-        // Group per chapter with wrong count + question IDs + student answers
+        // Group per chapter
         const chapterScores = {};
 
         for (const index in quizData) {
@@ -95,7 +100,7 @@
                     total: 0,
                     correct: 0,
                     question_ids: [],
-                    answers: [] // student answers store karne ke liye
+                    answers: []
                 };
             }
 
@@ -103,7 +108,8 @@
             chapterScores[chapter].question_ids.push(id);
             chapterScores[chapter].answers.push({
                 question_id: id,
-                student_answer: item.student_response || ''
+                student_answer: item.student_response || '',
+                correct_answer: item.correct_answer || ''
             });
 
             if ((item.result || '').toLowerCase() === 'correct') {

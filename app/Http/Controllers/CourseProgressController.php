@@ -77,13 +77,12 @@ public function get($id)
 
 public function store(Request $request)
 {
-  // dd($request->all());
     $userId = auth()->id();
 
     foreach ($request->results as $result) {
         $rawNewQuestions = $result['question_ids'] ?? [];
 
-        // Group questions by their __ID (attempt number)
+        // Group questions by attempt number
         $groupedByAttemptId = [];
         foreach ($rawNewQuestions as $q) {
             if (preg_match('/__(\d+)$/', $q, $matches)) {
@@ -102,7 +101,6 @@ public function store(Request $request)
 
             $totalQuestions = count($questionsInThisAttempt);
             $correct = $result['correct_answers'] ?? 0;
-            $wrong = $result['wrong_answers'] ?? 0;
 
             $score = $totalQuestions > 0
                 ? round(($correct / ($result['total_questions'] ?? $totalQuestions)) * $totalQuestions)
@@ -137,34 +135,39 @@ public function store(Request $request)
                 $newAttempt->save();
             }
 
-     foreach ($questionsInThisAttempt as $questionId) {
-    
-   $attemptNumberFromId = 1; 
-if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
-    $attemptNumberFromId = (int)$matches[1];
-}
+            // Save each question answer with correct/wrong info
+            foreach ($questionsInThisAttempt as $questionId) {
+                $attemptNumberFromId = 1; 
+                if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
+                    $attemptNumberFromId = (int)$matches[1];
+                }
 
-    // Student answer nikalna
-    $studentAnswer = null;
-    if (!empty($result['student_answers'])) {
-        foreach ($result['student_answers'] as $ans) {
-            if ($ans['question_id'] === $questionId) {
-                $studentAnswer = $ans['student_answer'] ?? null;
-                break;
+                $studentAnswer = null;
+                $correctAnswer = null;
+                $isCorrect = false;
+
+                if (!empty($result['student_answers'])) {
+                    foreach ($result['student_answers'] as $ans) {
+                        if ($ans['question_id'] === $questionId) {
+                            $studentAnswer = $ans['student_answer'] ?? null;
+                            $correctAnswer = $ans['correct_answer'] ?? null;
+                            $isCorrect = ($studentAnswer === $correctAnswer);
+                            break;
+                        }
+                    }
+                }
+//dd($correctAnswer);
+                QuizAttemptAnswer::create([
+                    'user_id'        => $userId,
+                    'quiz_name'      => $request->quiz_name,
+                    'chapter_name'   => $result['chapter_name'],
+                    'attempt_number' => $attemptNumberFromId, 
+                    'question_id'    => $questionId,
+                    'user_answer'    => $studentAnswer,
+                    'correct_answer' => $correctAnswer,
+                    'is_correct'     => $isCorrect,
+                ]);
             }
-        }
-    }
-//dd($attemptNumberFromId);
-    QuizAttemptAnswer::create([
-        'user_id'        => $userId,
-        'quiz_name'      => $request->quiz_name,
-        'chapter_name'   => $result['chapter_name'],
-        'attempt_number' => $attemptNumberFromId, 
-        'question_id'    => $questionId,
-        'user_answer'    => $studentAnswer,
-    ]);
-}
-
         }
     }
 
@@ -173,10 +176,11 @@ if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
 
 
 
+
 public function getAttempts(Request $request)
 {
     $quizName = $request->query('quiz_name');
-    $userId = auth()->id();
+    $userId   = auth()->id();
 
     // Pehle attempts fetch karo
     $attempts = AppQuizAttempt::where('user_id', $userId)
@@ -198,11 +202,17 @@ public function getAttempts(Request $request)
             $cleanId = preg_replace('/___\d+$/', '', $ans->question_id); // Attempt suffix remove
             $cleanId = str_replace('_', ' ', $cleanId); // underscores → spaces
 
+            // Compare lowercased & trimmed answers
+            $isCorrect = false;
+            if (!empty($ans->correct_answer) && !empty($ans->user_answer)) {
+                $isCorrect = trim(strtolower($ans->user_answer)) === trim(strtolower($ans->correct_answer));
+            }
+
             return [
-                'question_id'     => $cleanId,
-                'user_answer'     => $ans->user_answer,
-                'correct_answer'  => $ans->correct_answer ?? null, // Agar DB me column hai
-                'is_correct'      => isset($ans->correct_answer) && $ans->user_answer == $ans->correct_answer
+                'question_id'    => $cleanId,
+                'user_answer'    => $ans->user_answer ?? '',
+                'correct_answer' => $ans->correct_answer ?? '', 
+                'is_correct'     => $isCorrect
             ];
         });
 
@@ -216,7 +226,6 @@ public function getAttempts(Request $request)
 
     return response()->json($data);
 }
-
 
 
 
