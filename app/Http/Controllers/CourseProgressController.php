@@ -135,39 +135,44 @@ public function store(Request $request)
                 $newAttempt->save();
             }
 
-            // Save each question answer with correct/wrong info
-            foreach ($questionsInThisAttempt as $questionId) {
-                $attemptNumberFromId = 1; 
-                if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
-                    $attemptNumberFromId = (int)$matches[1];
-                }
+           foreach ($questionsInThisAttempt as $questionId) {
+    $attemptNumberFromId = 1; // Default = 1
 
-                $studentAnswer = null;
-                $correctAnswer = null;
-                $isCorrect = false;
+    if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
+        $attemptNumberFromId = (int)$matches[1];
 
-                if (!empty($result['student_answers'])) {
-                    foreach ($result['student_answers'] as $ans) {
-                        if ($ans['question_id'] === $questionId) {
-                            $studentAnswer = $ans['student_answer'] ?? null;
-                            $correctAnswer = $ans['correct_answer'] ?? null;
-                            $isCorrect = ($studentAnswer === $correctAnswer);
-                            break;
-                        }
-                    }
-                }
-//dd($correctAnswer);
-                QuizAttemptAnswer::create([
-                    'user_id'        => $userId,
-                    'quiz_name'      => $request->quiz_name,
-                    'chapter_name'   => $result['chapter_name'],
-                    'attempt_number' => $attemptNumberFromId, 
-                    'question_id'    => $questionId,
-                    'user_answer'    => $studentAnswer,
-                    'correct_answer' => $correctAnswer,
-                    'is_correct'     => $isCorrect,
-                ]);
+        if ($attemptNumberFromId === 0) {
+            $attemptNumberFromId = 1;
+        }
+    }
+
+    $studentAnswer = null;
+    $correctAnswer = null;
+    $isCorrect = false;
+
+    if (!empty($result['student_answers'])) {
+        foreach ($result['student_answers'] as $ans) {
+            if ($ans['question_id'] === $questionId) {
+                $studentAnswer = $ans['student_answer'] ?? null;
+                $correctAnswer = $ans['correct_answer'] ?? null;
+                $isCorrect = ($studentAnswer === $correctAnswer);
+                break;
             }
+        }
+    }
+
+    QuizAttemptAnswer::create([
+        'user_id'        => $userId,
+        'quiz_name'      => $request->quiz_name,
+        'chapter_name'   => $result['chapter_name'],
+        'attempt_number' => $attemptNumberFromId, 
+        'question_id'    => $questionId,
+        'user_answer'    => $studentAnswer,
+        'correct_answer' => $correctAnswer,
+        'is_correct'     => $isCorrect,
+    ]);
+}
+
         }
     }
 
