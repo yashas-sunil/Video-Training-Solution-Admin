@@ -327,8 +327,6 @@ function viewAttemptQuestions(index, quizName) {
         </div>
     `;
 }
-
-
 </script>
 
 </body>
