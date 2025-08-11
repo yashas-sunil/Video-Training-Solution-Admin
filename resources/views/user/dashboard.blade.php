@@ -288,24 +288,33 @@ function viewAttemptQuestions(index, quizName) {
     const box = document.getElementById('attemptContent');
 
     box.innerHTML = `
-        <button onclick="showAttempts('${quizName}')"
-            style="margin-bottom:15px; padding:4px 8px;">⬅ Back</button>
-        <h3>Attempt: ${attempt.attempt_number}</h3>
-        <h4>Chapter: ${attempt.chapter_name}</h4>
-        <h4>Score: ${attempt.score_percent}%</h4>
-        <ul style="padding-left:20px; margin-top:10px;">
-            ${attempt.questions.map(q => `
-                <li style="margin-bottom:12px;">
-                    <div><strong>${q.question_id}</strong></div>
-                    <div>🧍 Your Answer: ${q.user_answer}</div>
-                </li>
+        <button onclick="showAttempts('${quizName}')" 
+            style="margin-bottom:15px; padding:6px 12px; border:none; background:#3498db; color:white; border-radius:4px; cursor:pointer;">
+            ⬅ Back
+        </button>
+
+        <div style="padding:15px; background:#f7f9fc; border-radius:6px; border:1px solid #ddd; margin-bottom:20px;">
+            <h3 style="margin-bottom:5px;">Attempt: ${attempt.attempt_number}</h3>
+            <p style="margin:4px 0;"><strong>Chapter:</strong> ${attempt.chapter_name}</p>
+            <p style="margin:4px 0;"><strong>Score:</strong> ${attempt.score_percent}%</p>
+        </div>
+
+        <div>
+            ${attempt.questions.map((q, i) => `
+                <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                    <div style="font-weight:bold; margin-bottom:6px;">
+                        Q${i + 1}: ${q.question_id}
+                    </div>
+
+                    <div style="margin:3px 0; color:#555;">
+                        🧍 Your Answer: ${q.user_answer}
+                    </div>
+                    </div>
+                </div>
             `).join('')}
-        </ul>
+        </div>
     `;
 }
-
-
-
 
 </script>
 
