@@ -129,12 +129,21 @@ public function view($id)
         ->where('course_id', $id)
         ->first();
 
-    // Prepare resume values
-    $resumeTime = optional($progress)->resume_from_time ?? 0;
-    $lastLocation = optional($progress)->cmi_core_lesson_location ?? '';
-    $lessonStatus = optional($progress)->cmi_core_lesson_status ?? '';
-    $score = optional($progress)->cmi_core_score_raw ?? ''; // Optional: if you're tracking score
-    $suspendData = optional($progress->progress_data)['suspend_data'] ?? ''; //  Pass suspend_data
+    // ✅ Safe default values for new users (or no progress yet)
+    $resumeTime = 0;
+    $lastLocation = '';
+    $lessonStatus = '';
+    $score = '';
+    $suspendData = '';
+
+    // ✅ If progress record exists, overwrite defaults
+    if ($progress) {
+        $resumeTime = $progress->resume_from_time ?? 0;
+        $lastLocation = $progress->cmi_core_lesson_location ?? '';
+        $lessonStatus = $progress->cmi_core_lesson_status ?? '';
+        $score = $progress->cmi_core_score_raw ?? '';
+        $suspendData = $progress->progress_data['suspend_data'] ?? '';
+    }
 
     return view('view', [
         'launchUrl'     => $launchUrl,

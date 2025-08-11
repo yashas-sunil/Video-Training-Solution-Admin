@@ -7,6 +7,8 @@ use App\CourseProgress as AppCourseProgress;
 use Illuminate\Http\Request;
 use App\Models\CourseProgress;
 use App\QuizAttempt as AppQuizAttempt;
+use App\Models\AppQuizAttemptAnswer;
+use App\QuizAttemptAnswer;
 
 class CourseProgressController extends Controller
 {
@@ -75,6 +77,7 @@ public function get($id)
 
 public function store(Request $request)
 {
+  // dd($request->all());
     $userId = auth()->id();
 
     foreach ($request->results as $result) {
@@ -82,19 +85,14 @@ public function store(Request $request)
 
         // Group questions by their __ID (attempt number)
         $groupedByAttemptId = [];
-
         foreach ($rawNewQuestions as $q) {
             if (preg_match('/__(\d+)$/', $q, $matches)) {
                 $attemptId = (int)$matches[1];
-                
-                //  If 0, treat it as 1
                 $attemptId = $attemptId === 0 ? 1 : $attemptId;
-
                 $groupedByAttemptId[$attemptId][] = $q;
             }
         }
 
-        // Loop through each group (based on __ID at end)
         foreach ($groupedByAttemptId as $attemptNumber => $questionsInThisAttempt) {
             $existingAttempt = AppQuizAttempt::where('user_id', $userId)
                 ->where('quiz_name', $request->quiz_name)
@@ -124,7 +122,6 @@ public function store(Request $request)
                 $existingAttempt->question_ids = json_encode(array_unique(array_merge($existingRaw, $questionsInThisAttempt)));
                 $existingAttempt->save();
             } else {
-                //  Create new
                 $newAttempt = new AppQuizAttempt();
                 $newAttempt->user_id = $userId;
                 $newAttempt->quiz_name = $request->quiz_name;
@@ -139,6 +136,35 @@ public function store(Request $request)
                 $newAttempt->question_ids = json_encode($questionsInThisAttempt);
                 $newAttempt->save();
             }
+
+     foreach ($questionsInThisAttempt as $questionId) {
+    
+   $attemptNumberFromId = 1; 
+if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
+    $attemptNumberFromId = (int)$matches[1];
+}
+
+    // Student answer nikalna
+    $studentAnswer = null;
+    if (!empty($result['student_answers'])) {
+        foreach ($result['student_answers'] as $ans) {
+            if ($ans['question_id'] === $questionId) {
+                $studentAnswer = $ans['student_answer'] ?? null;
+                break;
+            }
+        }
+    }
+//dd($attemptNumberFromId);
+    QuizAttemptAnswer::create([
+        'user_id'        => $userId,
+        'quiz_name'      => $request->quiz_name,
+        'chapter_name'   => $result['chapter_name'],
+        'attempt_number' => $attemptNumberFromId, 
+        'question_id'    => $questionId,
+        'user_answer'    => $studentAnswer,
+    ]);
+}
+
         }
     }
 
@@ -149,15 +175,46 @@ public function store(Request $request)
 
 public function getAttempts(Request $request)
 {
+    $quizName = $request->query('quiz_name');
     $userId = auth()->id();
-    $quizName = $request->quiz_name;
 
+    // Pehle attempts fetch karo
     $attempts = AppQuizAttempt::where('user_id', $userId)
         ->where('quiz_name', $quizName)
-        ->orderBy('attempt_number')
-        ->get(['attempt_number', 'chapter_name', 'score_percent']);
-//dd($attempts->all());
-    return response()->json($attempts);
+        ->orderByDesc('attempt_number')
+        ->get();
+
+    $data = $attempts->map(function ($attempt) use ($userId, $quizName) {
+
+        // Is attempt ke saare answers le aao
+        $answers = QuizAttemptAnswer::where('user_id', $userId)
+            ->where('quiz_name', $quizName)
+            ->where('chapter_name', $attempt->chapter_name)
+            ->where('attempt_number', $attempt->attempt_number)
+            ->get();
+
+        $questionsData = $answers->map(function ($ans) {
+            // Question ID clean karna
+            $cleanId = preg_replace('/___\d+$/', '', $ans->question_id); // Attempt suffix remove
+            $cleanId = str_replace('_', ' ', $cleanId); // underscores → spaces
+
+            return [
+                'question_id'     => $cleanId,
+                'user_answer'     => $ans->user_answer,
+                'correct_answer'  => $ans->correct_answer ?? null, // Agar DB me column hai
+                'is_correct'      => isset($ans->correct_answer) && $ans->user_answer == $ans->correct_answer
+            ];
+        });
+
+        return [
+            'attempt_number' => $attempt->attempt_number,
+            'chapter_name'   => $attempt->chapter_name,
+            'score_percent'  => $attempt->score_percent,
+            'questions'      => $questionsData
+        ];
+    });
+
+    return response()->json($data);
 }
 
 

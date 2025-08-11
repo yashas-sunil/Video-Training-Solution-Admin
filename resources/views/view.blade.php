@@ -60,7 +60,7 @@
         const percent = progressData['progress_percent'] || 0;
         const score = progressData['cmi.core.score.raw'] || null;
 
-        //  Collect all interaction data
+        // Collect all interaction data
         const rawInteractions = {};
         for (const key in progressData) {
             if (key.startsWith('cmi.interactions.')) {
@@ -68,7 +68,7 @@
             }
         }
 
-        //  Parse quiz data
+        // Parse quiz data
         const quizData = {};
         const regex = /cmi\.interactions\.(\d+)\.(id|result|student_response)/;
 
@@ -81,7 +81,7 @@
             quizData[index][field] = rawInteractions[key];
         }
 
-        //  Group per chapter with wrong count + question IDs
+        // Group per chapter with wrong count + question IDs + student answers
         const chapterScores = {};
 
         for (const index in quizData) {
@@ -94,31 +94,37 @@
                 chapterScores[chapter] = {
                     total: 0,
                     correct: 0,
-                    question_ids: []
+                    question_ids: [],
+                    answers: [] // student answers store karne ke liye
                 };
             }
 
             chapterScores[chapter].total++;
             chapterScores[chapter].question_ids.push(id);
+            chapterScores[chapter].answers.push({
+                question_id: id,
+                student_answer: item.student_response || ''
+            });
 
             if ((item.result || '').toLowerCase() === 'correct') {
                 chapterScores[chapter].correct++;
             }
         }
 
-        //  Final structure to send to backend
+        // Final structure to send to backend
         const chapterResults = Object.entries(chapterScores).map(([chapter, data]) => ({
             chapter_name: chapter,
             total_questions: data.total,
             correct_answers: data.correct,
             wrong_answers: data.total - data.correct,
             question_ids: data.question_ids,
+            student_answers: data.answers,
             score_percent: data.total > 0
                 ? Math.round((data.correct / data.total) * 100)
                 : 0
         }));
 
-        //  Save course progress
+        // Save course progress
         fetch("{{ url('/course/progress/save') }}", {
             method: 'POST',
             headers: {
@@ -137,7 +143,7 @@
             })
         });
 
-        //  Only save quiz if data is valid
+        // Save quiz data
         if (shouldSaveQuiz(chapterScores, quizData)) {
             const currentData = JSON.stringify(chapterResults);
             const lastSavedKey = '__last_saved_quiz_data__';
@@ -168,25 +174,15 @@
         }
     }
 
-    //  Only save if real questions present (updated)
     function shouldSaveQuiz(chapterScores, quizData) {
         for (const index in quizData) {
             const q = quizData[index];
-            if (
-                q &&
-                q.id &&
-                q.result &&
-                q.student_response &&
-                q.student_response.trim() !== ''
-            ) {
+            if (q && q.id && q.result && q.student_response && q.student_response.trim() !== '') {
                 return true;
             }
         }
         return false;
     }
-
-    // Auto-save (optional)
-    // setInterval(() => saveAllProgress(), 10000);
 </script>
 
 </body>

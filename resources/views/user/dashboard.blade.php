@@ -261,10 +261,26 @@
                 box.innerHTML = "<p>No attempts found.</p>";
             } else {
                 box.innerHTML = data.map(attempt => `
-                    <div style="border:1px solid #eee; padding:10px; margin-bottom:10px; background:#f9f9f9;">
-                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
-                        <strong>Chapter:</strong> ${attempt.chapter_name}<br>
-                        <strong>Score:</strong> ${attempt.score_percent}%
+                    <div style="border:1px solid #ccc; padding:15px; margin-bottom:15px; background:#fff; border-radius:8px;">
+                        <div style="margin-bottom:10px;">
+                            <strong>Attempt:</strong> ${attempt.attempt_number}<br>
+                            <strong>Chapter:</strong> ${attempt.chapter_name}<br>
+                            <strong>Score:</strong> ${attempt.score_percent}%
+                        </div>
+                        <div>
+                            <strong>Questions:</strong>
+                            <ol style="padding-left: 20px; margin-top: 10px;">
+                              ${attempt.questions.map(q => `
+                                <li style="margin-bottom: 15px; padding:8px; background:#f9f9f9; border-radius:6px;">
+                                  <div style="font-weight:bold;">${q.question_id}</div>
+                                  ${q.correct_answer ? `<div>✅ <strong>Correct Answer:</strong> ${q.correct_answer}</div>` : ''}
+                                  <div>🧍 <strong>Your Answer:</strong> ${q.user_answer ?? 'N/A'}</div>
+                                  <div style="color:${q.is_correct ? 'green' : 'red'}; font-weight:bold;">
+                                  </div>
+                                </li>
+                              `).join('')}
+                            </ol>
+                        </div>
                     </div>
                 `).join('');
             }
@@ -275,6 +291,7 @@
             alert("Failed to load attempts.");
         });
 }
+
 
 
 </script>
