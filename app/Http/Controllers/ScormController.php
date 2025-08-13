@@ -129,14 +129,14 @@ public function view($id)
         ->where('course_id', $id)
         ->first();
 
-    // ✅ Safe default values for new users (or no progress yet)
+    //  Safe default values for new users (or no progress yet)
     $resumeTime = 0;
     $lastLocation = '';
     $lessonStatus = '';
     $score = '';
     $suspendData = '';
 
-    // ✅ If progress record exists, overwrite defaults
+    //  If progress record exists, overwrite defaults
     if ($progress) {
         $resumeTime = $progress->resume_from_time ?? 0;
         $lastLocation = $progress->cmi_core_lesson_location ?? '';

@@ -14,13 +14,14 @@ class CourseProgressController extends Controller
 {
 public function save(Request $request)
 {
+  //  dd($request->all());
     $request->validate([
         'course_id' => 'required|integer',
         'session_time' => 'nullable|integer',
         'progress_percent' => 'nullable|integer',
         'cmi_core_lesson_location' => 'nullable|string',
         'cmi_core_lesson_status' => 'nullable|string',
-        'suspend_data' => 'nullable|string', // ✅ Validate suspend_data
+        'suspend_data' => 'nullable|string', 
     ]);
 
     $userId = auth()->id();
@@ -30,16 +31,16 @@ public function save(Request $request)
         'course_id' => $request->course_id,
     ]);
 
-    // ⏱️ Session time logic
+    //  Session time logic
     $oldTime = $progress->session_time ?? 0;
     $newTime = $request->session_time ?? 0;
     $totalSessionTime = max($oldTime, $newTime);
-
-    // 📘 Course duration
+//dd($newTime->all());
+    //  Course duration
     $course = AppScormPackage::find($request->course_id);
     $totalDuration = $course->duration_in_seconds ?? 0;
 
-    // ✅ Lesson status
+    //  Lesson status
     $status = $request->cmi_core_lesson_status ?? $progress->cmi_core_lesson_status;
     if ($totalDuration > 0 && $totalSessionTime >= $totalDuration) {
         $status = 'completed';
@@ -53,12 +54,14 @@ public function save(Request $request)
     $progress->progress_percent = $request->progress_percent ?? $progress->progress_percent ?? 0;
     $progress->last_watched_at = now();
 
-    // ✅ Store suspend_data in progress_data JSON column
+    //  Store suspend_data in progress_data JSON column
     $existingProgressData = $progress->progress_data ?? [];
     $existingProgressData['suspend_data'] = $request->suspend_data ?? null;
     $progress->progress_data = $existingProgressData;
-
+// dd($progress->all());
     $progress->save();
+   //dd("hello");
+   // dd($progress->toArray());
 
     return response()->json(['status' => 'success']);
 }
@@ -77,6 +80,7 @@ public function get($id)
 
 public function store(Request $request)
 {
+  //  dd($request->all());
     $userId = auth()->id();
 
     foreach ($request->results as $result) {
@@ -184,6 +188,7 @@ public function store(Request $request)
 
 public function getAttempts(Request $request)
 {
+    //dd($request->all());
     $quizName = $request->query('quiz_name');
     $userId   = auth()->id();
 

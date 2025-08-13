@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Assignedcourse;
 use App\CourseProgress;
 use Illuminate\Http\Request;
 use Auth;
@@ -59,36 +60,45 @@ public function userindex()
 {
     $userId = auth()->id();
 
-    // All course progress with course details
-    $courses = CourseProgress::with('course')
-                ->where('user_id', $userId)
-                ->get();
+    // Assigned courses ke saath unka progress (multiple sessions)
+    $assignedCourses = AssignedCourse::with(['course', 'progress' => function($query) use ($userId) {
+        $query->where('user_id', $userId);
+    }])->where('user_id', $userId)->get();
 
-    // Completed courses count
-    $completedCourses = $courses->filter(function ($course) {
-        return $course->cmi_core_lesson_status === 'completed';
+    $totalCourses = $assignedCourses->count();
+    $completedCoursesCount = 0;
+    $inProgressCount = 0;
+    $totalWatchTime = 0;
+
+    $coursesWithProgress = $assignedCourses->map(function ($assigned) use (&$completedCoursesCount, &$inProgressCount, &$totalWatchTime) {
+        $progressRecords = $assigned->progress;
+
+        // Total session time for this course
+        $courseWatchTime = $progressRecords->sum('session_time');
+        $totalWatchTime += $courseWatchTime;
+
+        // Status check — agar saare completed hai to complete, warna in-progress
+        if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
+            $completedCoursesCount++;
+        } elseif ($progressRecords->isNotEmpty()) {
+            $inProgressCount++;
+        }
+
+        return [
+            'course' => $assigned->course,
+            'progress' => $progressRecords,
+            'total_session_time' => $courseWatchTime
+        ];
     });
-
-    // In progress courses
-    $inProgressCourses = $courses->filter(function ($course) {
-        return $course->cmi_core_lesson_status !== 'completed';
-    });
-
-    // Total unique courses purchased
-    $totalCourses = $courses->pluck('course_id')->unique()->count();
-
-    // Total watch time in seconds
-    $totalWatchTime = $courses->sum('session_time');
 
     return view('user.dashboard', [
-        'courses' => $courses,
-        'pendingCourses' => $inProgressCourses,
-        'completedCourses' => $completedCourses->count(),
-        'inProgressCount' => $inProgressCourses->count(),
+        'courses' => $coursesWithProgress,
+        'pendingCourses' => $coursesWithProgress->filter(fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()),
+        'completedCourses' => $completedCoursesCount,
+        'inProgressCount' => $inProgressCount,
         'totalCourses' => $totalCourses,
         'totalWatchTime' => $totalWatchTime,
     ]);
 }
-
 
 }

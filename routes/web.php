@@ -594,7 +594,13 @@ Route::get('/course/progress/get/{id}', 'CourseProgressController@get');
 
 Route::post('/quiz/save', 'CourseProgressController@store')->name('quiz.save');
 
-Route::get('/scorm-courses', 'ScormController@showCourses');
+Route::get('/scorm-courses', 'ScormController@showCourses')->middleware('auth');
 // routes/web.php
 Route::get('/get-attempts', 'CourseProgressController@getAttempts');
+// Route::get('/assigned-courses', 'AssignedCourseController@index')->name('assigned_courses.index')->middleware('auth');
+// Route::get('/assigned-courses/create', 'AssignedCourseController@create')->name('assigned_courses.create')->middleware('auth');
+// Route::post('/assigned-courses', 'AssignedCourseController@store')->name('assigned_courses.store')->middleware('auth');
+// routes/web.php
+Route::resource('assigned-courses', 'AssignedCourseController');
+
 

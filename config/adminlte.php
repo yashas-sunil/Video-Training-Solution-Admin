@@ -342,11 +342,15 @@ return [
                     'text'        => 'Courses',
                     'url'         => 'courses'
                 ],
+                   [
+                    'text'        => 'Assigned-Courses',
+                    'url'         => 'assigned-courses'
+                ],
                 // [
                 //     'text'        => 'Levels',
                 //     'url'         => 'levels'
                 // ],
-                // [
+                // // [
                 //     'text'        => 'Modules',
                 //     'url'         => 'modules'
                 // ],
