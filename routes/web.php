@@ -602,5 +602,7 @@ Route::get('/get-attempts', 'CourseProgressController@getAttempts');
 // Route::post('/assigned-courses', 'AssignedCourseController@store')->name('assigned_courses.store')->middleware('auth');
 // routes/web.php
 Route::resource('assigned-courses', 'AssignedCourseController');
+Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
+
 
 

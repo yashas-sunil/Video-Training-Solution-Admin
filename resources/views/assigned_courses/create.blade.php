@@ -7,6 +7,9 @@
 @stop
 
 @section('content')
+{{-- Select2 CSS --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="container-fluid">
     <div class="card card-primary">
         <div class="card-header">
@@ -38,7 +41,7 @@
                 {{-- Select User --}}
                 <div class="form-group">
                     <label for="user_id">Select User <span class="text-danger">*</span></label>
-                    <select name="user_id" id="user_id" class="form-control" required>
+                    <select name="user_id" id="user_id" class="form-control select2" required>
                         <option value="">-- Select User --</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -49,7 +52,7 @@
                 {{-- Select Course --}}
                 <div class="form-group">
                     <label for="course_id">Select Course <span class="text-danger">*</span></label>
-                    <select name="course_id" id="course_id" class="form-control" required>
+                    <select name="course_id" id="course_id" class="form-control select2" required>
                         <option value="">-- Select Course --</option>
                         @foreach($courses as $course)
                             <option value="{{ $course->id }}">{{ $course->title }}</option>
@@ -60,7 +63,7 @@
                 {{-- Expire Date --}}
                 <div class="form-group">
                     <label for="expire_date">Expire Date</label>
-                    <input type="date" name="expire_date" id="expire_date" class="form-control">
+                    <input type="datetime-local" name="expire_date" id="expire_date" class="form-control">
                 </div>
 
             </div>
@@ -71,4 +74,35 @@
         </form>
     </div>
 </div>
+
+{{-- Select2 & AJAX Script --}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Enable Select2 search
+    $('.select2').select2({
+        width: '100%',
+        placeholder: "Select an option",
+        allowClear: true
+    });
+
+    function fetchExpireDate() {
+        let userId = $('#user_id').val();
+        let courseId = $('#course_id').val();
+
+        if (userId && courseId) {
+            fetch(`/course-expire-date/${courseId}?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                $('#expire_date').val(data.expire_date ? data.expire_date.replace(' ', 'T') : '');
+            })
+            .catch(err => console.error(err));
+        }
+    }
+
+    // Bind change event after Select2 initialization
+    $('#user_id, #course_id').on('change', fetchExpireDate);
+});
+</script>
 @stop

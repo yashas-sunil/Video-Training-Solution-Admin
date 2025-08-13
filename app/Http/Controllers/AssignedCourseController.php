@@ -18,24 +18,50 @@ class AssignedCourseController extends Controller
         return view('assigned_courses.create', compact('users', 'courses'));
     }
 
-    // Save karne ke liye
-    public function store(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'course_id' => 'required|exists:scorm_packages,id',
-            'expire_date' => 'nullable|date'
-        ]);
-        AssignedCourse::create([
+   public function getCourseExpireDate($courseId, Request $request)
+{
+    $userId = $request->query('user_id');
 
-            'user_id' => $request->user_id,
-            'course_id' => $request->course_id,
-            'expire_date' => $request->expire_date,
-            'enrolled_at' => now()
-        ]);
+    // Check if already assigned
+    $assigned = AssignedCourse::where('user_id', $userId)
+        ->where('course_id', $courseId)
+        ->first();
 
-        return redirect()->back()->with('success', 'Course successfully assigned to user!');
+    if ($assigned) {
+        return response()->json([
+            'expire_date' => $assigned->expire_date ? $assigned->expire_date->format('Y-m-d H:i') : null
+        ]);
     }
+
+    // If not assigned, calculate using watch_time
+    $course = AppScormPackage::findOrFail($courseId);
+    $expireDate = now()->addMinutes($course->watch_time)->format('Y-m-d H:i');
+
+    return response()->json(['expire_date' => $expireDate]);
+}
+
+
+    // Save karne ke liye
+   public function store(Request $request)
+{
+    $request->validate([
+        'user_id'   => 'required|exists:users,id',
+        'course_id' => 'required|exists:scorm_packages,id',
+    ]);
+
+    $course = AppScormPackage::findOrFail($request->course_id);
+    $expireDate = now()->addMinutes($course->watch_time);
+
+    AssignedCourse::create([
+        'user_id'     => $request->user_id,
+        'course_id'   => $request->course_id,
+        'expire_date' => $expireDate,
+        'enrolled_at' => now()
+    ]);
+
+    return redirect()->back()->with('success', 'Course successfully assigned to user!');
+}
+
 
     public function index()
     {
