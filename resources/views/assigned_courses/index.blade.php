@@ -6,6 +6,7 @@
     <h1>Assigned Courses</h1>
 @stop
 
+
 @section('content')
 <div class="container-fluid">
     {{-- Assign Course Button --}}
