@@ -80,7 +80,6 @@ public function get($id)
 
 public function store(Request $request)
 {
-  //  dd($request->all());
     $userId = auth()->id();
 
     foreach ($request->results as $result) {
@@ -91,7 +90,17 @@ public function store(Request $request)
         foreach ($rawNewQuestions as $q) {
             if (preg_match('/__(\d+)$/', $q, $matches)) {
                 $attemptId = (int)$matches[1];
-                $attemptId = $attemptId === 0 ? 1 : $attemptId;
+
+                if ($attemptId === 0) {
+                    // Get last attempt for this user+quiz+chapter
+                    $maxAttempt = AppQuizAttempt::where('user_id', $userId)
+                        ->where('quiz_name', $request->quiz_name)
+                        ->where('chapter_name', $result['chapter_name'])
+                        ->max('attempt_number');
+
+                    $attemptId = $maxAttempt ? $maxAttempt + 1 : 1;
+                }
+
                 $groupedByAttemptId[$attemptId][] = $q;
             }
         }
@@ -139,49 +148,51 @@ public function store(Request $request)
                 $newAttempt->save();
             }
 
-           foreach ($questionsInThisAttempt as $questionId) {
-    $attemptNumberFromId = 1; // Default = 1
+            // Save individual question answers
+            foreach ($questionsInThisAttempt as $questionId) {
+                $attemptNumberFromId = null;
 
-    if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
-        $attemptNumberFromId = (int)$matches[1];
+                if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
+                    $attemptNumberFromId = (int)$matches[1];
+                    if ($attemptNumberFromId === 0) {
+                        $attemptNumberFromId = $attemptNumber; // Use the calculated one
+                    }
+                } else {
+                    $attemptNumberFromId = $attemptNumber;
+                }
 
-        if ($attemptNumberFromId === 0) {
-            $attemptNumberFromId = 1;
-        }
-    }
+                $studentAnswer = null;
+                $correctAnswer = null;
+                $isCorrect = false;
 
-    $studentAnswer = null;
-    $correctAnswer = null;
-    $isCorrect = false;
+                if (!empty($result['student_answers'])) {
+                    foreach ($result['student_answers'] as $ans) {
+                        if ($ans['question_id'] === $questionId) {
+                            $studentAnswer = $ans['student_answer'] ?? null;
+                            $correctAnswer = $ans['correct_answer'] ?? null;
+                            $isCorrect = ($studentAnswer === $correctAnswer);
+                            break;
+                        }
+                    }
+                }
 
-    if (!empty($result['student_answers'])) {
-        foreach ($result['student_answers'] as $ans) {
-            if ($ans['question_id'] === $questionId) {
-                $studentAnswer = $ans['student_answer'] ?? null;
-                $correctAnswer = $ans['correct_answer'] ?? null;
-                $isCorrect = ($studentAnswer === $correctAnswer);
-                break;
+                QuizAttemptAnswer::create([
+                    'user_id'        => $userId,
+                    'quiz_name'      => $request->quiz_name,
+                    'chapter_name'   => $result['chapter_name'],
+                    'attempt_number' => $attemptNumberFromId,
+                    'question_id'    => $questionId,
+                    'user_answer'    => $studentAnswer,
+                    'correct_answer' => $correctAnswer,
+                    'is_correct'     => $isCorrect,
+                ]);
             }
-        }
-    }
-
-    QuizAttemptAnswer::create([
-        'user_id'        => $userId,
-        'quiz_name'      => $request->quiz_name,
-        'chapter_name'   => $result['chapter_name'],
-        'attempt_number' => $attemptNumberFromId, 
-        'question_id'    => $questionId,
-        'user_answer'    => $studentAnswer,
-        'correct_answer' => $correctAnswer,
-        'is_correct'     => $isCorrect,
-    ]);
-}
-
         }
     }
 
     return response()->json(['status' => 'success']);
 }
+
 
 
 
