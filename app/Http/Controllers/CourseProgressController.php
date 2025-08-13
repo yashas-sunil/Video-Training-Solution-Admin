@@ -85,22 +85,11 @@ public function store(Request $request)
     foreach ($request->results as $result) {
         $rawNewQuestions = $result['question_ids'] ?? [];
 
-        // Group questions by attempt number
+        // Group questions by original attempt number (no change)
         $groupedByAttemptId = [];
         foreach ($rawNewQuestions as $q) {
             if (preg_match('/__(\d+)$/', $q, $matches)) {
-                $attemptId = (int)$matches[1];
-
-                if ($attemptId === 0) {
-                    // Get last attempt for this user+quiz+chapter
-                    $maxAttempt = AppQuizAttempt::where('user_id', $userId)
-                        ->where('quiz_name', $request->quiz_name)
-                        ->where('chapter_name', $result['chapter_name'])
-                        ->max('attempt_number');
-
-                    $attemptId = $maxAttempt ? $maxAttempt + 1 : 1;
-                }
-
+                $attemptId = (int)$matches[1]; // jaise hai waise save
                 $groupedByAttemptId[$attemptId][] = $q;
             }
         }
@@ -130,7 +119,8 @@ public function store(Request $request)
                     : 0;
 
                 $existingRaw = json_decode($existingAttempt->question_ids, true) ?? [];
-                $existingAttempt->question_ids = json_encode(array_unique(array_merge($existingRaw, $questionsInThisAttempt)));
+                $merged = array_unique(array_merge($existingRaw, $questionsInThisAttempt));
+                $existingAttempt->question_ids = json_encode($merged);
                 $existingAttempt->save();
             } else {
                 $newAttempt = new AppQuizAttempt();
@@ -148,18 +138,11 @@ public function store(Request $request)
                 $newAttempt->save();
             }
 
-            // Save individual question answers
+            // Save detailed answers
             foreach ($questionsInThisAttempt as $questionId) {
-                $attemptNumberFromId = null;
-
-                if (preg_match('/_+(\d+)$/', $questionId, $matches)) {
-                    $attemptNumberFromId = (int)$matches[1];
-                    if ($attemptNumberFromId === 0) {
-                        $attemptNumberFromId = $attemptNumber; // Use the calculated one
-                    }
-                } else {
-                    $attemptNumberFromId = $attemptNumber;
-                }
+                $attemptNumberFromId = (preg_match('/_+(\d+)$/', $questionId, $matches))
+                    ? (int)$matches[1]
+                    : 0; // 0 bhi save hoga
 
                 $studentAnswer = null;
                 $correctAnswer = null;
@@ -199,7 +182,6 @@ public function store(Request $request)
 
 public function getAttempts(Request $request)
 {
-    //dd($request->all());
     $quizName = $request->query('quiz_name');
     $userId   = auth()->id();
 
@@ -219,11 +201,9 @@ public function getAttempts(Request $request)
             ->get();
 
         $questionsData = $answers->map(function ($ans) {
-            // Question ID clean karna
-            $cleanId = preg_replace('/___\d+$/', '', $ans->question_id); // Attempt suffix remove
-            $cleanId = str_replace('_', ' ', $cleanId); // underscores → spaces
+            $cleanId = preg_replace('/___\d+$/', '', $ans->question_id); 
+            $cleanId = str_replace('_', ' ', $cleanId); 
 
-            // Compare lowercased & trimmed answers
             $isCorrect = false;
             if (!empty($ans->correct_answer) && !empty($ans->user_answer)) {
                 $isCorrect = trim(strtolower($ans->user_answer)) === trim(strtolower($ans->correct_answer));
@@ -238,7 +218,7 @@ public function getAttempts(Request $request)
         });
 
         return [
-            'attempt_number' => $attempt->attempt_number,
+            'attempt_number' => $attempt->attempt_number + 1, // 🔹 yahi change
             'chapter_name'   => $attempt->chapter_name,
             'score_percent'  => $attempt->score_percent,
             'questions'      => $questionsData

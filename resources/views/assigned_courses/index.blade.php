@@ -34,8 +34,9 @@
                 <tbody>
                     @foreach($assignedCourses as $assign)
                         <tr>
-                            <td>{{ $assign->user->name }}</td>
-                            <td>{{ $assign->course->title }}</td>
+                          <td>{{ $assign->user->name ?? 'N/A' }}</td>
+                            <td>{{ $assign->course->title ?? 'N/A' }}</td>
+
                             <td>{{ \Carbon\Carbon::parse($assign->enrolled_at)->format('d M Y') }}</td>
                             <td>{{ $assign->expire_date ? \Carbon\Carbon::parse($assign->expire_date)->format('d M Y') : 'No Expiry' }}</td>
                         </tr>
