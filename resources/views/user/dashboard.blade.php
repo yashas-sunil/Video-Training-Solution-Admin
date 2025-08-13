@@ -199,26 +199,30 @@
     <input type="text" id="courseSearch" placeholder="Search your courses...">
 
     <div class="courses-grid">
-        @forelse($courses as $progress)
-            @php
-                $course = $progress->course;
-                $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
-                $watched = $progress->session_time ?? 0;
-                $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-            @endphp
-            <div class="course-card">
-                <div class="course-title">{{ optional($course)->title ?? 'Untitled Course' }}</div>
-                <div class="course-info">
-                    Status: <strong>{{ $progress->cmi_core_lesson_status ?? 'incomplete' }}</strong><br>
-                    Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
-                    <div class="progress-bar"><div class="progress-fill" style="width: {{ $percent }}%;"></div></div>
-                    <a href="javascript:void(0);" onclick="openScormWindow({{ $progress->course_id }})" class="btn-resume">▶ Resume</a>
-                    <a href="javascript:void(0);" class="btn-attempts" onclick="showAttempts('{{ optional($course)->title }}')">📊 View Attempts</a>
-                </div>
-            </div>
-        @empty
-            <p>No courses started yet.</p>
-        @endforelse
+       @forelse($courses as $item)
+    @php
+        $course = $item['course'] ?? null;
+        $progress = $item['progress'] ?? null;
+
+        $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
+$watched = $progress ? $progress->sum('session_time') : 0;
+        $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+$status = optional($progress->first())->cmi_core_lesson_status ?? 'Not started';
+    @endphp
+    <div class="course-card">
+        <div class="course-title">{{ $course->title ?? 'Untitled Course' }}</div>
+        <div class="course-info">
+            Status: <strong>{{ $status }}</strong><br>
+            Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
+            <div class="progress-bar"><div class="progress-fill" style="width: {{ $percent }}%;"></div></div>
+            <a href="javascript:void(0);" onclick="openScormWindow({{ $course->id ?? 0 }})" class="btn-resume">▶ Resume</a>
+            <a href="javascript:void(0);" class="btn-attempts" onclick="showAttempts('{{ $course->title ?? '' }}')">📊 View Attempts</a>
+        </div>
+    </div>
+@empty
+    <p>No courses assigned yet.</p>
+@endforelse
+
     </div>
 </div>
 
@@ -301,7 +305,7 @@ function viewAttemptQuestions(index, quizName) {
 
         <div>
             ${attempt.questions.map((q, i) => {
-                const isCorrect = q.is_correct ? '✅ Correct' : '❌ Wrong';
+                const isCorrect = q.is_correct ? ' Correct' : '❌ Wrong';
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
