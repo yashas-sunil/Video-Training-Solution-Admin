@@ -81,7 +81,7 @@ public function get($id)
 public function store(Request $request) {
     $userId = auth()->id();
     // dd($request->all());
-    logger([$request->all()]);
+  // logger([$request->all()]);
     foreach ($request->results as $result) {
         $rawNewQuestions = $result['question_ids'] ?? [];
 
@@ -176,10 +176,6 @@ public function store(Request $request) {
     return response()->json(['status' => 'success']);
 }
 
-
-
-
-
 public function getAttempts(Request $request)
 {
     $quizName = $request->query('quiz_name');
@@ -218,16 +214,16 @@ public function getAttempts(Request $request)
         });
 
         return [
-            'attempt_number' => $attempt->attempt_number + 1, // 🔹 yahi change
+            'attempt_number' => $attempt->attempt_number + 1,
             'chapter_name'   => $attempt->chapter_name,
             'score_percent'  => $attempt->score_percent,
+            'attempt_time'   => $attempt->created_at->timezone('Asia/Kolkata')->format('d-m-Y H:i:s'), // 🔹 IST 
             'questions'      => $questionsData
         ];
     });
 
     return response()->json($data);
 }
-
 
 
 }

@@ -265,13 +265,14 @@ function showAttempts(quizName) {
             if (data.length === 0) {
                 box.innerHTML = "<p>No attempts found.</p>";
             } else {
-                // Attempt number ko ascending order me sort karo
-                data.sort((a, b) => a.attempt_number - b.attempt_number);
+                // Last attempt ko upar dikhane ke liye descending sort
+                data.sort((a, b) => b.attempt_number - a.attempt_number);
 
                 box.innerHTML = data.map((attempt, idx) => `
                     <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; background:#f9f9f9;">
                         <strong>Chapter:</strong> ${attempt.chapter_name}<br>
-                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
+                        <strong>Attempt:</strong> ${attempt.attempt_number} 
+                        <span style="color:#555; font-size:13px;">(${attempt.attempt_time})</span><br>
                         <strong>Score:</strong> ${attempt.score_percent}%<br>
                         <button onclick="viewAttemptQuestions(${idx}, '${quizName}')"
                             style="margin-top:8px; padding:4px 8px;">View Questions</button>
@@ -289,6 +290,7 @@ function showAttempts(quizName) {
         });
 }
 
+
 // Specific attempt ke questions dikhana
 function viewAttemptQuestions(index, quizName) {
     const attempt = window.attemptData[index];
@@ -301,8 +303,11 @@ function viewAttemptQuestions(index, quizName) {
         </button>
 
         <div style="padding:15px; background:#f7f9fc; border-radius:6px; border:1px solid #ddd; margin-bottom:20px;">
-            <h3 style="margin-bottom:5px;">Attempt: ${attempt.attempt_number}</h3>
             <p style="margin:4px 0;"><strong>Chapter:</strong> ${attempt.chapter_name}</p>
+            <p style="margin:4px 0;">
+                <strong>Attempt:</strong> ${attempt.attempt_number} 
+                <span style="color:#555; font-size:13px;">(${attempt.attempt_time})</span>
+            </p>
             <p style="margin:4px 0;"><strong>Score:</strong> ${attempt.score_percent}%</p>
         </div>
 
@@ -334,6 +339,7 @@ function viewAttemptQuestions(index, quizName) {
         </div>
     `;
 }
+
 
 </script>
 
