@@ -78,17 +78,17 @@ public function get($id)
     ]);
 }
 
-public function store(Request $request)
-{
+public function store(Request $request) {
     $userId = auth()->id();
-
+    // dd($request->all());
+    logger([$request->all()]);
     foreach ($request->results as $result) {
         $rawNewQuestions = $result['question_ids'] ?? [];
 
-        // Group questions by original attempt number (no change)
+        // Group questions by original attempt number
         $groupedByAttemptId = [];
         foreach ($rawNewQuestions as $q) {
-            if (preg_match('/__(\d+)$/', $q, $matches)) {
+            if (preg_match('/_+(\d+)$/', $q, $matches)) {   // <<---- CHANGE KIYA
                 $attemptId = (int)$matches[1]; // jaise hai waise save
                 $groupedByAttemptId[$attemptId][] = $q;
             }
@@ -140,7 +140,7 @@ public function store(Request $request)
 
             // Save detailed answers
             foreach ($questionsInThisAttempt as $questionId) {
-                $attemptNumberFromId = (preg_match('/_+(\d+)$/', $questionId, $matches))
+                $attemptNumberFromId = (preg_match('/_+(\d+)$/', $questionId, $matches))   // <<---- CHANGE KIYA
                     ? (int)$matches[1]
                     : 0; // 0 bhi save hoga
 
