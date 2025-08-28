@@ -265,10 +265,13 @@ function showAttempts(quizName) {
             if (data.length === 0) {
                 box.innerHTML = "<p>No attempts found.</p>";
             } else {
+                // Attempt number ko ascending order me sort karo
+                data.sort((a, b) => a.attempt_number - b.attempt_number);
+
                 box.innerHTML = data.map((attempt, idx) => `
                     <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; background:#f9f9f9;">
-                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
                         <strong>Chapter:</strong> ${attempt.chapter_name}<br>
+                        <strong>Attempt:</strong> ${attempt.attempt_number}<br>
                         <strong>Score:</strong> ${attempt.score_percent}%<br>
                         <button onclick="viewAttemptQuestions(${idx}, '${quizName}')"
                             style="margin-top:8px; padding:4px 8px;">View Questions</button>
@@ -305,7 +308,7 @@ function viewAttemptQuestions(index, quizName) {
 
         <div>
             ${attempt.questions.map((q, i) => {
-                const isCorrect = q.is_correct ? ' Correct' : '❌ Wrong';
+                const isCorrect = q.is_correct ? '✅ Correct' : '❌ Wrong';
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
@@ -331,6 +334,7 @@ function viewAttemptQuestions(index, quizName) {
         </div>
     `;
 }
+
 </script>
 
 </body>
