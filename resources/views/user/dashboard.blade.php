@@ -308,25 +308,31 @@
            </div>
 
            {{-- Buttons --}}
-           <a href="javascript:void(0);" 
-              onclick="openScormWindow({{ $course->id ?? 0 }})" 
-              class="btn-resume"
-              style="margin-top:0.5rem; display:inline-flex; align-items:center; text-align:center; background:#007bff; padding:4px 8px; border-radius:6px; margin-right:10px;">
-              <img src="{{ asset('images/Resume Button.png') }}" 
-                   alt="Resume" 
-                   style="width:20px; height:20px; display:block; margin-right:5px;" />
-              <span style="color:white; font-size:14px;">Resume</span>
-           </a>
+<div style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
+    <!-- Resume Button -->
+    <a href="javascript:void(0);" 
+       onclick="openScormWindow({{ $course->id ?? 0 }})" 
+       class="btn-resume"
+       style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#007bff; padding:3px 8px; border-radius:6px; height:28px;">
+       <img src="{{ asset('images/Resume Button.png') }}" 
+            alt="Resume" 
+            style="width:18px; height:18px; display:block; margin-right:5px;" />
+       <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
+    </a>
 
-           <a href="javascript:void(0);" 
-              class="btn-attempts" 
-              onclick="showAttempts('{{ $course->title ?? '' }}')" 
-              style="display:inline-flex; align-items:center; text-align:center; background:#6c757d; padding:4px 8px; margin-top:0.5rem; border-radius:6px;">
-              <img src="{{ asset('images/View.png') }}" 
-                   alt="View Attempts" 
-                   style="width:20px; height:20px; display:block; margin-right:5px;" />
-              <span style="color:white; font-size:14px;">View Attempts</span>
-           </a>
+    <!-- View Attempts Button -->
+    <a href="javascript:void(0);" 
+       class="btn-attempts" 
+       onclick="showAttempts('{{ $course->title ?? '' }}')" 
+       style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:3px 8px; border-radius:6px; height:28px;">
+       <img src="{{ asset('images/View.png') }}" 
+            alt="View Attempts" 
+            style="width:18px; height:18px; display:block; margin-right:5px;" />
+       <span style="color:#007bff; font-size:14px; line-height:18px;">View Attempts</span>
+    </a>
+</div>
+
+
        </div>
    </div>
    @empty

@@ -41,57 +41,72 @@
             border-radius: 4px;
             cursor: pointer;
         }
-.summary-box {
-    padding: 15px;
-    background: #f7f9fc;
-    border-radius: 6px;     
-    border: 1px solid #ddd; 
-    margin-bottom: 20px;
-    width: 600px;          
-    height: 100px;          
-    box-sizing: border-box; 
-}
+        .summary-box {
+            padding: 15px;
+            background: #f7f9fc;
+            border-radius: 6px;     
+            border: 1px solid #ddd; 
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            height: 100px;          
+            box-sizing: border-box; 
+        }
+        .summary-box p {
+            font-size: 13px;   
+            margin: 3px 0;
+        }
+        .summary-box p strong {
+            font-size: 12px;   
+        }
 
-.summary-box p {
-    font-size: 13px;   
-    margin: 3px 0;
-}
-
-.summary-box p strong {
-    font-size: 12px;   
-}
+        /* Questions grid - max 2 columns desktop */
         .questions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* Desktop: max 2 columns */
             gap: 20px;
         }
-.question-card {
-    background: white;
-    border: 1px solid #ddd;   
-    border-radius: 6px;       
-    width: 600px;            
-    height: 140px;            
-    padding: 15px;
-    box-sizing: border-box;   
-}
+
+        /* Mobile adjustment */
+        @media (max-width: 768px) {
+            .questions-grid {
+                grid-template-columns: 1fr; /* Mobile: 1 column */
+            }
+        }
+
+        .question-card {
+            background: white;
+            border: 1px solid #ddd;   
+            border-radius: 6px;       
+            padding: 15px;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 600px;
+            min-height: 140px;       
+        }
+
         .question-card .q-title {
             font-weight: bold;
             margin-bottom: 10px;
         }
+
         .answer {
             padding: 8px;
             border-radius: 4px;
             margin: 5px 0;
             font-size: 14px;
         }
+
         .your-answer {
             background: #ffecec;
             color: #a94442;
         }
+
         .your-answer.correct {
             background: #e6ffed;
             color: #2e7d32;
         }
+
         .correct-answer {
             background: #f0f0f0;
             color: #333;
@@ -118,9 +133,10 @@
     </div>
 
     <div class="page-content">
-<div style="text-align: right; margin-bottom: 15px;">
-    <button onclick="window.history.back()" class="back-btn">⬅ Back</button>
-</div>
+        <div style="text-align: right; margin-bottom: 15px;">
+            <button onclick="window.history.back()" class="back-btn">⬅ Back</button>
+        </div>
+
         <!-- Summary -->
         <div class="summary-box">
             <p><strong>Chapter:</strong> {{ $attempt['chapter_name'] }}</p>

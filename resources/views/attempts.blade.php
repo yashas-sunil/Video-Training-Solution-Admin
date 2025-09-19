@@ -292,7 +292,7 @@
           <p><strong>Score:</strong> {{ $attempt['score_percent'] }}%</p>
 
           <a href="{{ url('/course-attempts/'.$quizName.'/view/'.$attempt['attempt_number']) }}">
-            📘 View Questions
+             View Questions
           </a>
         </div>
       @empty
