@@ -81,7 +81,7 @@
             padding: 15px;
             box-sizing: border-box;
             width: 100%;
-            max-width: 600px;
+            /* max-width: 600px; */
             min-height: 140px;       
         }
 
@@ -122,7 +122,7 @@
     <!-- Navbar -->
     <div class="navbar">
         <div>
-            Welcome back, <strong>{{ auth()->user()->name }}</strong>
+            Welcome back ! <strong>{{ auth()->user()->name }}</strong>
             <a href="{{ route('logout') }}" 
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
                style="color:white; margin-left:15px; text-decoration:underline;">Logout</a>
