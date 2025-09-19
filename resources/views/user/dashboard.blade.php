@@ -310,7 +310,7 @@
    class="btn-attempts" 
    onclick="showAttempts('{{ $course->title ?? '' }}')" 
    style="display:inline-flex; align-items:center; text-align:center; background:#6c757d; padding:4px 8px; margin-top:0.5rem; border-radius:6px;">
-   <img src="{{ asset('images/view.png') }}" 
+   <img src="{{ asset('images/View.png') }}" 
         alt="View Attempts" 
         style="width:20px; height:20px; display:block; margin-right:5px;" />
    <span style="color:white; font-size:14px;">View Attempts</span>
