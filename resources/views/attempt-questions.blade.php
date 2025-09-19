@@ -17,14 +17,25 @@
         .top-logo-bar img {
             height: 40px;
         }
-        .navbar {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
+.navbar {
+    background-color: #007bff; 
+    padding: 15px 30px; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    color: white;
+}
+
+.navbar .logo img {
+    height: 55px; 
+    width: auto;
+}
+
+.navbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
         .page-content {
             padding: 20px;
         }
@@ -111,32 +122,61 @@
             background: #f0f0f0;
             color: #333;
         }
+        .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.quiz-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
     </style>
 </head>
 <body>
     <!-- Logo -->
-    <div class="top-logo-bar">
-        <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
+<div class="navbar">
+    <!-- Left: Company Logo -->
+    <div class="logo">
+        {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
+           <img src="{{ asset('images/logo2.png') }}" alt="Company Logo">
+
     </div>
 
-    <!-- Navbar -->
-    <div class="navbar">
+    <!-- Right: User Info -->
+    <div class="user-info">
         <div>
-            Welcome back ! <strong>{{ auth()->user()->name }}</strong>
-            <a href="{{ route('logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-               style="color:white; margin-left:15px; text-decoration:underline;">Logout</a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-                @csrf
-            </form>
+            <div style="font-size: 0.85rem;">Welcome back !</div>
+            <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
         </div>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white; text-decoration: underline; margin-left: 20px;">Logout</a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
     </div>
+</div>
 
-    <div class="page-content">
-        <div style="text-align: right; margin-bottom: 15px;">
-            <button onclick="window.history.back()" class="back-btn">⬅ Back</button>
-        </div>
+<div class="page-content">
+    <div class="toolbar">
+        <!-- Left: Quiz Attempt -->
+        <h2 class="quiz-left">Quiz Attempt</h2>
 
+        <!-- Center: Quiz Name -->
+        <h2 class="quiz-center">{{ $quizName }}</h2>
+
+        <!-- Right: Back Button -->
+        <button onclick="window.history.back()" class="back-btn">⬅ Back</button>
+    </div>
+</div>
+
+            
         <!-- Summary -->
         <div class="summary-box">
             <p><strong>Chapter:</strong> {{ $attempt['chapter_name'] }}</p>

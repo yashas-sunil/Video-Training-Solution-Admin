@@ -19,32 +19,41 @@
             height: 45px;
 
         }
-        .navbar {
-            background: #007bff;
-            padding: 1rem 2rem;
-            color: white;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-        .navbar .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+.navbar {
+    background-color: #007bff; 
+    padding: 15px 30px; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    color: white;
+}
+
+.navbar .logo img {
+    height: 55px; 
+    width: auto;
+}
+
+.navbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
         .container {
             padding: 2rem;
         }
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
+            gap: 2rem;
             margin-bottom: 2rem;
         }
 .stat-card {
+    justify-content: center;
+ display: flex;
+flex-direction: column;
     background: white;
     padding: 1.5rem;               
-    width: 200px;                   
+    width: auto;                   
     height: 130px;                 
     border-radius: 20px;            
     box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
@@ -190,25 +199,26 @@
 </head>
 <body>
 
-<!-- Logo -->
-<div class="top-logo-bar">
-    <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
-</div>
-
-<!-- Navbar -->
 <div class="navbar">
+    <!-- Left: Company Logo -->
+    <div class="logo">
+        {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
+           <img src="{{ asset('images/logo2.png') }}" alt="Company Logo">
+
+    </div>
+
+    <!-- Right: User Info -->
     <div class="user-info">
-        <div style="text-align: left;">
-            <div style="font-size: 0.85rem;">Welcome back,</div>
+        <div>
+            <div style="font-size: 0.85rem;">Welcome back !</div>
             <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
         </div>
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white; text-decoration: underline;">Logout</a>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white; text-decoration: underline; margin-left: 20px;">Logout</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             @csrf
         </form>
     </div>
 </div>
-
 <!-- Main Content -->
 <div class="container">
 <div class="stats">
@@ -276,7 +286,12 @@
 </div>
 
 <!-- Courses Grid -->
-<div class="courses-grid" style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:flex-start;">
+<div class="courses-grid" style="
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 1rem; 
+    justify-content: {{ count($courses) === 1 ? 'center' : 'flex-start' }};
+">
    @forelse($courses as $item)
    @php
        $course = $item['course'] ?? null;
@@ -285,54 +300,43 @@
        $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
        $watched = $progress ? $progress->sum('session_time') : 0;
        $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-       $status = optional($progress->first())->cmi_core_lesson_status ?? 'Not started';
    @endphp
+<div class="course-card" style="
+    background:white; 
+    padding:1rem 1.5rem; 
+    border-radius:8px; 
+    box-shadow:0 2px 5px rgba(0,0,0,0.05); 
+    width: {{ count($courses) === 1 ? '500px' : '48%' }};
+    max-width: 90%; /* screen ke size ke hisaab se limit */
+    box-sizing:border-box;
+">
 
-   <div class="course-card" style="background:white; padding:1rem 1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:48%; box-sizing:border-box;">
+
+       <!-- Course content same as before -->
        <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">
            {{ $course->title ?? 'Untitled Course' }}
        </div>
 
        <div class="course-info" style="margin-top:0.5rem; font-size:0.95rem;">
-           {{-- Watched time --}}
            <div style="margin-bottom:0.3rem;">
                Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
            </div>
-
-           {{-- Progress bar with percentage inline at right --}}
            <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
                <div class="progress-bar" style="flex:1; background:#eee; border-radius:5px; height:10px; overflow:hidden; position:relative;">
                    <div class="progress-fill" style="height:100%; background:#28a745; width:{{ $percent }}%;"></div>
                </div>
                <span style="min-width:35px; font-weight:bold; color:#28a745;">{{ $percent }}%</span>
            </div>
-
-           {{-- Buttons --}}
-<div style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
-    <!-- Resume Button -->
-    <a href="javascript:void(0);" 
-       onclick="openScormWindow({{ $course->id ?? 0 }})" 
-       class="btn-resume"
-       style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#007bff; padding:3px 8px; border-radius:6px; height:28px;">
-       <img src="{{ asset('images/Resume Button.png') }}" 
-            alt="Resume" 
-            style="width:18px; height:18px; display:block; margin-right:5px;" />
-       <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
-    </a>
-
-    <!-- View Attempts Button -->
-    <a href="javascript:void(0);" 
-       class="btn-attempts" 
-       onclick="showAttempts('{{ $course->title ?? '' }}')" 
-       style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:3px 8px; border-radius:6px; height:28px;">
-       <img src="{{ asset('images/View.png') }}" 
-            alt="View Attempts" 
-            style="width:18px; height:18px; display:block; margin-right:5px;" />
-       <span style="color:#007bff; font-size:14px; line-height:18px;">View Attempts</span>
-    </a>
-</div>
-
-
+           <div style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
+               <a href="javascript:void(0);" onclick="openScormWindow({{ $course->id ?? 0 }})" class="btn-resume" style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#007bff; padding:3px 8px; border-radius:6px; height:28px;">
+                   <img src="{{ asset('images/Resume Button.png') }}" alt="Resume" style="width:18px; height:18px; display:block; margin-right:5px;" />
+                   <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
+               </a>
+               <a href="javascript:void(0);" class="btn-attempts" onclick="showAttempts('{{ $course->title ?? '' }}')" style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:3px 8px; border-radius:6px; height:28px;">
+                   <img src="{{ asset('images/View.png') }}" alt="View Attempts" style="width:18px; height:18px; display:block; margin-right:5px;" />
+                   <span style="color:#007bff; font-size:14px; line-height:18px;">View Attempts</span>
+               </a>
+           </div>
        </div>
    </div>
    @empty
@@ -368,19 +372,28 @@
     const courses = document.querySelectorAll(".course-card");
     courses.forEach(function (card) {
         const title = card.querySelector(".course-title").textContent.toLowerCase();
-        const statusText = card.querySelector(".course-info strong").textContent.toLowerCase();
+
+        // progress percentage read karo
+        const percentText = card.querySelector(".progress-bar-wrapper span").textContent.replace('%','').trim();
+        const percent = parseFloat(percentText);
+
         let matchesSearch = title.includes(searchValue);
         let matchesFilter = true;
 
-        if(filterValue === "completed") {
-            matchesFilter = statusText === "completed";
-        } else if(filterValue === "in-progress") {
-            matchesFilter = statusText === "not started" || statusText === "in progress";
+        if (filterValue === "completed") {
+            matchesFilter = percent === 100;
+        } else if (filterValue === "in-progress") {
+            matchesFilter = percent > 0 && percent < 100;
         }
 
         card.style.display = (matchesSearch && matchesFilter) ? "block" : "none";
     });
-});
+ });
+
+ // Filter change
+ document.getElementById("courseFilter").addEventListener("change", function () {
+    document.getElementById("courseSearch").dispatchEvent(new Event("input"));
+ });
 
 // Filter change
 document.getElementById("courseFilter").addEventListener("change", function () {

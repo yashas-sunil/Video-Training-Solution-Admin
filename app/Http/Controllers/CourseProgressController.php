@@ -222,7 +222,6 @@ public function getAttempts(Request $request)
         ];
     });
 
-    // 🔹 Yahan JSON ke bajaye view return karo
     return view('attempts', [
         'attempts' => $data,
         'quizName' => $quizName
@@ -264,7 +263,12 @@ public function viewAttempt($quizName, $attemptNumber)
         'questions'      => $questions,
     ];
 
-    return view('attempt-questions', ['attempt' => $attemptData]);
+    
+    return view('attempt-questions', [
+        'attempt'   => $attemptData,
+        'quizName'  => $quizName,
+    ]);
 }
+
 
 }

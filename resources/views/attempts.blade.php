@@ -22,20 +22,25 @@
     }
 
     /* Navbar */
-    .navbar {
-      background: #007bff;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      height: 60px;
-    }
-    .navbar .user-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+.navbar {
+    background-color: #007bff; 
+    padding: 15px 30px; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    color: white;
+}
+
+.navbar .logo img {
+    height: 55px; 
+    width: auto;
+}
+
+.navbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 
     /* Page content */
     .page-content {
@@ -54,7 +59,7 @@
       padding: 15px;
       background: white;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      width: 390px;
+      width: auto;
       height: 130px;
       box-sizing: border-box;
       overflow: hidden;
@@ -83,6 +88,18 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 15px;
+  }
+   .quiz-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-size: 25px;
+    font-weight: bold;
+  }
+
+  .toolbar {
+    position: relative; /* zaroori hai absolute centering ke liye */
   }
 
   .toolbar-actions {
@@ -233,27 +250,26 @@
 <body>
 
   <!-- Logo -->
-  <div class="top-logo-bar">
-    <img src="{{ asset('images/logo.png') }}" alt="Company Logo">
-  </div>
+<div class="navbar">
+    <!-- Left: Company Logo -->
+    <div class="logo">
+        {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
+           <img src="{{ asset('images/logo2.png') }}" alt="Company Logo">
 
-  <!-- Navbar -->
-  <div class="navbar">
-    <div class="user-info">
-      <div style="text-align: left;">
-        <div style="font-size: 0.85rem;">Welcome back,</div>
-        <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
-      </div>
-      <a href="{{ route('logout') }}" 
-         onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-         style="color:white; text-decoration: underline;">
-         Logout
-      </a>
-      <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-      </form>
     </div>
-  </div>
+
+    <!-- Right: User Info -->
+    <div class="user-info">
+        <div>
+            <div style="font-size: 0.85rem;">Welcome back !</div>
+            <div style="font-weight: bold;">{{ auth()->user()->name }}</div>
+        </div>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:white; text-decoration: underline; margin-left: 20px;">Logout</a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    </div>
+</div>
 
   <!-- Page Content -->
   <div class="page-content">
@@ -262,18 +278,20 @@
   <h2>Quiz Attempts</h2>
   <div class="toolbar-actions">
 
-    <!-- Filter Button (only image, no bg/color) -->
+    <!-- Filter Button -->
     <button class="btn-filter" onclick="openFilter()">
       <img src="{{ asset('images/filter.png') }}" alt="Filter" />
     </button>
 
-    <!-- Back Button (blue border + hover effect) -->
+    <!-- Back Button -->
     <button class="btn-link" onclick="window.history.back()">
       ⬅ Back
     </button>
 
   </div>
+    <h2 class="quiz-title">{{ $quizName }}</h2>
 </div>
+
 
     <!-- Attempts -->
     <div class="attempts-grid" id="attemptsGrid">
