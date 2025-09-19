@@ -76,13 +76,13 @@
 .courses-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; /* left aligned cards */
+    justify-content: flex-start; 
     gap: 1rem;
 
-    width: 900px;   /* fixed width */
-    height: 150px;  /* fixed height */
-    border-radius: 20px; /* rounded corners */
-    overflow: hidden;    /* extra content hide / scroll agar chahiye to auto */
+    width: 1000px;   
+    height: 170px;  
+    border-radius: 20px; 
+    overflow: hidden;   
 
     /* Center container if needed */
     margin: 0 auto;
@@ -289,39 +289,51 @@
    @endphp
 
    <div class="course-card" style="background:white; padding:1rem 1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:48%; box-sizing:border-box;">
-       <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">{{ $course->title ?? 'Untitled Course' }}</div>
+       <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">
+           {{ $course->title ?? 'Untitled Course' }}
+       </div>
+
        <div class="course-info" style="margin-top:0.5rem; font-size:0.95rem;">
-           {{-- Status: <strong>{{ $status }}</strong><br> --}}
-           Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
-           <div class="progress-bar" style="margin-top:0.5rem; background:#eee; border-radius:5px; height:10px; overflow:hidden;">
-               <div class="progress-fill" style="height:100%; background:#28a745; width:{{ $percent }}%;"></div>
+           {{-- Watched time --}}
+           <div style="margin-bottom:0.3rem;">
+               Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }}
            </div>
- <a href="javascript:void(0);" 
-   onclick="openScormWindow({{ $course->id ?? 0 }})" 
-   class="btn-resume"
-   style="margin-top:0.5rem; display:inline-flex; align-items:center; text-align:center; background:#007bff; padding:4px 8px; border-radius:6px; margin-right:10px;">
-   <img src="{{ asset('images/Resume Button.png') }}" 
-        alt="Resume" 
-        style="width:20px; height:20px; display:block; margin-right:5px;" />
-   <span style="color:white; font-size:14px;">Resume</span>
-</a>
 
-<a href="javascript:void(0);" 
-   class="btn-attempts" 
-   onclick="showAttempts('{{ $course->title ?? '' }}')" 
-   style="display:inline-flex; align-items:center; text-align:center; background:#6c757d; padding:4px 8px; margin-top:0.5rem; border-radius:6px;">
-   <img src="{{ asset('images/View.png') }}" 
-        alt="View Attempts" 
-        style="width:20px; height:20px; display:block; margin-right:5px;" />
-   <span style="color:white; font-size:14px;">View Attempts</span>
-</a>
+           {{-- Progress bar with percentage inline at right --}}
+           <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
+               <div class="progress-bar" style="flex:1; background:#eee; border-radius:5px; height:10px; overflow:hidden; position:relative;">
+                   <div class="progress-fill" style="height:100%; background:#28a745; width:{{ $percent }}%;"></div>
+               </div>
+               <span style="min-width:35px; font-weight:bold; color:#28a745;">{{ $percent }}%</span>
+           </div>
 
+           {{-- Buttons --}}
+           <a href="javascript:void(0);" 
+              onclick="openScormWindow({{ $course->id ?? 0 }})" 
+              class="btn-resume"
+              style="margin-top:0.5rem; display:inline-flex; align-items:center; text-align:center; background:#007bff; padding:4px 8px; border-radius:6px; margin-right:10px;">
+              <img src="{{ asset('images/Resume Button.png') }}" 
+                   alt="Resume" 
+                   style="width:20px; height:20px; display:block; margin-right:5px;" />
+              <span style="color:white; font-size:14px;">Resume</span>
+           </a>
+
+           <a href="javascript:void(0);" 
+              class="btn-attempts" 
+              onclick="showAttempts('{{ $course->title ?? '' }}')" 
+              style="display:inline-flex; align-items:center; text-align:center; background:#6c757d; padding:4px 8px; margin-top:0.5rem; border-radius:6px;">
+              <img src="{{ asset('images/View.png') }}" 
+                   alt="View Attempts" 
+                   style="width:20px; height:20px; display:block; margin-right:5px;" />
+              <span style="color:white; font-size:14px;">View Attempts</span>
+           </a>
        </div>
    </div>
    @empty
-   <p>No courses assigned yet.</p>
+       <p>No courses assigned yet.</p>
    @endforelse
 </div>
+
 <!-- Modal -->
 <div id="attemptModal">
     <div id="attemptModalContent">
