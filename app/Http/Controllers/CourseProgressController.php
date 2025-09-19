@@ -217,13 +217,54 @@ public function getAttempts(Request $request)
             'attempt_number' => $attempt->attempt_number + 1,
             'chapter_name'   => $attempt->chapter_name,
             'score_percent'  => $attempt->score_percent,
-            'attempt_time'   => $attempt->created_at->timezone('Asia/Kolkata')->format('d-m-Y H:i:s'), // 🔹 IST 
+            'attempt_time'   => $attempt->created_at->timezone('Asia/Kolkata')->format('d-m-Y H:i:s'),
             'questions'      => $questionsData
         ];
     });
 
-    return response()->json($data);
+    // 🔹 Yahan JSON ke bajaye view return karo
+    return view('attempts', [
+        'attempts' => $data,
+        'quizName' => $quizName
+    ]);
 }
 
+public function viewAttempt($quizName, $attemptNumber)
+{
+    $userId = auth()->id();
+
+    $attempt = AppQuizAttempt::where('user_id', $userId)
+        ->where('quiz_name', $quizName)
+        ->where('attempt_number', $attemptNumber - 1) // db attempt_number 0-based hai
+        ->firstOrFail();
+
+    $answers = QuizAttemptAnswer::where('user_id', $userId)
+        ->where('quiz_name', $quizName)
+        ->where('chapter_name', $attempt->chapter_name)
+        ->where('attempt_number', $attempt->attempt_number)
+        ->get();
+
+    $questions = $answers->map(function ($ans) {
+        $cleanId = preg_replace('/___\d+$/', '', $ans->question_id);
+        $cleanId = str_replace('_', ' ', $cleanId);
+
+        return [
+            'question_id'    => $cleanId,
+            'user_answer'    => $ans->user_answer ?? '',
+            'correct_answer' => $ans->correct_answer ?? '',
+            'is_correct'     => strtolower(trim($ans->user_answer)) === strtolower(trim($ans->correct_answer)),
+        ];
+    });
+
+    $attemptData = [
+        'attempt_number' => $attempt->attempt_number + 1,
+        'chapter_name'   => $attempt->chapter_name,
+        'score_percent'  => $attempt->score_percent,
+        'attempt_time'   => $attempt->created_at->timezone('Asia/Kolkata')->format('d-m-Y H:i:s'),
+        'questions'      => $questions,
+    ];
+
+    return view('attempt-questions', ['attempt' => $attemptData]);
+}
 
 }

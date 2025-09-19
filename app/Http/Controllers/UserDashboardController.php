@@ -60,7 +60,6 @@ public function userindex()
 {
     $userId = auth()->id();
 
-    // Assigned courses ke saath unka progress (multiple sessions)
     $assignedCourses = AssignedCourse::with(['course', 'progress' => function($query) use ($userId) {
         $query->where('user_id', $userId);
     }])->where('user_id', $userId)->get();
@@ -77,7 +76,6 @@ public function userindex()
         $courseWatchTime = $progressRecords->sum('session_time');
         $totalWatchTime += $courseWatchTime;
 
-        // Status check — agar saare completed hai to complete, warna in-progress
         if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
             $completedCoursesCount++;
         } elseif ($progressRecords->isNotEmpty()) {
@@ -90,7 +88,7 @@ public function userindex()
             'total_session_time' => $courseWatchTime
         ];
     });
-
+    
     return view('user.dashboard', [
         'courses' => $coursesWithProgress,
         'pendingCourses' => $coursesWithProgress->filter(fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()),

@@ -15,7 +15,9 @@
             background: white;
         }
         .top-logo-bar img {
-            height: 60px;
+             width: 200px; 
+            height: 45px;
+
         }
         .navbar {
             background: #007bff;
@@ -39,32 +41,53 @@
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+.stat-card {
+    background: white;
+    padding: 1.5rem;               
+    width: 200px;                   
+    height: 130px;                 
+    border-radius: 20px;            
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+    text-align: center;
+    position: relative;             /* agar top/left Figma jaisa chahiye */
+    /* top: 238px; left: 66.15px; */ /* optional: uncomment for absolute positioning */
+    transition: transform 0.3s ease; /* optional hover effect */
+}
+
+/* Optional: hover effect for Figma look */
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
         .stat-card h2 {
             margin: 0;
             font-size: 2rem;
             color: #007bff;
         }
-        .stat-card p {
-            margin: 0.5rem 0 0;
-            color: #666;
-        }
+.stat-card p {
+    font-size: 14px;   
+    margin: 2px 0;
+    color: #666;
+}
         h2 {
             margin-top: 2rem;
             color: #333;
         }
-        .courses-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 1rem;
-        }
+.courses-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* left aligned cards */
+    gap: 1rem;
+
+    width: 900px;   /* fixed width */
+    height: 150px;  /* fixed height */
+    border-radius: 20px; /* rounded corners */
+    overflow: hidden;    /* extra content hide / scroll agar chahiye to auto */
+
+    /* Center container if needed */
+    margin: 0 auto;
+}
+
         .course-card {
             background: white;
             padding: 1rem 1.5rem;
@@ -188,44 +211,117 @@
 
 <!-- Main Content -->
 <div class="container">
-    <div class="stats">
-        <div class="stat-card"><h2>{{ $courses->count() }}</h2><p>Courses in Progress</p></div>
-        <div class="stat-card"><h2>{{ $completedCourses }}</h2><p>Completed Courses</p></div>
-        <div class="stat-card"><h2>{{ gmdate("H:i:s", $totalWatchTime) }}</h2><p>Total Watch Time</p></div>
-        <div class="stat-card"><h2>{{ $totalCourses }}</h2><p>Total Courses Purchased</p></div>
+<div class="stats">
+
+  <!-- Courses in Progress -->
+  <div class="stat-card">
+    <div style="margin-bottom:6px;">
+      <img src="{{ asset('images/course-in-progress.png') }}" 
+           alt="Courses in Progress" 
+           style="width:40px; height:40px;" />
     </div>
+    <h2>{{ $courses->count() }}</h2>
+    <p>Courses in Progress</p>
+  </div>
 
-    <h2>📚 Your Courses</h2>
-    <input type="text" id="courseSearch" placeholder="Search your courses...">
-
-    <div class="courses-grid">
-       @forelse($courses as $item)
-    @php
-        $course = $item['course'] ?? null;
-        $progress = $item['progress'] ?? null;
-
-        $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
-$watched = $progress ? $progress->sum('session_time') : 0;
-        $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
-$status = optional($progress->first())->cmi_core_lesson_status ?? 'Not started';
-    @endphp
-    <div class="course-card">
-        <div class="course-title">{{ $course->title ?? 'Untitled Course' }}</div>
-        <div class="course-info">
-            Status: <strong>{{ $status }}</strong><br>
-            Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
-            <div class="progress-bar"><div class="progress-fill" style="width: {{ $percent }}%;"></div></div>
-            <a href="javascript:void(0);" onclick="openScormWindow({{ $course->id ?? 0 }})" class="btn-resume">▶ Resume</a>
-            <a href="javascript:void(0);" class="btn-attempts" onclick="showAttempts('{{ $course->title ?? '' }}')">📊 View Attempts</a>
-        </div>
+  <!-- Completed Courses -->
+  <div class="stat-card">
+    <div style="margin-bottom:6px;">
+      <img src="{{ asset('images/completed-course.png') }}" 
+           alt="Completed Courses" 
+           style="width:40px; height:40px;" />
     </div>
-@empty
-    <p>No courses assigned yet.</p>
-@endforelse
+    <h2>{{ $completedCourses }}</h2>
+    <p>Completed Courses</p>
+  </div>
 
+  <!-- Total Watch Time -->
+  <div class="stat-card">
+    <div style="margin-bottom:10px;">
+      <img src="{{ asset('images/total-watch-time.png') }}" 
+           alt="Total Watch Time" 
+           style="width:40px; height:40px;" />
     </div>
+    <h2>{{ gmdate("H:i:s", $totalWatchTime) }}</h2>
+    <p>Total Watch Time</p>
+  </div>
+
+  <!-- Total Courses Purchased -->
+  <div class="stat-card">
+    <div style="margin-bottom:10px;">
+      <img src="{{ asset('images/total-purchase.png') }}" 
+           alt="Total Courses Purchased" 
+           style="width:40px; height:40px;" />
+    </div>
+    <h2>{{ $totalCourses }}</h2>
+    <p>Total Courses Purchased</p>
+  </div>
+
 </div>
 
+<h2 style="margin-bottom:10px; text-align:center;">📚 Your Courses</h2>
+
+<!-- Search + Filter Row (Right Aligned) -->
+<div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:20px;">
+    <!-- Search Input -->
+    <input type="text" id="courseSearch" placeholder="Search your courses..." 
+           style="width:250px; padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
+
+    <!-- Filter Select -->
+    <select id="courseFilter" style="padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
+        <option value="">All Courses</option>
+        <option value="completed">Completed</option>
+        <option value="in-progress">In Progress</option>
+    </select>
+</div>
+
+<!-- Courses Grid -->
+<div class="courses-grid" style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:flex-start;">
+   @forelse($courses as $item)
+   @php
+       $course = $item['course'] ?? null;
+       $progress = $item['progress'] ?? null;
+
+       $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
+       $watched = $progress ? $progress->sum('session_time') : 0;
+       $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+       $status = optional($progress->first())->cmi_core_lesson_status ?? 'Not started';
+   @endphp
+
+   <div class="course-card" style="background:white; padding:1rem 1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:48%; box-sizing:border-box;">
+       <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">{{ $course->title ?? 'Untitled Course' }}</div>
+       <div class="course-info" style="margin-top:0.5rem; font-size:0.95rem;">
+           {{-- Status: <strong>{{ $status }}</strong><br> --}}
+           Watched: {{ gmdate("H:i:s", $watched) }} / {{ gmdate("H:i:s", $duration) }} — {{ $percent }}%
+           <div class="progress-bar" style="margin-top:0.5rem; background:#eee; border-radius:5px; height:10px; overflow:hidden;">
+               <div class="progress-fill" style="height:100%; background:#28a745; width:{{ $percent }}%;"></div>
+           </div>
+ <a href="javascript:void(0);" 
+   onclick="openScormWindow({{ $course->id ?? 0 }})" 
+   class="btn-resume"
+   style="margin-top:0.5rem; display:inline-flex; align-items:center; text-align:center; background:#007bff; padding:4px 8px; border-radius:6px; margin-right:10px;">
+   <img src="{{ asset('images/Resume Button.png') }}" 
+        alt="Resume" 
+        style="width:20px; height:20px; display:block; margin-right:5px;" />
+   <span style="color:white; font-size:14px;">Resume</span>
+</a>
+
+<a href="javascript:void(0);" 
+   class="btn-attempts" 
+   onclick="showAttempts('{{ $course->title ?? '' }}')" 
+   style="display:inline-flex; align-items:center; text-align:center; background:#6c757d; padding:4px 8px; margin-top:0.5rem; border-radius:6px;">
+   <img src="{{ asset('images/view.png') }}" 
+        alt="View Attempts" 
+        style="width:20px; height:20px; display:block; margin-right:5px;" />
+   <span style="color:white; font-size:14px;">View Attempts</span>
+</a>
+
+       </div>
+   </div>
+   @empty
+   <p>No courses assigned yet.</p>
+   @endforelse
+</div>
 <!-- Modal -->
 <div id="attemptModal">
     <div id="attemptModalContent">
@@ -247,47 +343,38 @@ $status = optional($progress->first())->cmi_core_lesson_status ?? 'Not started';
         }
     }
 
-    document.getElementById("courseSearch").addEventListener("keyup", function () {
-        const searchValue = this.value.toLowerCase();
-        const courses = document.querySelectorAll(".course-card");
-        courses.forEach(function (card) {
-            const title = card.querySelector(".course-title").textContent.toLowerCase();
-            card.style.display = title.includes(searchValue) ? "block" : "none";
-        });
+ document.getElementById("courseSearch").addEventListener("input", function () {
+    const searchValue = this.value.toLowerCase();
+    const filterValue = document.getElementById("courseFilter").value;
+
+    const courses = document.querySelectorAll(".course-card");
+    courses.forEach(function (card) {
+        const title = card.querySelector(".course-title").textContent.toLowerCase();
+        const statusText = card.querySelector(".course-info strong").textContent.toLowerCase();
+        let matchesSearch = title.includes(searchValue);
+        let matchesFilter = true;
+
+        if(filterValue === "completed") {
+            matchesFilter = statusText === "completed";
+        } else if(filterValue === "in-progress") {
+            matchesFilter = statusText === "not started" || statusText === "in progress";
+        }
+
+        card.style.display = (matchesSearch && matchesFilter) ? "block" : "none";
     });
+});
+
+// Filter change
+document.getElementById("courseFilter").addEventListener("change", function () {
+    document.getElementById("courseSearch").dispatchEvent(new Event("input"));
+});
+
 
  // Pehle attempts ka summary list dikhana
+
+
 function showAttempts(quizName) {
-    fetch(`/get-attempts?quiz_name=${encodeURIComponent(quizName)}`)
-        .then(res => res.json())
-        .then(data => {
-            const box = document.getElementById('attemptContent');
-            if (data.length === 0) {
-                box.innerHTML = "<p>No attempts found.</p>";
-            } else {
-                // Last attempt ko upar dikhane ke liye descending sort
-                data.sort((a, b) => b.attempt_number - a.attempt_number);
-
-                box.innerHTML = data.map((attempt, idx) => `
-                    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; background:#f9f9f9;">
-                        <strong>Chapter:</strong> ${attempt.chapter_name}<br>
-                        <strong>Attempt:</strong> ${attempt.attempt_number} 
-                        <span style="color:#555; font-size:13px;">(${attempt.attempt_time})</span><br>
-                        <strong>Score:</strong> ${attempt.score_percent}%<br>
-                        <button onclick="viewAttemptQuestions(${idx}, '${quizName}')"
-                            style="margin-top:8px; padding:4px 8px;">View Questions</button>
-                    </div>
-                `).join('');
-
-                // Data ko global store karte hain taki dobara fetch na karna pade
-                window.attemptData = data;
-            }
-            document.getElementById('attemptModal').style.display = 'block';
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Failed to load attempts.");
-        });
+    window.location.href = `/get-attempts?quiz_name=${encodeURIComponent(quizName)}`;
 }
 
 
