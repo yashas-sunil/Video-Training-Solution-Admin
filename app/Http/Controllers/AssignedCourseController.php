@@ -41,12 +41,11 @@ class AssignedCourseController extends Controller
 }
 
 
-  public function store(Request $request)
+ public function store(Request $request)
 {
     $request->validate([
-        'user_id' => 'required|exists:users,id',
-        'course_id' => 'required|exists:courses,id',
-        'expire_date' => 'nullable|date',
+        'user_id'   => 'required|exists:users,id',
+        'course_id' => 'required|exists:scorm_packages,id',
     ]);
 
     $exists = AssignedCourse::where('user_id', $request->user_id)
@@ -54,20 +53,22 @@ class AssignedCourseController extends Controller
                 ->exists();
 
     if ($exists) {
-        return redirect()->back()
-            ->with('error', 'This course is already assigned to the selected user!');
+        return redirect()->back()->with('error', 'This course is already assigned to this user!');
     }
 
+    $course = AppScormPackage::findOrFail($request->course_id);
+    $expireDate = now()->addMinutes($course->watch_time);
+
     AssignedCourse::create([
-        'user_id' => $request->user_id,
-        'course_id' => $request->course_id,
-        'expire_date' => $request->expire_date,
-        'created_by' => auth()->id(),
+        'user_id'     => $request->user_id,
+        'course_id'   => $request->course_id,
+        'expire_date' => $expireDate,
+        'enrolled_at' => now()
     ]);
 
-    return redirect()->back()
-        ->with('success', 'Course assigned successfully!');
+    return redirect()->back()->with('success', 'Course successfully assigned to user!');
 }
+
 
 
     public function index()
