@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
+// use App\Models\AssignedCourse;
 use App\Models\User;
-use App\AssignedCourse;
+use App\Assignedcourse;
 use App\Models\ScormPackage;
 use App\ScormPackage as AppScormPackage;
 use Illuminate\Http\Request;
 
 class AssignedCourseController extends Controller
 {
-    public function create()
+      public function create()
     {
         $users = User::all();
         $courses = AppScormPackage::all();
@@ -18,53 +18,57 @@ class AssignedCourseController extends Controller
         return view('assigned_courses.create', compact('users', 'courses'));
     }
 
-    public function getCourseExpireDate($courseId, Request $request)
-    {
-        $userId = $request->query('user_id');
+   public function getCourseExpireDate($courseId, Request $request)
+{
+    $userId = $request->query('user_id');
 
-        $assigned = AssignedCourse::where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->first();
+    // Check if already assigned
+    $assigned = AssignedCourse::where('user_id', $userId)
+        ->where('course_id', $courseId)
+        ->first();
 
-        if ($assigned) {
-            return response()->json([
-                'expire_date' => $assigned->expire_date ? $assigned->expire_date->format('Y-m-d H:i') : null
-            ]);
-        }
-
-        $course = AppScormPackage::findOrFail($courseId);
-        $expireDate = now()->addMinutes($course->watch_time)->format('Y-m-d H:i');
-
-        return response()->json(['expire_date' => $expireDate]);
+    if ($assigned) {
+        return response()->json([
+            'expire_date' => $assigned->expire_date ? $assigned->expire_date->format('Y-m-d H:i') : null
+        ]);
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'course_id' => 'required|exists:scorm_packages,id',
-        ]);
+    // If not assigned, calculate using watch_time
+    $course = AppScormPackage::findOrFail($courseId);
+    $expireDate = now()->addMinutes($course->watch_time)->format('Y-m-d H:i');
 
-        $alreadyAssigned = AssignedCourse::where('user_id', $request->user_id)
-            ->where('course_id', $request->course_id)
-            ->first();
+    return response()->json(['expire_date' => $expireDate]);
+}
 
-        if ($alreadyAssigned) {
-            return redirect()->back()->with('error', 'This course is already assigned to this user.');
-        }
 
-        $course = AppScormPackage::findOrFail($request->course_id);
-        $expireDate = now()->addMinutes($course->watch_time);
+  public function store(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'course_id' => 'required|exists:courses,id',
+        'expire_date' => 'nullable|date',
+    ]);
 
-        AssignedCourse::create([
-            'user_id'     => $request->user_id,
-            'course_id'   => $request->course_id,
-            'expire_date' => $expireDate,
-            'enrolled_at' => now()
-        ]);
+    $exists = AssignedCourse::where('user_id', $request->user_id)
+                ->where('course_id', $request->course_id)
+                ->exists();
 
-        return redirect()->route('assigned-courses.index')->with('success', 'Course successfully assigned to user!');
+    if ($exists) {
+        return redirect()->back()
+            ->with('error', 'This course is already assigned to the selected user!');
     }
+
+    AssignedCourse::create([
+        'user_id' => $request->user_id,
+        'course_id' => $request->course_id,
+        'expire_date' => $request->expire_date,
+        'created_by' => auth()->id(),
+    ]);
+
+    return redirect()->back()
+        ->with('success', 'Course assigned successfully!');
+}
+
 
     public function index()
     {
