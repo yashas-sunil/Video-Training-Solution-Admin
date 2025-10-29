@@ -16,14 +16,21 @@
             <h3 class="card-title">Assign Course</h3>
         </div>
 
-        {{-- Success Message --}}
+        {{--  Success Message --}}
         @if(session('success'))
             <div class="alert alert-success m-3">
                 {{ session('success') }}
             </div>
         @endif
 
-        {{-- Validation Errors --}}
+        {{--  Error Message (for duplicate course case) --}}
+        @if(session('error'))
+            <div class="alert alert-danger m-3">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        {{--  Validation Errors --}}
         @if($errors->any())
             <div class="alert alert-danger m-3">
                 <ul class="mb-0">
@@ -34,6 +41,7 @@
             </div>
         @endif
 
+        {{-- 🚀 Assign Course Form --}}
         <form action="{{ route('assigned-courses.store') }}" method="POST">
             @csrf
             <div class="card-body">
@@ -68,8 +76,10 @@
 
             </div>
 
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Assign Course</button>
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-1"></i> Assign Course
+                </button>
             </div>
         </form>
     </div>
@@ -80,7 +90,6 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Enable Select2 search
     $('.select2').select2({
         width: '100%',
         placeholder: "Select an option",
@@ -101,7 +110,6 @@ $(document).ready(function() {
         }
     }
 
-    // Bind change event after Select2 initialization
     $('#user_id, #course_id').on('change', fetchExpireDate);
 });
 </script>

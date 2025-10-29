@@ -85,17 +85,16 @@ flex-direction: column;
 .courses-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     gap: 1rem;
 
-    width: 1000px;   
-    height: 170px;  
-    border-radius: 20px; 
-    overflow: hidden;   
-
-    /* Center container if needed */
+    width: 100%;
+    border-radius: 20px;
+    overflow-y: auto; 
+    max-height: none; 
     margin: 0 auto;
 }
+
 
         .course-card {
             background: white;
