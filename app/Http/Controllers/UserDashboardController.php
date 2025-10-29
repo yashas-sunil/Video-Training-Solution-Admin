@@ -62,7 +62,19 @@ public function userindex()
 
     $assignedCourses = AssignedCourse::with(['course', 'progress' => function($query) use ($userId) {
         $query->where('user_id', $userId);
-    }])->where('user_id', $userId)->get();
+    }])
+    ->where('user_id', $userId)
+    ->where(function($query) {
+        $query->whereNull('expire_date')
+              ->orWhere('expire_date', '>=', now());
+    })
+    ->get();
+
+    // ✅ Expired course count
+    $expiredCoursesCount = AssignedCourse::where('user_id', $userId)
+        ->whereNotNull('expire_date')
+        ->where('expire_date', '<', now())
+        ->count();
 
     $totalCourses = $assignedCourses->count();
     $completedCoursesCount = 0;
@@ -71,8 +83,6 @@ public function userindex()
 
     $coursesWithProgress = $assignedCourses->map(function ($assigned) use (&$completedCoursesCount, &$inProgressCount, &$totalWatchTime) {
         $progressRecords = $assigned->progress;
-
-        // Total session time for this course
         $courseWatchTime = $progressRecords->sum('session_time');
         $totalWatchTime += $courseWatchTime;
 
@@ -88,7 +98,7 @@ public function userindex()
             'total_session_time' => $courseWatchTime
         ];
     });
-    
+
     return view('user.dashboard', [
         'courses' => $coursesWithProgress,
         'pendingCourses' => $coursesWithProgress->filter(fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()),
@@ -96,7 +106,9 @@ public function userindex()
         'inProgressCount' => $inProgressCount,
         'totalCourses' => $totalCourses,
         'totalWatchTime' => $totalWatchTime,
+        'expiredCoursesCount' => $expiredCoursesCount,
     ]);
 }
+
 
 }
