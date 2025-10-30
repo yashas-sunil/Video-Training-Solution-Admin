@@ -164,10 +164,6 @@ class ScormController extends Controller
             'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
         ]);
     }
-
-
-
-
     public function saveProgress(Request $request)
     {
         $user = auth()->user();

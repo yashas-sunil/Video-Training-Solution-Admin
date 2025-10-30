@@ -72,46 +72,56 @@ class UserDashboardController extends Controller
             }
         ])
             ->where('user_id', $userId)
-            ->where(function ($query) {
-                $query->whereNull('expire_date')
-                    ->orWhere('expire_date', '>=', now());
-            })
             ->get();
 
-        $expiredCoursesCount = AssignedCourse::where('user_id', $userId)
-            ->whereNotNull('expire_date')
-            ->where('expire_date', '<', now())
-            ->count();
-
-        $totalCourses = AssignedCourse::where('user_id', $userId)->count();
+        $expiredCoursesCount = 0;
+        $totalCourses = $assignedCourses->count();
 
         $completedCoursesCount = 0;
         $inProgressCount = 0;
         $totalWatchTime = 0;
 
-        $coursesWithProgress = $assignedCourses->map(function ($assigned) use (&$completedCoursesCount, &$inProgressCount, &$totalWatchTime) {
+        $coursesWithProgress = $assignedCourses->map(function ($assigned) use (&$completedCoursesCount, &$inProgressCount, &$totalWatchTime, &$expiredCoursesCount) {
             $progressRecords = $assigned->progress;
             $courseView = $assigned->courseView->first();
+            $course = $assigned->course;
+
             $courseWatchTime = $progressRecords->sum('session_time');
             $totalWatchTime += $courseWatchTime;
 
-            if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
-                $completedCoursesCount++;
-            } elseif ($progressRecords->isNotEmpty()) {
-                $inProgressCount++;
+            // Check if course expired by view limit
+            $isExpired = false;
+            if ($course && $courseView) {
+                if ($courseView->view_limit >= $course->limit) {
+                    $isExpired = true;
+                    $expiredCoursesCount++;
+                }
+            }
+
+            // Count completed / in-progress only if not expired
+            if (!$isExpired) {
+                if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
+                    $completedCoursesCount++;
+                } elseif ($progressRecords->isNotEmpty()) {
+                    $inProgressCount++;
+                }
             }
 
             return [
-                'course' => $assigned->course,
+                'course' => $course,
                 'progress' => $progressRecords,
                 'view' => $courseView,
-                'total_session_time' => $courseWatchTime
+                'total_session_time' => $courseWatchTime,
+                'is_expired' => $isExpired,
             ];
         });
 
+        // Filter only active courses for dashboard
+        $activeCourses = $coursesWithProgress->filter(fn($item) => !$item['is_expired']);
+
         return view('user.dashboard', [
-            'courses' => $coursesWithProgress,
-            'pendingCourses' => $coursesWithProgress->filter(
+            'courses' => $activeCourses,
+            'pendingCourses' => $activeCourses->filter(
                 fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()
             ),
             'completedCourses' => $completedCoursesCount,
