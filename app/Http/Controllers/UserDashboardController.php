@@ -89,16 +89,15 @@ class UserDashboardController extends Controller
             $courseWatchTime = $progressRecords->sum('session_time');
             $totalWatchTime += $courseWatchTime;
 
-            // Check if course expired by view limit
             $isExpired = false;
             if ($course && $courseView) {
-                if ($courseView->view_limit >= $course->limit) {
+                if ($courseView->view_limit > $course->view_limit) {
                     $isExpired = true;
                     $expiredCoursesCount++;
                 }
             }
 
-            // Count completed / in-progress only if not expired
+            //  Count completed / in-progress only if not expired
             if (!$isExpired) {
                 if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
                     $completedCoursesCount++;
