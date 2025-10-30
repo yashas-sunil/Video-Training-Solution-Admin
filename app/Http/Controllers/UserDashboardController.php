@@ -62,10 +62,15 @@ class UserDashboardController extends Controller
     {
         $userId = auth()->id();
 
-        //  Active (non-expired) courses only
-        $assignedCourses = AssignedCourse::with(['course', 'progress' => function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        }])
+        $assignedCourses = AssignedCourse::with([
+            'course',
+            'progress' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            },
+            'courseView' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }
+        ])
             ->where('user_id', $userId)
             ->where(function ($query) {
                 $query->whereNull('expire_date')
@@ -73,22 +78,20 @@ class UserDashboardController extends Controller
             })
             ->get();
 
-        // Expired course count
         $expiredCoursesCount = AssignedCourse::where('user_id', $userId)
             ->whereNotNull('expire_date')
             ->where('expire_date', '<', now())
             ->count();
 
-        //  Total purchased courses (active + expired)
         $totalCourses = AssignedCourse::where('user_id', $userId)->count();
 
         $completedCoursesCount = 0;
         $inProgressCount = 0;
         $totalWatchTime = 0;
 
-        //  Progress calculation
         $coursesWithProgress = $assignedCourses->map(function ($assigned) use (&$completedCoursesCount, &$inProgressCount, &$totalWatchTime) {
             $progressRecords = $assigned->progress;
+            $courseView = $assigned->courseView->first();
             $courseWatchTime = $progressRecords->sum('session_time');
             $totalWatchTime += $courseWatchTime;
 
@@ -101,6 +104,7 @@ class UserDashboardController extends Controller
             return [
                 'course' => $assigned->course,
                 'progress' => $progressRecords,
+                'view' => $courseView,
                 'total_session_time' => $courseWatchTime
             ];
         });
@@ -108,8 +112,7 @@ class UserDashboardController extends Controller
         return view('user.dashboard', [
             'courses' => $coursesWithProgress,
             'pendingCourses' => $coursesWithProgress->filter(
-                fn($item) =>
-                $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()
+                fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()
             ),
             'completedCourses' => $completedCoursesCount,
             'inProgressCount' => $inProgressCount,

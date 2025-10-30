@@ -28,4 +28,9 @@ class Assignedcourse extends Model
         return $this->hasMany(CourseProgress::class, 'course_id', 'course_id')
             ->where('user_id', auth()->id());
     }
+    public function courseView()
+{
+    return $this->hasMany(CourseView::class, 'course_id', 'course_id');
+}
+
 }

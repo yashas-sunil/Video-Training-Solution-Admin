@@ -308,13 +308,10 @@
 
         <h2 style="margin-bottom:10px; text-align:center;">📚 Your Courses</h2>
 
-        <!-- Search + Filter Row (Right Aligned) -->
+        <!-- Search + Filter -->
         <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:20px;">
-            <!-- Search Input -->
             <input type="text" id="courseSearch" placeholder="Search your courses..."
                 style="width:250px; padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
-
-            <!-- Filter Select -->
             <select id="courseFilter"
                 style="padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
                 <option value="">All Courses</option>
@@ -325,42 +322,50 @@
 
         <!-- Courses Grid -->
         <div class="courses-grid"
-            style="
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 1rem; 
-    justify-content: {{ count($courses) === 1 ? 'center' : 'flex-start' }};
-">
+            style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:{{ count($courses) === 1 ? 'center' : 'flex-start' }};">
             @forelse($courses as $item)
                 @php
                     $course = $item['course'] ?? null;
-                    $progress = $item['progress'] ?? null;
+                    $progress = $item['progress'] ?? collect();
+                    $view = $item['view'] ?? null;
 
+                    // Total course duration in seconds
                     $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
-                    $watched = $progress ? $progress->sum('session_time') : 0;
-                    $percent = $duration > 0 ? round(($watched / $duration) * 100, 2) : 0;
+
+                    // Total watched time across all attempts
+                    $totalWatched = $progress->sum('session_time');
+
+                    // Current attempt number (from view_limit)
+                    $currentAttempt = $view->view_limit ?? 1;
+
+                    // ✅ Logic: For current attempt, only count time after previous attempts
+                    $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $duration);
+
+                    // Clamp watched time not to exceed total duration per attempt
+                    if ($watchedThisAttempt > $duration) {
+                        $watchedThisAttempt = $duration;
+                    }
+
+                    // Progress % for current attempt only
+                    $percent = $duration > 0 ? round(($watchedThisAttempt / $duration) * 100, 2) : 0;
                 @endphp
+
                 <div class="course-card"
-                    style="
-    background:white; 
-    padding:1rem 1.5rem; 
-    border-radius:8px; 
-    box-shadow:0 2px 5px rgba(0,0,0,0.05); 
-    width: {{ count($courses) === 1 ? '500px' : '48%' }};
-    max-width: 90%; /* screen ke size ke hisaab se limit */
-    box-sizing:border-box;
-">
+                    style="background:white; padding:1rem 1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:{{ count($courses) === 1 ? '500px' : '48%' }}; max-width:90%; box-sizing:border-box;">
 
-
-                    <!-- Course content same as before -->
                     <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">
                         {{ $course->title ?? 'Untitled Course' }}
                     </div>
 
+                    <div style="margin-top:4px; font-size:0.9rem; color:#555;">
+                        Attempt: {{ $currentAttempt }}
+                    </div>
+
                     <div class="course-info" style="margin-top:0.5rem; font-size:0.95rem;">
                         <div style="margin-bottom:0.3rem;">
-                            Watched: {{ gmdate('H:i:s', $watched) }} / {{ gmdate('H:i:s', $duration) }}
+                            Watched: {{ gmdate('H:i:s', $watchedThisAttempt) }} / {{ gmdate('H:i:s', $duration) }}
                         </div>
+
                         <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
                             <div class="progress-bar"
                                 style="flex:1; background:#eee; border-radius:5px; height:10px; overflow:hidden; position:relative;">
@@ -369,6 +374,7 @@
                             </div>
                             <span style="min-width:35px; font-weight:bold; color:#28a745;">{{ $percent }}%</span>
                         </div>
+
                         <div
                             style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
                             <a href="javascript:void(0);" onclick="openScormWindow({{ $course->id ?? 0 }})"
@@ -378,6 +384,7 @@
                                     style="width:18px; height:18px; display:block; margin-right:5px;" />
                                 <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
                             </a>
+
                             <a href="javascript:void(0);" class="btn-attempts"
                                 onclick="showAttempts('{{ $course->title ?? '' }}')"
                                 style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:3px 8px; border-radius:6px; height:28px;">
@@ -392,6 +399,7 @@
                 <p>No courses assigned yet.</p>
             @endforelse
         </div>
+
 
         <!-- Modal -->
         <div id="attemptModal">
@@ -487,24 +495,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                            Q${i + 1}: ${q.question_id}
-                                        </div>
+                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                        <div style="font-weight:bold; margin-bottom:6px;">
+                                                            Q${i + 1}: ${q.question_id}
+                                                        </div>
 
-                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                        </div>
+                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                            🧍 Your Answer: ${q.user_answer || '-'}
+                                                        </div>
 
-                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                        </div>
+                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                            📌 Correct Answer: ${q.correct_answer || '-'}
+                                                        </div>
 
-                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                            ${isCorrect}
-                                        </div>
-                                    </div>
-                                `;
+                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                            ${isCorrect}
+                                                        </div>
+                                                    </div>
+                                                `;
             }).join('')}
         </div>
     `;
