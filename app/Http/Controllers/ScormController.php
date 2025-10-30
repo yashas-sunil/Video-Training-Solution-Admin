@@ -119,36 +119,32 @@ class ScormController extends Controller
         $package = AppScormPackage::findOrFail($id);
         $userId = auth()->id();
 
-        // User progress for this specific course
-        $progress = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $id)
-            ->first();
+        // Course total watch time (minutes → seconds)
+        $watchTime = $package->watch_time * 60;
 
-        $totalSessionTime = 0;
-        if ($progress) {
-            $totalSessionTime = $progress->session_time; 
-        }
-
-        // Convert watch_time (minutes) → seconds
-        $watchTime = $package->watch_time * 60; // convert minutes to seconds
-
-        // Existing view record for this specific course & user
+        // Get existing view record for this user & course
         $courseView = CourseView::where('user_id', $userId)
             ->where('course_id', $id)
             ->first();
 
         if (!$courseView) {
-            // first open
             $courseView = CourseView::create([
                 'user_id' => $userId,
                 'course_id' => $id,
                 'view_limit' => 1,
             ]);
-        } else {
-            // only increase when user completed total watch time
-            if ($totalSessionTime >= $watchTime) {
-                $courseView->increment('view_limit');
-            }
+        }
+
+        $totalSessionTime = AppCourseProgress::where('user_id', $userId)
+            ->where('course_id', $id)
+            ->sum('session_time');
+
+        // Formula: totalSessionTime - ((attempt_no - 1) * watchTime)
+        $currentAttemptTime = max(0, $totalSessionTime - (($courseView->view_limit - 1) * $watchTime));
+
+        if ($currentAttemptTime >= $watchTime) {
+            $courseView->increment('view_limit'); 
+            $courseView->update(['last_reset_time' => now()]);
         }
 
         $launchUrl = asset('scorm_packages/' . $package->folder_name . '/' . $package->launch_file);
