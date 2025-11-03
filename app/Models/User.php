@@ -85,7 +85,7 @@ public function courses()
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','role'
+        'name', 'email', 'password','role','status'
     ];
 
     /**

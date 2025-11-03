@@ -3,47 +3,67 @@
 @section('title', 'Assigned Courses')
 
 @section('content_header')
-    <h1>Assigned Courses</h1>
-@stop
-
-
-@section('content')
-<div class="container-fluid">
-    {{-- Assign Course Button --}}
-    <div class="mb-3">
-        <a href="{{ route('assigned-courses.create') }}" class="btn btn-primary">
+<div class="row">
+    <div class="col">
+        <h1 class="m-0 text-dark">Assigned Courses</h1>
+    </div>
+    <div class="col text-right">
+        <a href="{{ route('assigned-courses.create') }}" class="btn btn-success">
             <i class="fas fa-plus"></i> Assign New Course
         </a>
     </div>
+</div>
+@stop
 
-    {{-- Assigned Courses Table --}}
-    <div class="card">
+@section('content')
+<div class="container-fluid">
+    <div class="card mt-3">
         <div class="card-header bg-primary text-white">
             <h3 class="card-title">Assigned Courses List</h3>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>User</th>
-                        <th>Course</th>
-                        <th>Enrolled At</th>
-                        <th>Expire Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($assignedCourses as $assign)
-                        <tr>
-                          <td>{{ $assign->user->name ?? 'N/A' }}</td>
-                            <td>{{ $assign->course->title ?? 'N/A' }}</td>
-
-                            <td>{{ \Carbon\Carbon::parse($assign->enrolled_at)->format('d M Y') }}</td>
-                            <td>{{ $assign->expire_date ? \Carbon\Carbon::parse($assign->expire_date)->format('d M Y') : 'No Expiry' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            {!! $html->table(['id' => 'datatable', 'class' => 'table table-bordered table-striped'], true) !!}
         </div>
     </div>
 </div>
 @stop
+
+@section('js')
+    {!! $html->scripts() !!}
+@stop
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                position: 'top-end',
+                toast: true
+            });
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                position: 'top-end',
+                toast: true
+            });
+        });
+    </script>
+@endif

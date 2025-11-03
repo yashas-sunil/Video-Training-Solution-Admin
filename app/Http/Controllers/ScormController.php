@@ -98,7 +98,7 @@ class ScormController extends Controller
         ]);
 
         Log::info(" SCORM uploaded and saved successfully.");
-        return back()->with('success', 'SCORM course uploaded successfully!');
+        return redirect()->route('courses.index')->with('success', 'Course successfully assigned to user!');
     }
 
 
@@ -143,7 +143,7 @@ class ScormController extends Controller
         $currentAttemptTime = max(0, $totalSessionTime - (($courseView->view_limit - 1) * $watchTime));
 
         if ($currentAttemptTime >= $watchTime) {
-            $courseView->increment('view_limit'); 
+            $courseView->increment('view_limit');
             $courseView->update(['last_reset_time' => now()]);
         }
 

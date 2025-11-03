@@ -210,6 +210,10 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
     Route::resource('package-reports', 'PackageReportsController');
 
     Route::resource('admins', 'AdminController');
+    Route::patch('/users/{user}/toggle-status', 'AdminController@toggleStatus')->name('users.toggleStatus');
+     Route::post('courses/toggle-status/{id}', 'AdminCourseController@coursetoggleStatus')  ->name('courses.toggle-status');
+
+    // Route::delete('/courses/toggle-status/{id}', 'AdminController@toggleStatus')->name('courses.toggle-status');
 
     Route::resource('agents', 'AgentController');
     Route::resource('sections', 'SectionController');
@@ -276,6 +280,8 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
 //courses new route
     // Route::resource('courses', AdminCourseController::class);    
    Route::resource('courses', 'AdminCourseController');
+   Route::resource('courses', 'AdminCourseController');
+
 
 
     Route::group(['prefix' => 'packages', 'as' => 'packages.'], function () {
@@ -587,7 +593,6 @@ Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->
 
 // routes/web.php
 Route::get('/user/dashboard', 'UserDashboardController@userindex')->name('user.dashboard')->middleware('auth');
-
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
 
 Route::get('/course/progress/get/{id}', 'CourseProgressController@get');

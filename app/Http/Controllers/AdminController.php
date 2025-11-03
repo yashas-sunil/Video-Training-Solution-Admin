@@ -41,46 +41,58 @@ class AdminController extends Controller
 
             return DataTables::of($query)
                 ->addColumn('action', 'pages.admins.action')
-                ->editColumn('phone', function($query) {
-                    if($query->phone){
-                        return $query->country_code.' '.$query->phone;
+                ->editColumn('phone', function ($query) {
+                    if ($query->phone) {
+                        return $query->country_code . ' ' . $query->phone;
                     }
-
                 })
                 ->addColumn('role', function ($query) {
                     switch ($query->role) {
-                        case User::ROLE_ADMIN: return User::ROLE_ADMIN_TEXT;
-                        break;
-                        case User::ROLE_COURSE_ADMIN: return User::ROLE_COURSE_ADMIN_TEXT;
-                        break;
-                        case User::ROLE_BUSINESS_ADMIN: return User::ROLE_BUSINESS_ADMIN_TEXT;
-                        break;
-                        case User::ROLE_PLATFORM_ADMIN: return User::ROLE_PLATFORM_ADMIN_TEXT;
-                        break;
-                        case User::ROLE_REPORT_ADMIN: return User::ROLE_REPORT_ADMIN_TEXT;
-                        break;
-                        case User::ROLE_CONTENT_MANAGER: return User::ROLE_CONTENT_MANAGER_TEXT;
-                        break;
-                        case User::ROLE_FINANCE_MANAGER: return User::ROLE_FINANCE_MANAGER_TEXT;
-                        break;
-                        case User::ROLE_BRANCH_MANAGER: return User::ROLE_BRANCH_MANAGER_TEXT;
-                        break;
-                        case User::ROLE_ASSISTANT: return User::ROLE_ASSISTANT_TEXT;
-                        break;
-                        case User::ROLE_REPORTING: return User::ROLE_REPORTING_TEXT;
-                        break;
-                        case User::ROLE_BACKOFFICE_MANAGER: return User::ROLE_BACKOFFICE_MANAGER_TEXT;
-                        break;
-                        case User::ROLE_JUNIOR_ADMIN: return User::ROLE_JUNIOR_ADMIN_TEXT;
-                        break;
-                        default: return 'Unknown';
-                        break;
+                        case User::ROLE_ADMIN:
+                            return User::ROLE_ADMIN_TEXT;
+                            break;
+                        case User::ROLE_COURSE_ADMIN:
+                            return User::ROLE_COURSE_ADMIN_TEXT;
+                            break;
+                        case User::ROLE_BUSINESS_ADMIN:
+                            return User::ROLE_BUSINESS_ADMIN_TEXT;
+                            break;
+                        case User::ROLE_PLATFORM_ADMIN:
+                            return User::ROLE_PLATFORM_ADMIN_TEXT;
+                            break;
+                        case User::ROLE_REPORT_ADMIN:
+                            return User::ROLE_REPORT_ADMIN_TEXT;
+                            break;
+                        case User::ROLE_CONTENT_MANAGER:
+                            return User::ROLE_CONTENT_MANAGER_TEXT;
+                            break;
+                        case User::ROLE_FINANCE_MANAGER:
+                            return User::ROLE_FINANCE_MANAGER_TEXT;
+                            break;
+                        case User::ROLE_BRANCH_MANAGER:
+                            return User::ROLE_BRANCH_MANAGER_TEXT;
+                            break;
+                        case User::ROLE_ASSISTANT:
+                            return User::ROLE_ASSISTANT_TEXT;
+                            break;
+                        case User::ROLE_REPORTING:
+                            return User::ROLE_REPORTING_TEXT;
+                            break;
+                        case User::ROLE_BACKOFFICE_MANAGER:
+                            return User::ROLE_BACKOFFICE_MANAGER_TEXT;
+                            break;
+                        case User::ROLE_JUNIOR_ADMIN:
+                            return User::ROLE_JUNIOR_ADMIN_TEXT;
+                            break;
+                        default:
+                            return 'Unknown';
+                            break;
                     }
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-//dd($data);
+        //dd($data);
         $html = $builder->columns([
             ['data' => 'name', 'name' => 'name', 'title' => 'Name'],
             ['data' => 'email', 'name' => 'email', 'title' => 'Email'],
@@ -108,40 +120,40 @@ class AdminController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-  public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|alpha_spaces',
-        'email' => 'required|email|unique:users',
-        'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
-        'role' => 'required',
-        'password' => 'required|min:6' 
-    ]);
-//dd($request->all());
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|alpha_spaces',
+            'email' => 'required|email|unique:users',
+            'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
+            'role' => 'required',
+            'password' => 'required|min:6'
+        ]);
+        //dd($request->all());
 
-    $admin = new Admin();
-    $admin->name = $request->name;
-    $admin->email = $request->email;
-    $admin->country_code = $request->mobile_code;
-    $admin->phone = $request->mobile;
-    $admin->password = Hash::make($request->password); 
-    $admin->role = $request->role;
-//dd($admin->all());
-    $user_details['name'] = $admin->name;
-    $user_details['email'] = $admin->email;
-    $user_details['password'] = $request->password; 
-    $user_details['phone'] = $admin->phone;
+        $admin = new Admin();
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->country_code = $request->mobile_code;
+        $admin->phone = $request->mobile;
+        $admin->password = Hash::make($request->password);
+        $admin->role = $request->role;
+        //dd($admin->all());
+        $user_details['name'] = $admin->name;
+        $user_details['email'] = $admin->email;
+        $user_details['password'] = $request->password;
+        $user_details['phone'] = $admin->phone;
 
-    try {
-        Mail::send(new AdminRolesMail($user_details));
-    } catch (\Exception $exception) {
-        info($exception->getMessage(), ['exception' => $exception]);
+        try {
+            Mail::send(new AdminRolesMail($user_details));
+        } catch (\Exception $exception) {
+            info($exception->getMessage(), ['exception' => $exception]);
+        }
+
+        $admin->save();
+
+        return redirect(route('admins.index'))->with('success', 'Admin successfully created');
     }
-
-    $admin->save();
-
-    return redirect(route('admins.index'))->with('success', 'Admin successfully created');
-}
 
     /**
      * Display the specified resource.
@@ -191,7 +203,7 @@ class AdminController extends Controller
         $admin->email = $request->email;
         $admin->country_code = $request->mobile_code;
         $admin->phone = $request->mobile;
-//        $admin->password = Hash::make(Str::random(8));
+        //        $admin->password = Hash::make(Str::random(8));
         $admin->role = $request->role;
 
         $admin->save();
@@ -224,5 +236,18 @@ class AdminController extends Controller
         }
 
         return 'true';
+    }
+    public function toggleStatus($id)
+    {
+        $admin = Admin::findOrFail($id);
+
+        $admin->status = $admin->status === 'active' ? 'blocked' : 'active';
+        $admin->save();
+
+        return response()->json([
+            'success' => true,
+            'status' => $admin->status,
+            'message' => 'User status updated successfully!'
+        ]);
     }
 }

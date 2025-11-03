@@ -1,52 +1,105 @@
 <style>
-    .badge{
-        width: 55px;
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 25px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 25px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 3.5px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #28a745;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(24px);
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
     }
 </style>
-<div class="float-right">
-    <a href="{{ route('courses.edit', $id) }}" class=""><i class="fas fa-edit ml-3"></i></a>
-    @if($has_package==true)
-        @if($is_enabled==true)
-            <span class="badge badge-secondary">Enabled</span>
-            @else
-            <span class="badge badge-secondary">Disabled</span>
-        @endif
-    @else
-        @if($is_enabled==true)
-            <!-- <a href="#" id="delete-{{ $id }}"><i class="fas fa-trash ml-3"></i></a> -->
-            <a href="#" class="badge badge-danger" id="delete-{{ $id }}" >Disable </a>
-            @else
-            <a href="#" class="badge badge-success" id="delete-{{ $id }}">Enable </a>
-        @endif
-    @endif
+
+<div class="action-buttons">
+    {{--  Edit Button --}}
+    <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-sm btn-warning" title="Edit Course">
+        <i class="fas fa-edit"></i>
+    </a>
+
+    {{--  Switch Toggle --}}
+    <label class="switch">
+        <input type="checkbox" class="toggle-status" data-id="{{ $id }}" {{ $is_enabled ? 'checked' : '' }}>
+        <span class="slider"></span>
+    </label>
 </div>
 
-
 <script>
-
-    (function($){
-        $("#delete-{{ $id }}").click(function () {
-            
-            let confirmation = confirm("Are you sure to enable/disable this?");
+    (function($) {
+        $(document).off('change', '.toggle-status').on('change', '.toggle-status', function(e) {
+            let toggle = $(this);
+            let courseId = toggle.data('id');
+            let newStatus = toggle.is(':checked') ? 1 : 0;
+            let actionText = newStatus == 1 ? 'enable' : 'disable';
             let table = $('#datatable');
 
-            if (confirmation) {
+            if (confirm(`Are you sure you want to ${actionText} this course?`)) {
                 $.ajax({
-                    url: "{{ route('courses.destroy', $id) }}",
-                    type: "DELETE",
+                    url: "/courses/toggle-status/" + courseId,
+                    type: "post",
                     data: {
-                        _token: "{{ csrf_token() }}"
+                        _token: "{{ csrf_token() }}",
+                        status: newStatus
                     },
                     success: function(result) {
-                        if (result) {
-                            
-                            toastr.success('Courses statuts updated');
-                                           
-                             location.reload();
-                            table.DataTable().draw();
+                        if (result.success) {
+                            toastr.success(result.message);
+                            table.DataTable().ajax.reload(null, false);
+                        } else {
+                            toastr.error(result.message || 'Failed to update status');
+                            toggle.prop('checked', !toggle.is(
+                            ':checked')); // rollback if failed
                         }
+                    },
+                    error: function() {
+                        toastr.error('Something went wrong!');
+                        toggle.prop('checked', !toggle.is(':checked')); // rollback if error
                     }
                 });
+            } else {
+                // rollback if cancelled
+                toggle.prop('checked', !toggle.is(':checked'));
             }
         });
     })(jQuery);
