@@ -334,7 +334,7 @@
                 <option value="">All Courses</option>
                 <option value="completed">Completed</option>
                 <option value="in-progress">In Progress</option>
-                <option value="expired">Expired</option>
+                {{-- <option value="expired">Expired</option> --}}
             </select>
         </div>
 
