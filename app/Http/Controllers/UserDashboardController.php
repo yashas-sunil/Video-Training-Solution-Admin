@@ -58,95 +58,92 @@ class UserDashboardController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public function userindex()
-    {
-        $userId = auth()->id();
+  public function userindex()
+{
+    $userId = auth()->id();
 
-        $assignedCourses = AssignedCourse::with([
-            'course',
-            'progress' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            },
-            'courseView' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }
-        ])
-            ->where('user_id', $userId)
-            ->get();
+    $assignedCourses = AssignedCourse::with([
+        'course',
+        'progress' => function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        },
+        'courseView' => function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }
+    ])
+        ->where('user_id', $userId)
+        ->get();
 
-        $expiredCoursesCount = 0;
-        $totalCourses = $assignedCourses->count();
-        $completedCoursesCount = 0;
-        $inProgressCount = 0;
-        $totalWatchTime = 0;
-        $now = \Carbon\Carbon::now();
+    $expiredCoursesCount = 0;
+    $totalCourses = $assignedCourses->count();
+    $completedCoursesCount = 0;
+    $inProgressCount = 0;
+    $totalWatchTime = 0;
+    $now = \Carbon\Carbon::now();
 
-        $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
-            &$completedCoursesCount,
-            &$inProgressCount,
-            &$totalWatchTime,
-            &$expiredCoursesCount,
-            $now
-        ) {
-            $progressRecords = $assigned->progress;
-            $courseView = $assigned->courseView->first();
-            $course = $assigned->course;
+    $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
+        &$completedCoursesCount,
+        &$inProgressCount,
+        &$totalWatchTime,
+        &$expiredCoursesCount,
+        $now
+    ) {
+        $progressRecords = $assigned->progress;
+        $courseView = $assigned->courseView->first();
+        $course = $assigned->course;
 
-            if (!$course) {
-                return null;
-            }
+        if (!$course) {
+            return null;
+        }
 
-            // check both course and assigned_course status
-            $isDisabled = ($course->status == 0) || ($assigned->status == 0);
+        // check both course and assigned_course status
+        $isDisabled = ($course->status == 0) || ($assigned->status == 0);
 
-            $courseWatchTime = $progressRecords->sum('session_time');
-            $totalWatchTime += $courseWatchTime;
+        $courseWatchTime = $progressRecords->sum('session_time');
+        $totalWatchTime += $courseWatchTime;
 
-            // Check expiration conditions
-            $isExpired = false;
+        // Expiration check
+        $isExpired = false;
+        if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) {
+            $isExpired = true;
+        }
+        if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) {
+            $isExpired = true;
+        }
 
-            if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) {
-                $isExpired = true;
-            }
+        if ($isExpired) {
+            $expiredCoursesCount++;
+        }
 
-            if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) {
-                $isExpired = true;
-            }
-
-            if ($isExpired) {
-                $expiredCoursesCount++;
-            }
-
-            if (!$isExpired && !$isDisabled) {
-                if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty() && $progressRecords->isNotEmpty()) {
+        // ✅ Count only active (non-expired, non-disabled) courses
+        if (!$isExpired && !$isDisabled) {
+            if ($progressRecords->isNotEmpty()) {
+                if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty()) {
                     $completedCoursesCount++;
-                } elseif ($progressRecords->isNotEmpty()) {
+                } else {
                     $inProgressCount++;
                 }
             }
+        }
 
-            return [
-                'course' => $course,
-                'progress' => $progressRecords,
-                'view' => $courseView,
-                'total_session_time' => $courseWatchTime,
-                'is_expired' => $isExpired,
-                'is_disabled' => $isDisabled,
-            ];
-        })->filter(fn($item) => !is_null($item));
+        return [
+            'course' => $course,
+            'progress' => $progressRecords,
+            'view' => $courseView,
+            'total_session_time' => $courseWatchTime,
+            'is_expired' => $isExpired,
+            'is_disabled' => $isDisabled,
+        ];
+    })->filter(fn($item) => !is_null($item));
 
-        $activeCourses = $coursesWithProgress->filter(fn($item) => !$item['is_expired']);
+    return view('user.dashboard', [
+        'courses' => $coursesWithProgress,
+        'completedCourses' => $completedCoursesCount,
+        'inProgressCount' => $inProgressCount,
+        'totalCourses' => $totalCourses,
+        'totalWatchTime' => $totalWatchTime,
+        'expiredCoursesCount' => $expiredCoursesCount,
+    ]);
+}
 
-        return view('user.dashboard', [
-            'courses' => $activeCourses,
-            'pendingCourses' => $activeCourses->filter(
-                fn($item) => $item['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty()
-            ),
-            'completedCourses' => $completedCoursesCount,
-            'inProgressCount' => $inProgressCount,
-            'totalCourses' => $totalCourses,
-            'totalWatchTime' => $totalWatchTime,
-            'expiredCoursesCount' => $expiredCoursesCount,
-        ]);
-    }
 }
