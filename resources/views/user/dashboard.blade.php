@@ -331,25 +331,18 @@
                     $progress = $item['progress'] ?? collect();
                     $view = $item['view'] ?? null;
 
-                    // Total course duration in seconds
+                    // total course duration (in seconds)
                     $duration = optional($course)->watch_time ? optional($course)->watch_time * 60 : 0;
-
-                    // Total watched time across all attempts
                     $totalWatched = $progress->sum('session_time');
-
-                    // Current attempt number (from view_limit)
                     $currentAttempt = $view->view_limit ?? 1;
-
-                    // Logic: For current attempt, only count time after previous attempts
                     $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $duration);
-
-                    // Clamp watched time not to exceed total duration per attempt
                     if ($watchedThisAttempt > $duration) {
                         $watchedThisAttempt = $duration;
                     }
-
-                    // Progress % for current attempt only
                     $percent = $duration > 0 ? round(($watchedThisAttempt / $duration) * 100, 2) : 0;
+
+                    // disable check for both
+                    $isDisabled = optional($course)->status == 0 || ($item['is_disabled'] ?? false);
                 @endphp
 
                 <div class="course-card"
@@ -380,9 +373,10 @@
                         <div
                             style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
 
+                            {{-- Start / Resume Button --}}
                             @if ($percent == 0)
                                 <a href="javascript:void(0);"
-                                    @if (optional($course)->status == 0) onclick="alert('⚠️ This course is currently disabled.');"
+                                    @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
                                 style="background:#ccc; cursor:not-allowed; opacity:0.7;"
                             @else
                                 onclick="openScormWindow({{ $course->id ?? 0 }})"
@@ -395,7 +389,7 @@
                                 </a>
                             @else
                                 <a href="javascript:void(0);"
-                                    @if (optional($course)->status == 0) onclick="alert('⚠️ This course is currently disabled.');"
+                                    @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
                                 style="background:#ccc; cursor:not-allowed; opacity:0.7;"
                             @else
                                 onclick="openScormWindow({{ $course->id ?? 0 }})"
@@ -408,6 +402,7 @@
                                 </a>
                             @endif
 
+                            {{-- View Attempts --}}
                             <a href="javascript:void(0);" class="btn-attempts"
                                 onclick="showAttempts('{{ $course->title ?? '' }}')"
                                 style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
@@ -422,6 +417,7 @@
                 <p>No courses assigned yet.</p>
             @endforelse
         </div>
+
 
 
 
@@ -520,24 +516,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                    Q${i + 1}: ${q.question_id}
-                                                                                                </div>
+                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                            Q${i + 1}: ${q.question_id}
+                                                                                                        </div>
 
-                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                </div>
+                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                        </div>
 
-                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                </div>
+                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                        </div>
 
-                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                    ${isCorrect}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        `;
+                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                            ${isCorrect}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                `;
             }).join('')}
         </div>
     `;
