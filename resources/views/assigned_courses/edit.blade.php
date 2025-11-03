@@ -1,16 +1,16 @@
 @extends('adminlte::page')
 
-@section('title', 'Assign Course')
+@section('title', 'Edit Assigned Course')
 
 @section('content_header')
-    <h1 class="text-center text-primary mb-3">Assign Course to User</h1>
+    <h1 class="text-center text-primary mb-3">Edit Assigned Course</h1>
 @stop
 
 @section('content')
     <div class="d-flex justify-content-center">
         <div class="card shadow-sm" style="width: 480px; border-radius: 10px;">
             <div class="card-header bg-primary text-white text-center py-2">
-                <h5 class="mb-0">Assign New Course</h5>
+                <h5 class="mb-0">Update Assigned Course</h5>
             </div>
 
             <div class="card-body">
@@ -59,41 +59,38 @@
                     </div>
                 @endif
 
-                <form action="{{ route('assigned-courses.store') }}" method="POST">
+                <form action="{{ route('assigned-courses.update', $assignedCourse->id) }}" method="POST">
                     @csrf
+                    @method('PUT')
 
-                    {{-- User --}}
+                    {{-- User (readonly) --}}
                     <div class="form-group mb-3">
                         <label for="user_id" class="font-weight-bold small">
-                            Select User <span class="text-danger">*</span>
+                            User <span class="text-danger">*</span>
                         </label>
-                        <select name="user_id" id="user_id" class="form-control form-control-sm select2" required>
-                            <option value="">-- Select User --</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
+                        <input type="text" class="form-control form-control-sm" 
+                            value="{{ $assignedCourse->user->name ?? 'N/A' }}" readonly>
+                        <input type="hidden" name="user_id" value="{{ $assignedCourse->user_id }}">
                     </div>
 
-                    {{-- Course --}}
+                    {{-- Course (readonly) --}}
                     <div class="form-group mb-3">
                         <label for="course_id" class="font-weight-bold small">
-                            Select Course <span class="text-danger">*</span>
+                            Course <span class="text-danger">*</span>
                         </label>
-                        <select name="course_id" id="course_id" class="form-control form-control-sm select2" required>
-                            <option value="">-- Select Course --</option>
-                            @foreach ($courses as $course)
-                                <option value="{{ $course->id }}">{{ $course->title }}</option>
-                            @endforeach
-                        </select>
+                        <input type="text" class="form-control form-control-sm"
+                            value="{{ $assignedCourse->course->title ?? 'N/A' }}" readonly>
+                        <input type="hidden" name="course_id" value="{{ $assignedCourse->course_id }}">
                     </div>
 
-                    {{-- Expire Date & Time --}}
+                    {{-- Expire Date & Time (editable) --}}
                     <div class="form-group mb-3">
                         <label for="expire_date" class="font-weight-bold small">Expire Date & Time</label>
                         <input type="datetime-local" name="expire_date" id="expire_date"
-                            class="form-control form-control-sm" placeholder="Select date and time"
-                            onfocus="this.showPicker()" onkeydown="return false" onpaste="return false">
+                            class="form-control form-control-sm"
+                            value="{{ $assignedCourse->expire_date ? \Carbon\Carbon::parse($assignedCourse->expire_date)->format('Y-m-d\TH:i') : '' }}"
+                            placeholder="Select date and time" onfocus="this.showPicker()" onkeydown="return false"
+                            onpaste="return false">
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
@@ -101,7 +98,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                         <button type="submit" class="btn btn-sm btn-primary px-3">
-                            <i class="fas fa-save mr-1"></i> Assign Course
+                            <i class="fas fa-save mr-1"></i> Update
                         </button>
                     </div>
                 </form>
@@ -113,33 +110,4 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%',
-                placeholder: "Select an option",
-                allowClear: true
-            });
-
-            // Fetch expire date dynamically when user and course selected
-            function fetchExpireDate() {
-                let userId = $('#user_id').val();
-                let courseId = $('#course_id').val();
-
-                if (userId && courseId) {
-                    fetch(`/course-expire-date/${courseId}?user_id=${userId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.expire_date) {
-                                $('#expire_date').val(data.expire_date.replace(' ', 'T'));
-                            }
-                        })
-                        .catch(err => console.error(err));
-                }
-            }
-
-            $('#user_id, #course_id').on('change', fetchExpireDate);
-        });
-    </script>
 @stop

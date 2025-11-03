@@ -219,6 +219,11 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        .btn-start:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -300,9 +305,6 @@
                 <p>Expired Courses</p>
             </div>
 
-
-
-
         </div>
 
 
@@ -338,7 +340,7 @@
                     // Current attempt number (from view_limit)
                     $currentAttempt = $view->view_limit ?? 1;
 
-                    // ✅ Logic: For current attempt, only count time after previous attempts
+                    // Logic: For current attempt, only count time after previous attempts
                     $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $duration);
 
                     // Clamp watched time not to exceed total duration per attempt
@@ -377,17 +379,38 @@
 
                         <div
                             style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
-                            <a href="javascript:void(0);" onclick="openScormWindow({{ $course->id ?? 0 }})"
-                                class="btn-resume"
-                                style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#007bff; padding:3px 8px; border-radius:6px; height:28px;">
-                                <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
-                                    style="width:18px; height:18px; display:block; margin-right:5px;" />
-                                <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
-                            </a>
+
+                            @if ($percent == 0)
+                                <a href="javascript:void(0);"
+                                    @if (optional($course)->status == 0) onclick="alert('⚠️ This course is currently disabled.');"
+                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+                            @else
+                                onclick="openScormWindow({{ $course->id ?? 0 }})"
+                                style="background:#28a745;" @endif
+                                    class="btn-start"
+                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px; box-shadow:0 2px 4px rgba(0,0,0,0.1); transition:0.2s;">
+                                    <span style="font-size:16px; margin-right:5px;">▶️</span>
+                                    <span
+                                        style="color:white; font-size:14px; line-height:18px; font-weight:500;">Start</span>
+                                </a>
+                            @else
+                                <a href="javascript:void(0);"
+                                    @if (optional($course)->status == 0) onclick="alert('⚠️ This course is currently disabled.');"
+                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+                            @else
+                                onclick="openScormWindow({{ $course->id ?? 0 }})"
+                                style="background:#007bff;" @endif
+                                    class="btn-resume"
+                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
+                                    <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
+                                        style="width:18px; height:18px; display:block; margin-right:5px;" />
+                                    <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
+                                </a>
+                            @endif
 
                             <a href="javascript:void(0);" class="btn-attempts"
                                 onclick="showAttempts('{{ $course->title ?? '' }}')"
-                                style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:3px 8px; border-radius:6px; height:28px;">
+                                style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
                                 <img src="{{ asset('images/View.png') }}" alt="View Attempts"
                                     style="width:18px; height:18px; display:block; margin-right:5px;" />
                                 <span style="color:#007bff; font-size:14px; line-height:18px;">View Attempts</span>
@@ -399,6 +422,8 @@
                 <p>No courses assigned yet.</p>
             @endforelse
         </div>
+
+
 
 
         <!-- Modal -->
@@ -495,24 +520,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                            Q${i + 1}: ${q.question_id}
-                                                        </div>
+                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                    Q${i + 1}: ${q.question_id}
+                                                                                                </div>
 
-                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                        </div>
+                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                </div>
 
-                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                        </div>
+                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                </div>
 
-                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                            ${isCorrect}
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                    ${isCorrect}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        `;
             }).join('')}
         </div>
     `;

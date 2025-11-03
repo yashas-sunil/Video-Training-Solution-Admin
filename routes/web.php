@@ -611,6 +611,8 @@ Route::get('/course-attempts/{quizName}/view/{attemptNumber}', 'CourseProgressCo
 // routes/web.php
 Route::resource('assigned-courses', 'AssignedCourseController');
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
+Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
+
 
 
 
