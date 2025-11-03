@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="row">
         <div class="col">
-            <h1 class="m-0 text-dark">Admin</h1>
+            <h1 class="m-0 text-dark">Users</h1>
         </div>
         <div class="col text-right">
             <a href="{{ route('admins.create') }}" type="button" class="btn btn-success">Create</a>

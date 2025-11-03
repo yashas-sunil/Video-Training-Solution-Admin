@@ -3,9 +3,9 @@
         <i class="fas fa-edit text-primary fa-lg"></i>
     </a>
 
-    <a href="#" id="delete-{{ $id }}" title="Delete">
+    {{-- <a href="#" id="delete-{{ $id }}" title="Delete">
         <i class="fas fa-trash text-danger fa-lg"></i>
-    </a>
+    </a> --}}
 
     @if ($status === 'active')
         <a href="#" class="text-warning" id="toggle-{{ $id }}" data-status="active" title="Block">

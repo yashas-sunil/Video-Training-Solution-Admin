@@ -216,7 +216,7 @@ return [
             'icon'  => 'fas fa-tachometer-alt',
         ],
         [
-            'text'        => 'Admin',
+            'text'        => 'Users',
             'url'         => 'admins',
             'icon'        => 'far fa-user',
         ],
