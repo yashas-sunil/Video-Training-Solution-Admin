@@ -58,7 +58,7 @@ class UserDashboardController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-   public function userindex()
+  public function userindex()
 {
     $userId = auth()->id();
 
@@ -80,11 +80,14 @@ class UserDashboardController extends Controller
     $inProgressCount = 0;
     $totalWatchTime = 0;
 
+    $now = \Carbon\Carbon::now();
+
     $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
         &$completedCoursesCount,
         &$inProgressCount,
         &$totalWatchTime,
-        &$expiredCoursesCount
+        &$expiredCoursesCount,
+        $now
     ) {
         $progressRecords = $assigned->progress;
         $courseView = $assigned->courseView->first();
@@ -99,9 +102,20 @@ class UserDashboardController extends Controller
         $courseWatchTime = $progressRecords->sum('session_time');
         $totalWatchTime += $courseWatchTime;
 
+        // Expiration check by view_limit and date/time
         $isExpired = false;
+
+        // 1️ Expired if expire_date < now()
+        if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) {
+            $isExpired = true;
+        }
+
+        // 2️ Expired if courseView limit exceeded
         if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) {
             $isExpired = true;
+        }
+
+        if ($isExpired) {
             $expiredCoursesCount++;
         }
 
@@ -123,6 +137,7 @@ class UserDashboardController extends Controller
         ];
     })->filter(fn($item) => !is_null($item));
 
+    // Show only active and non-expired courses
     $activeCourses = $coursesWithProgress->filter(fn($item) => !$item['is_expired']);
 
     return view('user.dashboard', [
@@ -137,5 +152,6 @@ class UserDashboardController extends Controller
         'expiredCoursesCount' => $expiredCoursesCount,
     ]);
 }
+
 
 }
