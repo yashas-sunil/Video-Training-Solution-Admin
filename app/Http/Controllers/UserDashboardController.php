@@ -83,7 +83,7 @@ class UserDashboardController extends Controller
 
     $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
         &$completedCoursesCount,
-        &$inProgressCount,
+         &$inProgressCount,
         &$totalWatchTime,
         &$expiredCoursesCount,
         $now
@@ -115,16 +115,21 @@ class UserDashboardController extends Controller
             $expiredCoursesCount++;
         }
 
-        // ✅ Count only active (non-expired, non-disabled) courses
-        if (!$isExpired && !$isDisabled) {
-            if ($progressRecords->isNotEmpty()) {
-                if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty()) {
-                    $completedCoursesCount++;
-                } else {
-                    $inProgressCount++;
-                }
+        //  Count only active (non-expired, non-disabled) courses
+       if (!$isDisabled) {
+    if ($progressRecords->isNotEmpty()) {
+        // ✅ Completed count: course completed ho to badha
+        if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty()) {
+            $completedCoursesCount++;
+        } 
+        // ✅ In Progress count: sirf non-expired course ke liye
+        else {
+            if (!$isExpired) { 
+                $inProgressCount++;
             }
         }
+    }
+}
 
         return [
             'course' => $course,
