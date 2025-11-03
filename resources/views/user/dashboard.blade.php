@@ -256,7 +256,7 @@
         <div class="stats">
 
             <!-- Courses in Progress -->
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterCourses('in-progress')" style="cursor:pointer;">
                 <div style="margin-bottom:6px;">
                     <img src="{{ asset('images/course-in-progress.png') }}" alt="Courses in Progress"
                         style="width:40px; height:40px;" />
@@ -266,7 +266,7 @@
             </div>
 
             <!-- Completed Courses -->
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer;">
                 <div style="margin-bottom:6px;">
                     <img src="{{ asset('images/completed-course.png') }}" alt="Completed Courses"
                         style="width:40px; height:40px;" />
@@ -275,7 +275,7 @@
                 <p>Completed Courses</p>
             </div>
 
-            <!-- Total Watch Time -->
+            <!-- Total Watch Time (NO CLICK) -->
             <div class="stat-card">
                 <div style="margin-bottom:10px;">
                     <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
@@ -286,7 +286,7 @@
             </div>
 
             <!-- Total Courses Purchased -->
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
                     <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
                         style="width:40px; height:40px;" />
@@ -295,8 +295,8 @@
                 <p>Total Courses Purchased</p>
             </div>
 
-            <!--  Expired Courses (new box added) -->
-            <div class="stat-card">
+            <!-- Expired Courses -->
+            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Expired Courses"
                         style="width:40px; height:40px;" />
@@ -319,6 +319,7 @@
                 <option value="">All Courses</option>
                 <option value="completed">Completed</option>
                 <option value="in-progress">In Progress</option>
+                <option value="expired">Expired</option>
             </select>
         </div>
 
@@ -343,9 +344,18 @@
 
                     // disable check for both
                     $isDisabled = optional($course)->status == 0 || ($item['is_disabled'] ?? false);
+
+                    // status for filter
+                    if ($percent == 100) {
+                        $status = 'completed';
+                    } elseif (isset($item['is_expired']) && $item['is_expired']) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'in-progress';
+                    }
                 @endphp
 
-                <div class="course-card"
+                <div class="course-card" data-status="{{ $status }}"
                     style="background:white; padding:1rem 1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:{{ count($courses) === 1 ? '500px' : '48%' }}; max-width:90%; box-sizing:border-box;">
 
                     <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">
@@ -373,31 +383,34 @@
                         <div
                             style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
 
-                            {{-- Start / Resume Button --}}
+                            {{-- Start / Resume --}}
                             @if ($percent == 0)
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                            @else
-                                onclick="openScormWindow({{ $course->id ?? 0 }})"
-                                style="background:#28a745;" @endif
+        style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
+    @else
+        onclick="openScormWindow({{ $course->id ?? 0 }})"
+        style="background:#28a745; margin-top:10px;" @endif
                                     class="btn-start"
-                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px; box-shadow:0 2px 4px rgba(0,0,0,0.1); transition:0.2s;">
-                                    <span style="font-size:16px; margin-right:5px;">▶️</span>
-                                    <span
-                                        style="color:white; font-size:14px; line-height:18px; font-weight:500;">Start</span>
+                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px; margin-top:10px;">
+
+                                    <img src="{{ asset('images/Start Button.png') }}"
+                                        onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/512/892/892692.png';"
+                                        alt="Start" style="width:25px; height:38px; margin-right:8px;" />
+
+                                    <span style="color:white; font-size:25px; line-height:18px;">Start</span>
                                 </a>
                             @else
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                            @else
-                                onclick="openScormWindow({{ $course->id ?? 0 }})"
-                                style="background:#007bff;" @endif
+                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+            @else
+                onclick="openScormWindow({{ $course->id ?? 0 }})"
+                style="background:#007bff;" @endif
                                     class="btn-resume"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
                                     <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
-                                        style="width:18px; height:18px; display:block; margin-right:5px;" />
+                                        style="width:18px; height:18px; margin-right:5px;" />
                                     <span style="color:white; font-size:14px; line-height:18px;">Resume</span>
                                 </a>
                             @endif
@@ -407,20 +420,17 @@
                                 onclick="showAttempts('{{ $course->title ?? '' }}')"
                                 style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
                                 <img src="{{ asset('images/View.png') }}" alt="View Attempts"
-                                    style="width:18px; height:18px; display:block; margin-right:5px;" />
+                                    style="width:18px; height:18px; margin-right:5px;" />
                                 <span style="color:#007bff; font-size:14px; line-height:18px;">View Attempts</span>
                             </a>
                         </div>
+
                     </div>
                 </div>
             @empty
                 <p>No courses assigned yet.</p>
             @endforelse
         </div>
-
-
-
-
 
         <!-- Modal -->
         <div id="attemptModal">
@@ -516,27 +526,45 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                            Q${i + 1}: ${q.question_id}
-                                                                                                        </div>
+                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                    Q${i + 1}: ${q.question_id}
+                                                                                                                </div>
 
-                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                        </div>
+                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                </div>
 
-                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                        </div>
+                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                </div>
 
-                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                            ${isCorrect}
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                `;
+                                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                    ${isCorrect}
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        `;
             }).join('')}
         </div>
     `;
+            }
+
+            function filterCourses(type) {
+                const cards = document.querySelectorAll('.course-card');
+
+                cards.forEach(card => {
+                    const status = card.getAttribute('data-status');
+                    if (type === 'all' || status === type) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Scroll to courses section smoothly
+                document.querySelector('.courses-grid').scrollIntoView({
+                    behavior: 'smooth'
+                });
             }
         </script>
 

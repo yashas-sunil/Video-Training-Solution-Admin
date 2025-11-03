@@ -40,13 +40,12 @@
                                         class="form-control select2 @error('role') is-invalid @enderror"
                                         style="width: 100%;">
                                         <option value="">-- Select Role --</option>
-                                        <option value="{{ App\Models\User::ROLE_ADMIN }}"
-                                            @if (old('role', $admin->role) == App\Models\User::ROLE_ADMIN) selected @endif>
-                                            {{ App\Models\User::ROLE_ADMIN_TEXT }}
-                                        </option>
-                                        <option value="2" @if (old('role', $admin->role) == 2) selected @endif>
-                                            User Course Add
-                                        </option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->id }}"
+                                                {{ old('role', $admin->role) == $role->id ? 'selected' : '' }}>
+                                                {{ $role->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('role')
                                         <span class="invalid-feedback" role="alert" style="display: inline;">

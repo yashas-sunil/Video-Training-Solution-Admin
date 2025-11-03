@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\User;
+use App\Role;
 
 class AdminController extends Controller
 {
@@ -23,21 +24,10 @@ class AdminController extends Controller
     public function index(Builder $builder)
     {
         if (request()->ajax()) {
-            $query = Admin::whereIn('role', [
-                User::ROLE_ADMIN,
-                User::ROLE_COURSE_ADMIN,
-                User::ROLE_BUSINESS_ADMIN,
-                User::ROLE_PLATFORM_ADMIN,
-                User::ROLE_REPORT_ADMIN,
-                User::ROLE_CONTENT_MANAGER,
-                User::ROLE_FINANCE_MANAGER,
-                User::ROLE_BRANCH_MANAGER,
-                User::ROLE_ASSISTANT,
-                User::ROLE_REPORTING,
-                User::ROLE_BACKOFFICE_MANAGER,
-                User::ROLE_JUNIOR_ADMIN,
-
-            ]);
+            $query = User::with(['roleRelation' => function ($q) {
+                $q->select('id', 'name');
+            }])
+                ->orderByDesc('id');
 
             return DataTables::of($query)
                 ->addColumn('action', 'pages.admins.action')
@@ -45,64 +35,28 @@ class AdminController extends Controller
                     if ($query->phone) {
                         return $query->country_code . ' ' . $query->phone;
                     }
+                    return '-';
                 })
                 ->addColumn('role', function ($query) {
-                    switch ($query->role) {
-                        case User::ROLE_ADMIN:
-                            return User::ROLE_ADMIN_TEXT;
-                            break;
-                        case User::ROLE_COURSE_ADMIN:
-                            return User::ROLE_COURSE_ADMIN_TEXT;
-                            break;
-                        case User::ROLE_BUSINESS_ADMIN:
-                            return User::ROLE_BUSINESS_ADMIN_TEXT;
-                            break;
-                        case User::ROLE_PLATFORM_ADMIN:
-                            return User::ROLE_PLATFORM_ADMIN_TEXT;
-                            break;
-                        case User::ROLE_REPORT_ADMIN:
-                            return User::ROLE_REPORT_ADMIN_TEXT;
-                            break;
-                        case User::ROLE_CONTENT_MANAGER:
-                            return User::ROLE_CONTENT_MANAGER_TEXT;
-                            break;
-                        case User::ROLE_FINANCE_MANAGER:
-                            return User::ROLE_FINANCE_MANAGER_TEXT;
-                            break;
-                        case User::ROLE_BRANCH_MANAGER:
-                            return User::ROLE_BRANCH_MANAGER_TEXT;
-                            break;
-                        case User::ROLE_ASSISTANT:
-                            return User::ROLE_ASSISTANT_TEXT;
-                            break;
-                        case User::ROLE_REPORTING:
-                            return User::ROLE_REPORTING_TEXT;
-                            break;
-                        case User::ROLE_BACKOFFICE_MANAGER:
-                            return User::ROLE_BACKOFFICE_MANAGER_TEXT;
-                            break;
-                        case User::ROLE_JUNIOR_ADMIN:
-                            return User::ROLE_JUNIOR_ADMIN_TEXT;
-                            break;
-                        default:
-                            return 'Unknown';
-                            break;
-                    }
+                    return $query->roleRelation ? $query->roleRelation->name : 'N/A';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        //dd($data);
+
         $html = $builder->columns([
             ['data' => 'name', 'name' => 'name', 'title' => 'Name'],
             ['data' => 'email', 'name' => 'email', 'title' => 'Email'],
             ['data' => 'phone', 'name' => 'phone', 'title' => 'Mobile'],
-            ['data' => 'role', 'name' => 'role', 'title' => 'Role'],
+            ['data' => 'role', 'name' => 'roleRelation.name', 'title' => 'Role'],
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false, 'width' => '10%']
         ]);
 
         return view('pages.admins.index', compact('html'));
     }
+
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -111,9 +65,9 @@ class AdminController extends Controller
      */
     public function create()
     {
-        return view('pages.admins.create');
+        $roles = Role::pluck('name', 'id');
+        return view('pages.admins.create', compact('roles'));
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -126,10 +80,9 @@ class AdminController extends Controller
             'name' => 'required|alpha_spaces',
             'email' => 'required|email|unique:users',
             'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
-            'role' => 'required',
+            'role_id' => 'required|exists:roles,id',
             'password' => 'required|min:6'
         ]);
-        //dd($request->all());
 
         $admin = new Admin();
         $admin->name = $request->name;
@@ -137,12 +90,14 @@ class AdminController extends Controller
         $admin->country_code = $request->mobile_code;
         $admin->phone = $request->mobile;
         $admin->password = Hash::make($request->password);
-        $admin->role = $request->role;
-        //dd($admin->all());
-        $user_details['name'] = $admin->name;
-        $user_details['email'] = $admin->email;
-        $user_details['password'] = $request->password;
-        $user_details['phone'] = $admin->phone;
+        $admin->role = $request->role_id;
+
+        $user_details = [
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'password' => $request->password,
+            'phone' => $admin->phone,
+        ];
 
         try {
             Mail::send(new AdminRolesMail($user_details));
@@ -154,6 +109,7 @@ class AdminController extends Controller
 
         return redirect(route('admins.index'))->with('success', 'Admin successfully created');
     }
+
 
     /**
      * Display the specified resource.
@@ -174,10 +130,10 @@ class AdminController extends Controller
      */
     public function edit($id)
     {
-        /** @var Admin $admin */
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
+        $roles = Role::select('id', 'name')->get();
 
-        return view('pages.admins.edit', compact('admin'));
+        return view('pages.admins.edit', compact('admin', 'roles'));
     }
 
     /**
@@ -190,26 +146,26 @@ class AdminController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|alpha_spaces',
-            'email' =>  'required|unique:users,email,' . $id,
-            'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
-            'role' => 'required',
+            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'], // alpha_spaces ka alt
+            'email' => 'required|email|unique:users,email,' . $id,
+            'mobile' => 'nullable|regex:/^[0-9]{10}$/',
+            'role' => 'required|exists:roles,id',
         ]);
 
-        /** @var Admin $admin */
         $admin = Admin::findOrFail($id);
 
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->country_code = $request->mobile_code;
         $admin->phone = $request->mobile;
-        //        $admin->password = Hash::make(Str::random(8));
         $admin->role = $request->role;
-
         $admin->save();
 
-        return redirect(route('admins.index'))->with('success', 'Admin successfully updated');
+        return redirect()
+            ->route('admins.index')
+            ->with('success', 'Admin successfully updated');
     }
+
 
     /**
      * Remove the specified resource from storage.

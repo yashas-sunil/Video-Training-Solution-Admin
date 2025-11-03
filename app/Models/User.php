@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Role;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -76,6 +77,10 @@ public function courses()
     return $this->belongsToMany(Course::class, 'user_courses')
         ->withPivot('enrolled_at', 'expire_date')
         ->withTimestamps();
+}
+public function roleRelation()
+{
+    return $this->belongsTo(Role::class, 'role', 'id');
 }
 
 
