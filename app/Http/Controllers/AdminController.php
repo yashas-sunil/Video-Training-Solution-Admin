@@ -90,7 +90,6 @@ class AdminController extends Controller
             'role_id' => 'required|exists:roles,id',
             'password' => 'required|min:6'
         ]);
-
         $admin = new Admin();
         $admin->name = $request->name;
         $admin->email = $request->email;
