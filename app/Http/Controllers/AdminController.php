@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\User;
 use App\Role;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -79,7 +80,13 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|alpha_spaces',
             'email' => 'required|email|unique:users',
-            'mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|max:10|min:9',
+            'mobile' => [
+                'nullable',
+                'regex:/^([0-9\s\-\+\(\)]*)$/',
+                'min:9',
+                'max:10',
+                Rule::unique('users', 'phone')->whereNotNull('phone'),
+            ],
             'role_id' => 'required|exists:roles,id',
             'password' => 'required|min:6'
         ]);
