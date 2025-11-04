@@ -20,7 +20,7 @@
                             {{-- Name --}}
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="name">Name</label>
+                                    <label for="name">Name <span class="text-danger"> *</span></label>
                                     <input type="text" id="name" name="name"
                                         class="form-control @error('name') is-invalid @enderror"
                                         value="{{ old('name', $admin->name) }}" placeholder="Name">
@@ -35,7 +35,7 @@
                             {{-- Role --}}
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label>Role</label>
+                                    <label>Role <span class="text-danger"> *</span></label>
                                     <select name="role" id="role"
                                         class="form-control select2 @error('role') is-invalid @enderror"
                                         style="width: 100%;">
@@ -60,7 +60,7 @@
                             {{-- Email --}}
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="email">Email</label>
+                                    <label for="email">Email <span class="text-danger"> *</span></label>
                                     <input type="email" id="email" name="email"
                                         class="form-control @error('email') is-invalid @enderror"
                                         value="{{ old('email', $admin->email) }}" placeholder="Email" readonly>
@@ -75,7 +75,7 @@
                             {{-- Mobile --}}
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="mobile">Mobile</label>
+                                    <label for="mobile">Mobile <span class="text-danger"> *</span></label>
                                     <div class="input-group-prepend">
                                         <div class="col-md-3">
                                             <select id="mobile-code"

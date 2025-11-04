@@ -54,12 +54,12 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="title" class="form-label">Course Title</label>
+                            <label for="title" class="form-label">Course Title <span class="text-danger"> *</span></label>
                             <input type="text" name="title" id="title" class="form-control" placeholder="Enter course title" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="zip_file" class="form-label">SCORM Zip File</label>
+                            <label for="zip_file" class="form-label">SCORM Zip File <span class="text-danger"> *</span></label>
                             <input type="file" name="zip_file" id="zip_file" class="form-control" required>
                         </div>
 

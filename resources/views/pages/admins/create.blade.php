@@ -17,7 +17,7 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="name">Name</label>
+                                    <label for="name">Name <span class="text-danger"> *</span></label>
                                     <input type="text" id="name" name="name"
                                            class="form-control @error('name') is-invalid @enderror"
                                            value="{{ old('name') }}" placeholder="Name">
@@ -31,7 +31,7 @@
 
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label>Role</label>
+                                    <label>Role <span class="text-danger"> *</span></label>
                                     <select name="role_id" id="role_id"
                                             class="form-control select2 @error('role_id') is-invalid @enderror"
                                             style="width:100%;">
@@ -54,7 +54,7 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="email">Email</label>
+                                    <label for="email">Email <span class="text-danger"> *</span></label>
                                     <input type="email" id="email" name="email"
                                            class="form-control @error('email') is-invalid @enderror"
                                            value="{{ old('email') }}" placeholder="Email" required
@@ -70,7 +70,7 @@
 
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="mobile">Mobile</label>
+                                    <label for="mobile">Mobile <span class="text-danger"> *</span></label>
                                     <div class="input-group-prepend">
                                         <div class="col-md-3">
                                             <select id="mobile-code"
@@ -104,7 +104,7 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="password">Password</label>
+                                    <label for="password">Password <span class="text-danger"> *</span></label>
                                     <input type="password" id="password" name="password"
                                            class="form-control @error('password') is-invalid @enderror"
                                            placeholder="Password">

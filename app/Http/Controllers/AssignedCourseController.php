@@ -78,64 +78,64 @@ class AssignedCourseController extends Controller
             ->route('assigned-courses.index')
             ->with('success', 'Course successfully assigned to user!');
     }
-  public function index(Builder $builder)
-{
-    if (request()->ajax()) {
-        $query = AssignedCourse::with(['user', 'course'])
-            ->select('assigned_courses.*');
+    public function index(Builder $builder)
+    {
+        if (request()->ajax()) {
+            $query = AssignedCourse::with(['user', 'course'])
+                ->select('assigned_courses.*');
 
-        return DataTables::of($query)
-            ->addColumn('user_name', fn($assign) => $assign->user->name ?? 'N/A')
-            ->addColumn('course_title', fn($assign) => $assign->course->title ?? 'N/A')
-            ->addColumn('view_limit', function ($assign) {
-                $view = CourseView::where('user_id', $assign->user_id)
-                    ->where('course_id', $assign->course_id)
-                    ->first();
-                return $view
-                    ? "<span class='badge badge-info'>{$view->view_limit}</span>"
-                    : "<span class='badge badge-secondary'>0</span>";
-            })
-            ->editColumn('enrolled_at', fn($assign) =>
+            return DataTables::of($query)
+                ->addColumn('user_name', fn($assign) => $assign->user->name ?? 'N/A')
+                ->addColumn('course_title', fn($assign) => $assign->course->title ?? 'N/A')
+                ->addColumn('view_limit', function ($assign) {
+                    $view = CourseView::where('user_id', $assign->user_id)
+                        ->where('course_id', $assign->course_id)
+                        ->first();
+                    return $view
+                        ? "<span class='badge badge-info'>{$view->view_limit}</span>"
+                        : "<span class='badge badge-secondary'>0</span>";
+                })
+                ->editColumn('enrolled_at', fn($assign) =>
                 $assign->enrolled_at ? Carbon::parse($assign->enrolled_at)->format('d M Y') : '-')
-            ->editColumn('expire_date', fn($assign) =>
+                ->editColumn('expire_date', fn($assign) =>
                 $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d M Y H:i') : 'No Expiry')
 
-            // ✅ Bigger Toggle Icons
-            ->addColumn('status', function ($assign) {
-                $icon = $assign->status
-                    ? "<i class='fas fa-toggle-on text-success' style='font-size:30px; cursor:pointer;' title='Active'></i>"
-                    : "<i class='fas fa-toggle-off text-secondary' style='font-size:30px; cursor:pointer;' title='Inactive'></i>";
+                //  Bigger Toggle Icons
+                ->addColumn('status', function ($assign) {
+                    $icon = $assign->status
+                        ? "<i class='fas fa-toggle-on text-success' style='font-size:30px; cursor:pointer;' title='Active'></i>"
+                        : "<i class='fas fa-toggle-off text-secondary' style='font-size:30px; cursor:pointer;' title='Inactive'></i>";
 
-                return "<span class='status-toggle' data-id='{$assign->id}' data-status='{$assign->status}'>$icon</span>";
-            })
+                    return "<span class='status-toggle' data-id='{$assign->id}' data-status='{$assign->status}'>$icon</span>";
+                })
 
-            // ✅ Bigger Edit Button Icon
-            ->addColumn('action', function ($assign) {
-                $editUrl = route('assigned-courses.edit', $assign->id);
+                //  Bigger Edit Button Icon
+                ->addColumn('action', function ($assign) {
+                    $editUrl = route('assigned-courses.edit', $assign->id);
 
-                return "
+                    return "
                     <a href='{$editUrl}' class='btn btn-sm btn-primary' title='Edit' 
                        style='padding:6px 10px; border-radius:6px;'>
                         <i class='fas fa-edit' style='font-size:22px;'></i>
                     </a>
                 ";
-            })
-            ->rawColumns(['view_limit', 'status', 'action'])
-            ->make(true);
+                })
+                ->rawColumns(['view_limit', 'status', 'action'])
+                ->make(true);
+        }
+
+        $html = $builder->columns([
+            ['data' => 'user_name', 'name' => 'user.name', 'title' => 'User'],
+            ['data' => 'course_title', 'name' => 'course.title', 'title' => 'Course'],
+            ['data' => 'view_limit', 'name' => 'view_limit', 'title' => 'Usage Count'],
+            ['data' => 'enrolled_at', 'name' => 'enrolled_at', 'title' => 'Enrolled At'],
+            ['data' => 'expire_date', 'name' => 'expire_date', 'title' => 'Expire Date'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'Status', 'orderable' => false, 'searchable' => false],
+            ['data' => 'action', 'name' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false],
+        ]);
+
+        return view('assigned_courses.index', compact('html'));
     }
-
-    $html = $builder->columns([
-        ['data' => 'user_name', 'name' => 'user.name', 'title' => 'User'],
-        ['data' => 'course_title', 'name' => 'course.title', 'title' => 'Course'],
-        ['data' => 'view_limit', 'name' => 'view_limit', 'title' => 'Usage Count'],
-        ['data' => 'enrolled_at', 'name' => 'enrolled_at', 'title' => 'Enrolled At'],
-        ['data' => 'expire_date', 'name' => 'expire_date', 'title' => 'Expire Date'],
-        ['data' => 'status', 'name' => 'status', 'title' => 'Status', 'orderable' => false, 'searchable' => false],
-        ['data' => 'action', 'name' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false],
-    ]);
-
-    return view('assigned_courses.index', compact('html'));
-}
 
 
     public function edit($id)
