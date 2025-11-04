@@ -81,7 +81,7 @@ class AdminController extends Controller
             'name' => 'required|alpha_spaces',
             'email' => 'required|email|unique:users',
             'mobile' => [
-                'nullable',
+                'required',
                 'regex:/^([0-9\s\-\+\(\)]*)$/',
                 'min:9',
                 'max:10',
