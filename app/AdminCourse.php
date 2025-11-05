@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminCourse extends Model
 {
+    
      protected $fillable = ['title', 'description', 'thumbnail', 'created_by', 'updated_by','training_link', 'access_password'];
 
         public function users()
