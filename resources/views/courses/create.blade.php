@@ -49,7 +49,7 @@
 
     <div class="container-fluid px-4">
         <div class="row justify-content-center">
-            <div class="col-lg-10 col-xl-8">
+            <div class="col-md-8 col-lg-10 col-xl-12">
 
                 <div class="card custom-card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -73,25 +73,25 @@
                             @csrf
 
                             <div class="mb-4">
-                                <label for="title" class="form-label">📘 Course Title <span class="text-danger"> *</span></label>
+                                <label for="title" class="form-label">Course Title <span class="text-danger"> *</span></label>
                                 <input type="text" name="title" id="title" class="form-control"
                                     placeholder="Enter course title..." required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="zip_file" class="form-label">🗂 SCORM Zip File <span class="text-danger"> *</span></label>
+                                <label for="zip_file" class="form-label">SCORM Zip File <span class="text-danger"> *</span></label>
                                 <input type="file" name="zip_file" id="zip_file" class="form-control" accept=".zip"
                                     required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="watch_time" class="form-label">⏱ Total Watch Time (in minutes) <span class="text-danger"> *</span></label>
+                                <label for="watch_time" class="form-label">Total Watch Time (in minutes) <span class="text-danger"> *</span></label>
                                 <input type="number" name="watch_time" id="watch_time" class="form-control"
                                     placeholder="e.g. 90" min="1" required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="view_limit_option" class="form-label">👁 Validity (View Limit) <span class="text-danger"> *</span></label>
+                                <label for="view_limit_option" class="form-label">Validity (View Limit) <span class="text-danger"> *</span></label>
                                 <select name="view_limit_option" id="view_limit_option" class="form-control" required
                                     onchange="toggleCustomViewLimit()">
                                     <option value="">-- Select Limit --</option>
@@ -100,7 +100,7 @@
                                     <option value="3">3 Views</option>
                                     <option value="4">4 Views</option>
                                     <option value="5">5 Views</option>
-                                    <option value="custom">🔢 Enter Custom Value</option>
+                                    <option value="custom">Enter Custom Value</option>
                                 </select>
                             </div>
 

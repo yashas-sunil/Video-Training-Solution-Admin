@@ -616,7 +616,7 @@
     `;
             }
 
-            function filterCourses(status) {
+          function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
 
                 cards.forEach(card => {
@@ -655,6 +655,7 @@
                     }
                 });
             }
+
         </script>
 
 </body>
