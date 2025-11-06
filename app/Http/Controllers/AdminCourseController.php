@@ -175,7 +175,6 @@ class AdminCourseController extends Controller
                 'message' => $course->status ? 'Course enabled successfully' : 'Course disabled successfully',
             ]);
         } catch (\Throwable $e) {
-            // log real error for debugging
             Log::error('toggleStatus error: ' . $e->getMessage(), [
                 'id' => $id,
                 'user_id' => auth()->id() ?? null,
