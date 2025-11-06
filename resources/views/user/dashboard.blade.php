@@ -49,7 +49,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 2rem;
             margin-bottom: 2rem;
         }
@@ -284,47 +284,26 @@
     <div class="container">
         <div class="stats">
 
-            <!-- 1️ Total Courses Purchased -->
-            <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ $totalCourses }}</h2>
-                <p>Total Courses Purchased</p>
-            </div>
-
-            <!-- 2️ Courses Not Started -->
-            <div class="stat-card" onclick="filterCourses('not-started')" style="cursor:pointer;">
-                <div style="margin-bottom:6px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/709/709579.png" alt="Courses Not Started"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>
-                    {{ $courses->filter(function ($course) {
-                            return !$course['is_expired'] && !$course['is_disabled'] && $course['progress']->isEmpty();
-                        })->count() }}
-                </h2>
-                <p>Courses Not Started</p>
-            </div>
-
-            <!-- 3️ Courses In Progress -->
+            <!-- Courses in Progress -->
             <div class="stat-card" onclick="filterCourses('in-progress')" style="cursor:pointer;">
                 <div style="margin-bottom:6px;">
                     <img src="{{ asset('images/course-in-progress.png') }}" alt="Courses in Progress"
                         style="width:40px; height:40px;" />
                 </div>
+
+                {{--  Count only non-expired + in-progress courses --}}
                 <h2>
                     {{ $courses->filter(function ($course) {
-                            return !$course['is_expired'] &&
-                                !$course['is_disabled'] &&
-                                $course['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty();
+                            return !$course['is_expired'] && // not expired
+                                !$course['is_disabled'] && // not disabled
+                                $course['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty(); // in progress
                         })->count() }}
                 </h2>
+
                 <p>Courses in Progress</p>
             </div>
 
-            <!-- 4️ Completed Courses -->
+            <!-- Completed Courses -->
             <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer;">
                 <div style="margin-bottom:6px;">
                     <img src="{{ asset('images/completed-course.png') }}" alt="Completed Courses"
@@ -334,17 +313,7 @@
                 <p>Completed Courses</p>
             </div>
 
-            <!-- 5️ Expired Courses -->
-            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
-                <div style="margin-bottom:10px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Expired Courses"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ $expiredCoursesCount }}</h2>
-                <p>Expired Courses</p>
-            </div>
-
-            <!-- 6️ Total Watch Time -->
+            <!-- Total Watch Time (NO CLICK) -->
             <div class="stat-card">
                 <div style="margin-bottom:10px;">
                     <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
@@ -352,6 +321,26 @@
                 </div>
                 <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
                 <p>Total Watch Time</p>
+            </div>
+
+             <!-- Expired Courses -->
+            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('images/course-expire.png') }}" alt="Expired Courses"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ $expiredCoursesCount }}</h2>
+                <p>Expired Courses</p>
+            </div>
+
+            <!-- Total Courses Purchased -->
+            <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ $totalCourses }}</h2>
+                <p>Total Courses Purchased</p>
             </div>
 
         </div>
@@ -609,38 +598,24 @@
     `;
             }
 
-          function filterCourses(status) {
+            function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
-
                 cards.forEach(card => {
                     const percentText = card.querySelector('.progress-fill').style.width.replace('%', '');
                     const percent = parseFloat(percentText);
-                    const courseStatus = card.dataset.status; // completed, in-progress, expired
-                    const isDisabled = card.dataset.disabled === 'true'; // agar disable hai
 
-                    card.style.display = 'none';
-
-                    if (isDisabled) {
-                        return;
-                    }
-
+                    // Logic
                     if (status === 'in-progress') {
-                        // Between 0 and 100%
-                        if (percent > 0 && percent < 100 && courseStatus !== 'expired') {
+                        // Show only if 0 < percent < 100
+                        if (percent > 0 && percent < 100) {
                             card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
                         }
                     } else if (status === 'completed') {
-                        if (percent === 100) {
-                            card.style.display = 'block';
-                        }
+                        card.style.display = percent === 100 ? 'block' : 'none';
                     } else if (status === 'expired') {
-                        if (courseStatus === 'expired') {
-                            card.style.display = 'block';
-                        }
-                    } else if (status === 'not-started') {
-                        if (percent === 0 && courseStatus !== 'expired') {
-                            card.style.display = 'block';
-                        }
+                        card.style.display = card.dataset.status === 'expired' ? 'block' : 'none';
                     } else if (status === 'all') {
                         card.style.display = 'block';
                     } else {
@@ -648,7 +623,6 @@
                     }
                 });
             }
-
         </script>
 
 </body>
