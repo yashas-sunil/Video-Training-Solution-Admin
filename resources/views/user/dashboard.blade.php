@@ -378,7 +378,7 @@
                 <option value="">All Courses</option>
                 <option value="completed">Completed</option>
                 <option value="in-progress">In Progress</option>
-                <option value="not-started">Not Started</option>
+                {{-- <option value="expired">Expired</option> --}}
             </select>
         </div>
 
@@ -407,8 +407,6 @@
                         $status = 'completed';
                     } elseif ($isExpired) {
                         $status = 'expired';
-                    } elseif ($percent == 0) {
-                        $status = 'not-started';
                     } else {
                         $status = 'in-progress';
                     }
@@ -417,6 +415,7 @@
                 <div class="course-card" data-status="{{ $status }}"
                     style="background:white; padding:1rem 1.5rem; text-align: center; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:{{ count($courses) === 1 ? '500px' : '48%' }}; max-width:90%; box-sizing:border-box; position:relative;">
 
+                    {{-- Show badge if expired --}}
                     @if ($isExpired)
                         <span
                             style="position:absolute; top:10px; right:10px; background:#dc354644; color:red; padding:6px 10px; border-radius:6px; font-size:12px;">
@@ -448,17 +447,18 @@
 
                         <div
                             style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
+
                             {{-- Start / Resume --}}
                             @if ($percent == 0)
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
-                            @elseif ($isExpired)
-                                onclick="alert('⚠️ This course has expired.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
-                            @else
-                                onclick="openScormWindow({{ $course->id ?? 0 }})"
-                                style="background:#28a745; margin-top:10px;" @endif
+                        style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
+                    @elseif ($isExpired)
+                        onclick="alert('⚠️ This course has expired.');"
+                        style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
+                    @else
+                        onclick="openScormWindow({{ $course->id ?? 0 }})"
+                        style="background:#28a745; margin-top:10px;" @endif
                                     class="btn-start"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px; margin-top:10px;">
                                     <img src="{{ asset('images/start-btn.png') }}"
@@ -469,13 +469,13 @@
                             @else
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                            @elseif ($isExpired)
-                                onclick="alert('⚠️ This course has expired.');"
-                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                            @else
-                                onclick="openScormWindow({{ $course->id ?? 0 }})"
-                                style="background:#007bff;" @endif
+                        style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+                    @elseif ($isExpired)
+                        onclick="alert('⚠️ This course has expired.');"
+                        style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+                    @else
+                        onclick="openScormWindow({{ $course->id ?? 0 }})"
+                        style="background:#007bff;" @endif
                                     class="btn-resume"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
                                     <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
@@ -493,13 +493,13 @@
                                 <span style="color:#007BFF; font-weight: bold; font-size:14px; line-height:18px;">View Attempts</span>
                             </a>
                         </div>
+
                     </div>
                 </div>
             @empty
                 <p>No courses assigned yet.</p>
             @endforelse
         </div>
-
 
 
         <!-- Modal -->
@@ -596,30 +596,30 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                                                            Q${i + 1}: ${q.question_id}
-                                                                                                                                                                        </div>
+                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                                            Q${i + 1}: ${q.question_id}
+                                                                                                                                        </div>
 
-                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                                                        </div>
+                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                                        </div>
 
-                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                                                        </div>
+                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                                        </div>
 
-                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                                            ${isCorrect}
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div>
-                                                                                                                                                                `;
+                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                            ${isCorrect}
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                `;
             }).join('')}
         </div>
     `;
             }
 
-            function filterCourses(status) {
+          function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
 
                 cards.forEach(card => {
@@ -658,6 +658,7 @@
                     }
                 });
             }
+
         </script>
 
 </body>
