@@ -334,27 +334,7 @@
                 <p>Completed Courses</p>
             </div>
 
-            <!-- Total Watch Time (NO CLICK) -->
-            <div class="stat-card">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
-                <p>Total Watch Time</p>
-            </div>
-
-            <!-- Total Courses Purchased -->
-            <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ $totalCourses }}</h2>
-                <p>Total Courses Purchased</p>
-            </div>
-
-            <!-- Expired Courses -->
+            <!-- 5️ Expired Courses -->
             <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Expired Courses"
@@ -362,6 +342,16 @@
                 </div>
                 <h2>{{ $expiredCoursesCount }}</h2>
                 <p>Expired Courses</p>
+            </div>
+
+            <!-- 6️ Total Watch Time -->
+            <div class="stat-card">
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
+                <p>Total Watch Time</p>
             </div>
 
         </div>
@@ -452,13 +442,13 @@
                             @if ($percent == 0)
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                        style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
-                    @elseif ($isExpired)
-                        onclick="alert('⚠️ This course has expired.');"
-                        style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
-                    @else
-                        onclick="openScormWindow({{ $course->id ?? 0 }})"
-                        style="background:#28a745; margin-top:10px;" @endif
+                                style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
+                            @elseif ($isExpired)
+                                onclick="alert('⚠️ This course has expired.');"
+                                style="background:#ccc; cursor:not-allowed; opacity:0.7; margin-top:10px;"
+                            @else
+                                onclick="openScormWindow({{ $course->id ?? 0 }})"
+                                style="background:#007bff; margin-top:10px;" @endif
                                     class="btn-start"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px; margin-top:10px;">
                                     <img src="{{ asset('images/start-btn.png') }}"
@@ -469,13 +459,13 @@
                             @else
                                 <a href="javascript:void(0);"
                                     @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');"
-                        style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                    @elseif ($isExpired)
-                        onclick="alert('⚠️ This course has expired.');"
-                        style="background:#ccc; cursor:not-allowed; opacity:0.7;"
-                    @else
-                        onclick="openScormWindow({{ $course->id ?? 0 }})"
-                        style="background:#007bff;" @endif
+                                style="background:#ccc; cursor:not-allowed; opacity:0.7;"
+                            @elseif ($isExpired)
+                                onclick="alert('⚠️ This course has expired.');"
+                                style="background:#b6b5b5; cursor:not-allowed; opacity:0.7;"
+                            @else
+                                onclick="openScormWindow({{ $course->id ?? 0 }})"
+                                style="background:#007bff;" @endif
                                     class="btn-resume"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
                                     <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
