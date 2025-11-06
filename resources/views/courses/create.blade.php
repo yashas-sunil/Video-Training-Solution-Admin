@@ -35,6 +35,10 @@
             border-color: #007bff;
             box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, .25);
         }
+        .button-footer {
+            display: flex;
+            gap: 10px;
+        }
     </style>
 
     <div id="loaderOverlay">
@@ -105,16 +109,16 @@
                                 <input type="number" name="view_limit" id="view_limit" class="form-control"
                                     placeholder="e.g. 10" min="1">
                             </div>
-
-                            <button type="submit" class="btn btn-success btn-lg w-100" id="submitBtn">
-                                ⬆️ Upload Course
-                            </button>
                         </form>
+                        <div class="button-footer">
+                        <button type="submit" class="btn btn-success w-50" id="submitBtn">
+                                ⬆️ Upload Course
+                        </button>
                         {{--  BACK BUTTON --}}
-                        <a href="{{ route('courses.index') }}" class="btn btn-secondary mt-3 w-100">
-                            🔙 Back to Course List
+                        <a href="{{ route('courses.index') }}" class="btn btn-secondary w-50">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to Course List
                         </a>
-
+                        </div>
                     </div>
                 </div>
 
