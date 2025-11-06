@@ -85,7 +85,7 @@
         }
 
         .stat-card p {
-            font-size: 14px;
+            font-size: 12px;
             margin: 2px 0;
             color: #666;
         }
@@ -202,6 +202,9 @@
                 max-width: 100% !important;
                 width: 100% !important;
             }
+            .stat-card p {
+                font-size: 16px;
+            }
         }
 
         /* Small screens (≤ 425px) */
@@ -300,7 +303,7 @@
             <!-- 2️ Courses Not Started -->
             <div class="stat-card" onclick="filterCourses('not-started')" style="cursor:pointer;">
                 <div style="margin-bottom:6px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/709/709579.png" alt="Courses Not Started"
+                    <img src="{{ asset('images/pending.png') }}" alt="Courses Not Started"
                         style="width:40px; height:40px;" />
                 </div>
                 <h2>

@@ -3,13 +3,13 @@
 @section('title', 'Edit Assigned Course')
 
 @section('content_header')
-    <h1 class="text-center text-primary mb-3">Edit Assigned Course</h1>
+    <h1 class="text-left text-dark mb-3">Edit Assigned Course</h1>
 @stop
 
 @section('content')
     <div class="d-flex justify-content-center">
-        <div class="card shadow-sm" style="width: 480px; border-radius: 10px;">
-            <div class="card-header bg-primary text-white text-center py-2">
+        <div class="card shadow-sm" style="width: 100%; border-radius: 10px;">
+            <div class="card-header bg-white text-dark text-left py-2">
                 <h5 class="mb-0">Update Assigned Course</h5>
             </div>
 
@@ -65,7 +65,7 @@
 
                     {{-- User (readonly) --}}
                     <div class="form-group mb-3">
-                        <label for="user_id" class="font-weight-bold small">
+                        <label for="user_id" class="font-weight-bold">
                             User <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control form-control-sm" 
@@ -75,7 +75,7 @@
 
                     {{-- Course (readonly) --}}
                     <div class="form-group mb-3">
-                        <label for="course_id" class="font-weight-bold small">
+                        <label for="course_id" class="font-weight-bold">
                             Course <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control form-control-sm"
@@ -85,7 +85,7 @@
 
                     {{-- Expire Date & Time (editable) --}}
                     <div class="form-group mb-3">
-                        <label for="expire_date" class="font-weight-bold small">Expire Date & Time</label>
+                        <label for="expire_date" class="font-weight-bold">Expire Date & Time</label>
                         <input type="datetime-local" name="expire_date" id="expire_date"
                             class="form-control form-control-sm"
                             value="{{ $assignedCourse->expire_date ? \Carbon\Carbon::parse($assignedCourse->expire_date)->format('Y-m-d\TH:i') : '' }}"
@@ -93,12 +93,12 @@
                             onpaste="return false">
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('assigned-courses.index') }}" class="btn btn-sm btn-secondary px-3">
+                    <div class="d-flex mt-4" style="gap: 10px">
+                        <a href="{{ route('assigned-courses.index') }}" class="btn btn-secondary px-3">
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
-                        <button type="submit" class="btn btn-sm btn-primary px-3">
-                            <i class="fas fa-save mr-1"></i> Update
+                        <button type="submit" class="btn btn-success px-3">
+                             Update <i class="fas fa-save mr-1"></i>
                         </button>
                     </div>
                 </form>

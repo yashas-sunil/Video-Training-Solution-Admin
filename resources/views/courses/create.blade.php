@@ -52,9 +52,9 @@
             <div class="col-md-8 col-lg-10 col-xl-12">
 
                 <div class="card custom-card">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div class="card-header text-dark d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-upload me-2"></i> Upload New SCORM Course
+                         Upload New SCORM Course
                         </h5>
                     </div>
 
@@ -80,7 +80,7 @@
 
                             <div class="mb-4">
                                 <label for="zip_file" class="form-label">SCORM Zip File <span class="text-danger"> *</span></label>
-                                <input type="file" name="zip_file" id="zip_file" class="form-control" accept=".zip"
+                                <input type="file" name="zip_file" id="zip_file" style="height: 43px" class="form-control" accept=".zip"
                                     required>
                             </div>
 
@@ -110,14 +110,9 @@
                                     placeholder="e.g. 10" min="1">
                             </div>
                         </form>
-                        <div class="button-footer">
-                        <button type="submit" class="btn btn-success w-50" id="submitBtn">
-                                ⬆️ Upload Course
-                        </button>
-                        {{--  BACK BUTTON --}}
-                        <a href="{{ route('courses.index') }}" class="btn btn-secondary w-50">
-                            <i class="fas fa-arrow-left mr-1"></i> Back to Course List
-                        </a>
+                         <div class="d-flex" style="gap: 10px">
+                            <a href="{{ route('courses.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Back</a>
+                            <button type="submit" class="btn btn-success">Upload Course<i class="fas fa-save ml-1"></i></button>
                         </div>
                     </div>
                 </div>

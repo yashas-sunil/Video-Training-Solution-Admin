@@ -3,11 +3,11 @@
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-12">
 
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0">✏️ Edit Course</h5>
+                <div class="card-header bg-white text-dark">
+                    <h5 class="mb-0">Edit Course</h5>
                 </div>
 
                 <div class="card-body">
@@ -45,9 +45,9 @@
                             <input type="number" name="watch_time" id="watch_time" class="form-control" value="{{ old('watch_time', $course->watch_time) }}" min="0" required>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('courses.index') }}" class="btn btn-secondary">🔙 Back</a>
-                            <button type="submit" class="btn btn-success">💾 Update Course</button>
+                        <div class="d-flex" style="gap: 10px">
+                            <a href="{{ route('courses.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Back</a>
+                            <button type="submit" class="btn btn-success">Update Course<i class="fas fa-save ml-1"></i></button>
                         </div>
                     </form>
                 </div>

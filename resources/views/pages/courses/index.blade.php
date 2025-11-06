@@ -17,7 +17,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                {!! $html->table(['id' => 'datatable'], true) !!}
+                <div class="table-responsive">
+                  {!! $html->table(['id' => 'datatable'], true) !!}
+                </div>
             </div>
         </div>
     </div>

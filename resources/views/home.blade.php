@@ -124,7 +124,7 @@
                                     <p>PREBOOKING (Last 7 Days)</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="fas fa-shopping-cart"></i>
+                                    <i class="fas fa-file"></i>
                                 </div>
                                 <a href="{{ url('sales?p_date=2') }}" class="small-box-footer">
                                     More Info <i class="fas fa-arrow-circle-right"></i>
@@ -138,7 +138,7 @@
                                     <p>PREBOOK FULL PAYMENTS (Last 7 Days)</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="fas fa-shopping-cart"></i>
+                                    <i class="fas fa-wallet"></i>
                                 </div>
                                 <a href="{{ url('sales?p_date=1') }}" class="small-box-footer">
                                     More Info <i class="fas fa-arrow-circle-right"></i>

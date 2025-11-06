@@ -101,22 +101,36 @@ class AssignedCourseController extends Controller
                 $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d M Y H:i') : 'No Expiry')
 
                 //  Bigger Toggle Icons
-                ->addColumn('status', function ($assign) {
-                    $icon = $assign->status
-                        ? "<i class='fas fa-toggle-on text-success' style='font-size:30px; cursor:pointer;' title='Active'></i>"
-                        : "<i class='fas fa-toggle-off text-secondary' style='font-size:30px; cursor:pointer;' title='Inactive'></i>";
+                // ->addColumn('status', function ($assign) {
+                //     $icon = $assign->status
+                //         ? "<i class='fas fa-toggle-on text-success' style='font-size:30px; cursor:pointer;' title='Active'></i>"
+                //         : "<i class='fas fa-toggle-off text-secondary' style='font-size:30px; cursor:pointer;' title='Inactive'></i>";
 
-                    return "<span class='status-toggle' data-id='{$assign->id}' data-status='{$assign->status}'>$icon</span>";
-                })
+                //     return "<span class='status-toggle' data-id='{$assign->id}' data-status='{$assign->status}'>$icon</span>";
+                // })
+
+                ->addColumn('status', function ($assign) {
+                $checked = $assign->status ? 'checked' : '';
+
+                return '
+                    <div class="action-buttons">
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-status" data-id="' . $assign->id . '" ' . $checked . '>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                ';
+            })
+
 
                 //  Bigger Edit Button Icon
                 ->addColumn('action', function ($assign) {
                     $editUrl = route('assigned-courses.edit', $assign->id);
 
                     return "
-                    <a href='{$editUrl}' class='btn btn-sm btn-primary' title='Edit' 
+                    <a href='{$editUrl}' title='Edit' 
                        style='padding:6px 10px; border-radius:6px;'>
-                        <i class='fas fa-edit' style='font-size:22px;'></i>
+                        <i class='fas fa-edit text-primary fa-lg' style='font-size:22px;'></i>
                     </a>
                 ";
                 })
