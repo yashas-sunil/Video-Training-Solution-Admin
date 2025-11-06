@@ -117,7 +117,7 @@
                             </a>
                         </div>
                         <div class="text-right">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-success">
                                 Update <i class="fas fa-save ml-1"></i>
                             </button>
                         </div>

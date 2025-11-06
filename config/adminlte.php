@@ -340,10 +340,12 @@ return [
                 // ],
                 [
                     'text'        => 'Courses',
+                    'icon'        => 'fas fa-caret-right',
                     'url'         => 'courses'
                 ],
                    [
                     'text'        => 'Assigned-Courses',
+                    'icon'        => 'fas fa-caret-right',
                     'url'         => 'assigned-courses'
                 ],
                 // [

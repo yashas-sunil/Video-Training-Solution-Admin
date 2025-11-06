@@ -3,13 +3,13 @@
 @section('title', 'Assign Course')
 
 @section('content_header')
-    <h1 class="text-center text-primary mb-3">Assign Course to User</h1>
+    <h1 class="text-left text-dark mb-3">Assign Course to User</h1>
 @stop
 
 @section('content')
     <div class="d-flex justify-content-center">
-        <div class="card shadow-sm" style="width: 480px; border-radius: 10px;">
-            <div class="card-header bg-primary text-white text-center py-2">
+        <div class="card shadow-sm" style="width: 100%; border-radius: 10px;">
+            <div class="card-header bg-white text-dark text-left py-2">
                 <h5 class="mb-0">Assign New Course</h5>
             </div>
 
@@ -64,7 +64,7 @@
 
                     {{-- User --}}
                     <div class="form-group mb-3">
-                        <label for="user_id" class="font-weight-bold small">
+                        <label for="user_id" class="font-weight-bold">
                             Select User <span class="text-danger">*</span>
                         </label>
                         <select name="user_id" id="user_id" class="form-control form-control-sm select2" required>
@@ -77,7 +77,7 @@
 
                     {{-- Course --}}
                     <div class="form-group mb-3">
-                        <label for="course_id" class="font-weight-bold small">
+                        <label for="course_id" class="font-weight-bold">
                             Select Course <span class="text-danger">*</span>
                         </label>
                         <select name="course_id" id="course_id" class="form-control form-control-sm select2" required>
@@ -90,18 +90,18 @@
 
                     {{-- Expire Date & Time --}}
                     <div class="form-group mb-3">
-                        <label for="expire_date" class="font-weight-bold small">Expire Date & Time</label>
+                        <label for="expire_date" class="font-weight-bold">Expire Date & Time</label>
                         <input type="datetime-local" name="expire_date" id="expire_date"
                             class="form-control form-control-sm" placeholder="Select date and time"
                             onfocus="this.showPicker()" onkeydown="return false" onpaste="return false">
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('assigned-courses.index') }}" class="btn btn-sm btn-secondary px-3">
+                    <div class="d-flex mt-4" style="gap: 10px">
+                        <a href="{{ route('assigned-courses.index') }}" class="btn btn-secondary px-3">
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
-                        <button type="submit" class="btn btn-sm btn-primary px-3">
-                            <i class="fas fa-save mr-1"></i> Assign Course
+                        <button type="submit" class="btn btn-success px-3">
+                            Assign Course <i class="fas fa-save mr-1"></i> 
                         </button>
                     </div>
                 </form>
