@@ -616,7 +616,7 @@
     `;
             }
 
-            function filterCourses(status) {
+          function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
                 cards.forEach(card => {
                     const percentText = card.querySelector('.progress-fill').style.width.replace('%', '');
@@ -641,6 +641,7 @@
                     }
                 });
             }
+
         </script>
 
 </body>
