@@ -343,6 +343,16 @@
                 <p>Total Courses Purchased</p>
             </div>
 
+            <!-- Expired Courses -->
+            {{--  <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
+                <div style="margin-bottom:10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Expired Courses"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ $expiredCoursesCount }}</h2>
+                <p>Expired Courses</p>
+            </div>  --}}
+
         </div>
 
 
@@ -575,48 +585,30 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                            Q${i + 1}: ${q.question_id}
-                                                                                                                                        </div>
+                                                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                                                                            Q${i + 1}: ${q.question_id}
+                                                                                                                                                                        </div>
 
-                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                        </div>
+                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                                                                        </div>
 
-                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                        </div>
+                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                                                                        </div>
 
-                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                            ${isCorrect}
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-                                                                                                                                `;
-                                                                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                                                    Q${i + 1}: ${q.question_id}
-                                                                                                                                                                </div>
-
-                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                                                </div>
-
-                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                                                </div>
-
-                                                                                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                                    ${isCorrect}
-                                                                                                                                                                </div>
-                                                                                                                                                            </div>
-                                                                                                                                                        `;
+                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                                                            ${isCorrect}
+                                                                                                                                                                        </div>
+                                                                                                                                                                    </div>
+                                                                                                                                                                `;
             }).join('')}
         </div>
     `;
             }
 
-            function filterCourses(status) {
+          function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
                 cards.forEach(card => {
                     const percentText = card.querySelector('.progress-fill').style.width.replace('%', '');
@@ -641,6 +633,7 @@
                     }
                 });
             }
+
         </script>
 
 </body>

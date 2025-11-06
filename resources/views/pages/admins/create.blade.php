@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card card-primary">
                 <form role="form" id="create" method="POST" action="{{ route('admins.store') }}" enctype="multipart/form-data">
                     @csrf
@@ -118,7 +118,7 @@
                         </div>
                     </div>
 
-                    <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="card-footer d-flex align-items-center" style="gap: 10px">
                         <a href="{{ route('admins.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>

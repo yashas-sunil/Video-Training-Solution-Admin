@@ -4,6 +4,7 @@
         display: inline-block;
         width: 50px;
         height: 25px;
+        margin-bottom: 0px;
     }
 
     .switch input {
@@ -37,7 +38,7 @@
     }
 
     input:checked+.slider {
-        background-color: #28a745;
+        background-color: orange;
     }
 
     input:checked+.slider:before {
@@ -54,8 +55,8 @@
 
 <div class="action-buttons">
     {{--  Edit Button --}}
-    <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-sm btn-warning" title="Edit Course">
-        <i class="fas fa-edit"></i>
+    <a href="{{ route('courses.edit', $course->id) }}" title="Edit Course">
+        <i class="fas fa-edit text-primary fa-lg"></i>
     </a>
 
     {{--  Switch Toggle --}}

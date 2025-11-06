@@ -6,6 +6,20 @@
     <h1 class="m-0 text-dark">Dashboard</h1>
 @stop
 
+<style>
+    .small-box p {
+        font-size: 14px!important;
+        font-weight: bold;
+        color: white;
+    }
+    .small-box h3 {
+        color: white;
+    }
+    .small-box a {
+        color: white!important;
+    }
+</style>
+
 @section('content')
     <div class="row">
     @if(\Illuminate\Support\Facades\Auth::user()->role==13)
