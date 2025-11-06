@@ -606,11 +606,11 @@
                                                                                                                                                     📌 Correct Answer: ${q.correct_answer || '-'}
                                                                                                                                                 </div>
 
-                                                                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                    ${isCorrect}
-                                                                                                                                                </div>
-                                                                                                                                            </div>
-                                                                                                                                        `;
+                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                            ${isCorrect}
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                `;
             }).join('')}
         </div>
     `;
