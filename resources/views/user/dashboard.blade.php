@@ -49,7 +49,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 2rem;
             margin-bottom: 2rem;
         }
@@ -192,22 +192,24 @@
                 grid-template-columns: repeat(2, 1fr);
                 justify-content: center;
             }
+
             .courses-grid {
-                display: grid!important;
-                grid-template-columns: repeat(1, 1fr); 
+                display: grid !important;
+                grid-template-columns: repeat(1, 1fr);
             }
+
             .course-card {
-                max-width: 100%!important;
-                width: 100%!important;                                                                     
+                max-width: 100% !important;
+                width: 100% !important;
             }
         }
 
         /* Small screens (≤ 425px) */
         @media (max-width: 425px) {
             .stats {
-                grid-template-columns: repeat(1, 1fr)!important;
+                grid-template-columns: repeat(1, 1fr) !important;
             }
-        
+
             .course-card {
                 width: 100%;
             }
@@ -274,7 +276,8 @@
             </div>
             <a href="{{ route('logout') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                style="display: flex; gap: 5px; color:white; text-decoration: none; margin-left: 20px;">Logout<img src="{{ asset('images/logout.png') }}" alt="Logout"></a>
+                style="display: flex; gap: 5px; color:white; text-decoration: none; margin-left: 20px;">Logout<img
+                    src="{{ asset('images/logout.png') }}" alt="Logout"></a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
@@ -284,56 +287,7 @@
     <div class="container">
         <div class="stats">
 
-            <!-- Courses in Progress -->
-            <div class="stat-card" onclick="filterCourses('in-progress')" style="cursor:pointer;">
-                <div style="margin-bottom:6px;">
-                    <img src="{{ asset('images/course-in-progress.png') }}" alt="Courses in Progress"
-                        style="width:40px; height:40px;" />
-                </div>
-
-                {{--  Count only non-expired + in-progress courses --}}
-                <h2>
-                    {{ $courses->filter(function ($course) {
-                            return !$course['is_expired'] && // not expired
-                                !$course['is_disabled'] && // not disabled
-                                $course['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty(); // in progress
-                        })->count() }}
-                </h2>
-
-                <p>Courses in Progress</p>
-            </div>
-
-            <!-- Completed Courses -->
-            <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer;">
-                <div style="margin-bottom:6px;">
-                    <img src="{{ asset('images/completed-course.png') }}" alt="Completed Courses"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ $completedCourses }}</h2>
-                <p>Completed Courses</p>
-            </div>
-
-            <!-- Total Watch Time (NO CLICK) -->
-            <div class="stat-card">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
-                <p>Total Watch Time</p>
-            </div>
-
-             <!-- Expired Courses -->
-            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/course-expire.png') }}" alt="Expired Courses"
-                        style="width:40px; height:40px;" />
-                </div>
-                <h2>{{ $expiredCoursesCount }}</h2>
-                <p>Expired Courses</p>
-            </div>
-
-            <!-- Total Courses Purchased -->
+            <!-- 1️ Total Courses Purchased -->
             <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
                     <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
@@ -343,17 +297,68 @@
                 <p>Total Courses Purchased</p>
             </div>
 
-            <!-- Expired Courses -->
-            {{--  <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
+            <!-- 2️ Courses Not Started -->
+            <div class="stat-card" onclick="filterCourses('not-started')" style="cursor:pointer;">
+                <div style="margin-bottom:6px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/709/709579.png" alt="Courses Not Started"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>
+                    {{ $courses->filter(function ($course) {
+                            return !$course['is_expired'] && !$course['is_disabled'] && $course['progress']->isEmpty();
+                        })->count() }}
+                </h2>
+                <p>Courses Not Started</p>
+            </div>
+
+            <!-- 3️ Courses In Progress -->
+            <div class="stat-card" onclick="filterCourses('in-progress')" style="cursor:pointer;">
+                <div style="margin-bottom:6px;">
+                    <img src="{{ asset('images/course-in-progress.png') }}" alt="Courses in Progress"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>
+                    {{ $courses->filter(function ($course) {
+                            return !$course['is_expired'] &&
+                                !$course['is_disabled'] &&
+                                $course['progress']->where('cmi_core_lesson_status', '!=', 'completed')->isNotEmpty();
+                        })->count() }}
+                </h2>
+                <p>Courses in Progress</p>
+            </div>
+
+            <!-- 4️ Completed Courses -->
+            <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer;">
+                <div style="margin-bottom:6px;">
+                    <img src="{{ asset('images/completed-course.png') }}" alt="Completed Courses"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ $completedCourses }}</h2>
+                <p>Completed Courses</p>
+            </div>
+
+            <!-- 5️ Expired Courses -->
+            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Expired Courses"
+                    <img src="{{ asset('images/course-expire.png') }}" alt="Expired Courses"
                         style="width:40px; height:40px;" />
                 </div>
                 <h2>{{ $expiredCoursesCount }}</h2>
                 <p>Expired Courses</p>
-            </div>  --}}
+            </div>
+
+            <!-- 6️ Total Watch Time -->
+            <div class="stat-card">
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
+                        style="width:40px; height:40px;" />
+                </div>
+                <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
+                <p>Total Watch Time</p>
+            </div>
 
         </div>
+
 
 
         <h2 style="margin-bottom:10px; text-align:center;">📚 Your Courses</h2>
@@ -453,7 +458,8 @@
                                     <img src="{{ asset('images/start-btn.png') }}"
                                         onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/512/892/892692.png';"
                                         alt="Start" style="width:18px; height:25px; margin-right:8px;" />
-                                    <span style="color:white; font-weight: bold; font-size:14px; line-height:18px;">Start</span>
+                                    <span
+                                        style="color:white; font-weight: bold; font-size:14px; line-height:18px;">Start</span>
                                 </a>
                             @else
                                 <a href="javascript:void(0);"
@@ -469,7 +475,8 @@
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
                                     <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
                                         style="width:18px; height:25px; margin-right:5px;" />
-                                    <span style="color:white; font-weight: bold; font-size:14px; line-height:18px;">Resume</span>
+                                    <span
+                                        style="color:white; font-weight: bold; font-size:14px; line-height:18px;">Resume</span>
                                 </a>
                             @endif
 
@@ -479,7 +486,8 @@
                                 style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#CCE5FF; padding:6px 10px; border-radius:6px; height:27px;">
                                 <img src="{{ asset('images/View.png') }}" alt="View Attempts"
                                     style="width:18px; height:18px; margin-right:5px;" />
-                                <span style="color:#007BFF; font-weight: bold; font-size:14px; line-height:18px;">View Attempts</span>
+                                <span style="color:#007BFF; font-weight: bold; font-size:14px; line-height:18px;">View
+                                    Attempts</span>
                             </a>
                         </div>
 
@@ -585,24 +593,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                                                            Q${i + 1}: ${q.question_id}
-                                                                                                                                                                        </div>
+                                                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                                                    Q${i + 1}: ${q.question_id}
+                                                                                                                                                </div>
 
-                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                                                        </div>
+                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                                                </div>
 
-                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                                                        </div>
+                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                                                </div>
 
-                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                                            ${isCorrect}
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div>
-                                                                                                                                                                `;
+                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                            ${isCorrect}
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                `;
             }).join('')}
         </div>
     `;
@@ -610,22 +618,36 @@
 
           function filterCourses(status) {
                 const cards = document.querySelectorAll('.course-card');
+
                 cards.forEach(card => {
                     const percentText = card.querySelector('.progress-fill').style.width.replace('%', '');
                     const percent = parseFloat(percentText);
+                    const courseStatus = card.dataset.status; // completed, in-progress, expired
+                    const isDisabled = card.dataset.disabled === 'true'; // agar disable hai
 
-                    // Logic
+                    card.style.display = 'none';
+
+                    if (isDisabled) {
+                        return;
+                    }
+
                     if (status === 'in-progress') {
-                        // Show only if 0 < percent < 100
-                        if (percent > 0 && percent < 100) {
+                        // Between 0 and 100%
+                        if (percent > 0 && percent < 100 && courseStatus !== 'expired') {
                             card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
                         }
                     } else if (status === 'completed') {
-                        card.style.display = percent === 100 ? 'block' : 'none';
+                        if (percent === 100) {
+                            card.style.display = 'block';
+                        }
                     } else if (status === 'expired') {
-                        card.style.display = card.dataset.status === 'expired' ? 'block' : 'none';
+                        if (courseStatus === 'expired') {
+                            card.style.display = 'block';
+                        }
+                    } else if (status === 'not-started') {
+                        if (percent === 0 && courseStatus !== 'expired') {
+                            card.style.display = 'block';
+                        }
                     } else if (status === 'all') {
                         card.style.display = 'block';
                     } else {
