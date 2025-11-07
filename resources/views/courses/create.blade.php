@@ -39,6 +39,7 @@
             border-color: #007bff;
             box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, .25);
         }
+
         .button-footer {
             display: flex;
             gap: 10px;
@@ -54,7 +55,6 @@
     <div class="container-fluid px-4">
         <div class="row justify-content-left">
             <div class="col-md-8 col-lg-8">
-
                 <div class="card custom-card">
                     <div class="card-body">
                         {{-- Flash Messages --}}
@@ -78,18 +78,20 @@
 
                             <div class="mb-4">
                                 <label for="zip_file" class="form-label">SCORM Zip File <span class="text-danger"> *</span></label>
-                                <input type="file" name="zip_file" id="zip_file" style="height: 43px" class="form-control" accept=".zip"
-                                    required>
+                                <input type="file" name="zip_file" id="zip_file" style="height: 43px" class="form-control"
+                                    accept=".zip" required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="watch_time" class="form-label">Total Watch Time (in minutes) <span class="text-danger"> *</span></label>
+                                <label for="watch_time" class="form-label">Total Watch Time (in minutes)
+                                    <span class="text-danger"> *</span></label>
                                 <input type="number" name="watch_time" id="watch_time" class="form-control"
                                     placeholder="e.g. 90" min="1" required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="view_limit_option" class="form-label">Validity (View Limit) <span class="text-danger"> *</span></label>
+                                <label for="view_limit_option" class="form-label">Validity (View Limit)
+                                    <span class="text-danger"> *</span></label>
                                 <select name="view_limit_option" id="view_limit_option" class="form-control" required
                                     onchange="toggleCustomViewLimit()">
                                     <option value="">-- Select Limit --</option>
@@ -107,14 +109,19 @@
                                 <input type="number" name="view_limit" id="view_limit" class="form-control"
                                     placeholder="e.g. 10" min="1">
                             </div>
+
+                            <div class="d-flex" style="gap: 10px">
+                                <a href="{{ route('courses.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-1"></i>Back
+                                </a>
+                                <button id="submitBtn" type="submit" class="btn btn-success">
+                                    Upload Course <i class="fas fa-save ml-1"></i>
+                                </button>
+                            </div>
                         </form>
-                         <div class="d-flex" style="gap: 10px">
-                            <a href="{{ route('courses.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Back</a>
-                            <button type="submit" class="btn btn-success">Upload Course<i class="fas fa-save ml-1"></i></button>
-                        </div>
+
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -139,12 +146,12 @@
             }
         }
 
-        document.getElementById('uploadForm').addEventListener('submit', function() {
+        document.getElementById('uploadForm').addEventListener('submit', function () {
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loaderOverlay').style.display = 'flex';
         });
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             toggleCustomViewLimit();
         });
     </script>
