@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="card card-primary">
                 <form role="form" id="create" method="POST" action="{{ route('admins.store') }}" enctype="multipart/form-data">
                     @csrf
@@ -122,7 +122,7 @@
                         <a href="{{ route('admins.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-success">
                             Create <i class="fas fa-save ml-1"></i>
                         </button>
                     </div>

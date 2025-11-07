@@ -1,15 +1,15 @@
 @extends('adminlte::page')
 
+@section('content_header')
+    <h1 class="m-0 text-dark">Edit Course</h1>
+@stop
+
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
+<div class="container py-2">
+    <div class="row justify-content-left">
+        <div class="col-md-8">
 
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-white text-dark">
-                    <h5 class="mb-0">Edit Course</h5>
-                </div>
-
                 <div class="card-body">
                     @if ($errors->any())
                         <div class="alert alert-danger">

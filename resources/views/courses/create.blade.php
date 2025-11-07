@@ -2,6 +2,10 @@
 
 @section('title', 'Upload SCORM Course')
 
+@section('content_header')
+    <h1 class="m-0 text-dark">Upload New SCORM Course</h1>
+@stop
+
 @section('content')
     <style>
         #loaderOverlay {
@@ -48,16 +52,10 @@
     </div>
 
     <div class="container-fluid px-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-10 col-xl-12">
+        <div class="row justify-content-left">
+            <div class="col-md-8 col-lg-8">
 
                 <div class="card custom-card">
-                    <div class="card-header text-dark d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                         Upload New SCORM Course
-                        </h5>
-                    </div>
-
                     <div class="card-body">
                         {{-- Flash Messages --}}
                         @if (session('success'))
