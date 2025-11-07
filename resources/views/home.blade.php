@@ -110,7 +110,7 @@
                                     <p>PUBLISHED PACKAGES</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="fas fa-photo-video"></i>
+                                    <i class="fas fa-bookmark"></i>
                                 </div>
                                 <a href="{{ url('package-reports?published=true') }}" class="small-box-footer">
                                     More Info <i class="fas fa-arrow-circle-right"></i>

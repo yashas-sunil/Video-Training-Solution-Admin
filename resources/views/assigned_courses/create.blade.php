@@ -7,12 +7,8 @@
 @stop
 
 @section('content')
-    <div class="d-flex justify-content-center">
-        <div class="card shadow-sm" style="width: 100%; border-radius: 10px;">
-            <div class="card-header bg-white text-dark text-left py-2">
-                <h5 class="mb-0">Assign New Course</h5>
-            </div>
-
+    <div class="d-flex justify-content-left">
+        <div class="card shadow-sm col-md-8 " style="border-radius: 10px;">
             <div class="card-body">
                 {{-- Success --}}
                 @if (session('success'))

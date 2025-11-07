@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="card card-primary">
                 <form role="form" id="edit" method="POST" action="{{ route('admins.update', $admin->id) }}"
                     enctype="multipart/form-data">
