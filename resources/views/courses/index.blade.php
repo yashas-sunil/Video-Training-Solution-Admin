@@ -20,7 +20,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="table-responsive">
-                   {!! $html->table(['id' => 'datatable'], true) !!}
+                    {!! $html->table(['id' => 'datatable'], true) !!}
                 </div>
             </div>
         </div>
@@ -29,4 +29,41 @@
 
 @section('js')
     {!! $html->scripts() !!}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        @if (session('success'))
+            toastr.success("{{ session('success') }}", "Success", {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 3000
+            });
+        @endif
+
+        @if (session('error'))
+            toastr.error("{{ session('error') }}", "Error", {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 3000
+            });
+        @endif
+
+        @if (session('warning'))
+            toastr.warning("{{ session('warning') }}", "Warning", {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 3000
+            });
+        @endif
+
+        @if (session('info'))
+            toastr.info("{{ session('info') }}", "Info", {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 3000
+            });
+        @endif
+    </script>
 @stop

@@ -136,7 +136,7 @@ class AdminController extends Controller
      */
     public function edit($id)
     {
-        $admin = User::findOrFail($id);
+        $admin = Admin::findOrFail($id);
         $roles = Role::select('id', 'name')->get();
 
         return view('pages.admins.edit', compact('admin', 'roles'));
