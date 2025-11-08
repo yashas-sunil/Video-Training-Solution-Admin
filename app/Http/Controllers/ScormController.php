@@ -98,7 +98,7 @@ class ScormController extends Controller
         ]);
 
         Log::info(" SCORM uploaded and saved successfully.");
-        return redirect()->route('courses.index')->with('success', 'Course successfully assigned to user!');
+        return redirect()->route('courses.index')->with('success', 'Course created successfully.');
     }
 
 
