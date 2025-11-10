@@ -97,9 +97,10 @@ class AssignedCourseController extends Controller
                         : "<span class='badge badge-secondary'>0</span>";
                 })
                 ->editColumn('enrolled_at', fn($assign) =>
-                $assign->enrolled_at ? Carbon::parse($assign->enrolled_at)->format('d M Y') : '-')
+                $assign->enrolled_at ? Carbon::parse($assign->enrolled_at)->format('d-m-Y') : '-')
                 ->editColumn('expire_date', fn($assign) =>
-                $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d M Y H:i') : 'No Expiry')
+                $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d-m-Y H:i') : 'No Expiry')
+
 
                 //  Bigger Toggle Icons
                 // ->addColumn('status', function ($assign) {
