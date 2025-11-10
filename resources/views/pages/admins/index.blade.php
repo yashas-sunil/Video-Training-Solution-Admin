@@ -1,6 +1,11 @@
 @extends('adminlte::page')
 
 @section('title', 'Admin')
+<style>
+    .dt-buttons {
+        display: none !important;
+    }
+</style>
 
 @section('content_header')
     <div class="row">
