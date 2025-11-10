@@ -60,6 +60,10 @@
         background-color: #4d4d4d49 !important;
         color: #4d4d4d !important;
     }
+
+    .dt-buttons {
+        display: none !important;
+    }
 </style>
 
 @section('content_header')
