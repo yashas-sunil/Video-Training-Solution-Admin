@@ -18,7 +18,8 @@ class AssignedCourseController extends Controller
     public function create()
     {
         $users = User::all();
-        $courses = AppScormPackage::all();
+
+        $courses = AppScormPackage::where('status', 1)->get();
 
         return view('assigned_courses.create', compact('users', 'courses'));
     }
@@ -110,9 +111,9 @@ class AssignedCourseController extends Controller
                 // })
 
                 ->addColumn('status', function ($assign) {
-                $checked = $assign->status ? 'checked' : '';
+                    $checked = $assign->status ? 'checked' : '';
 
-                return '
+                    return '
                     <div class="action-buttons">
                         <label class="switch">
                             <input type="checkbox" class="toggle-status" data-id="' . $assign->id . '" ' . $checked . '>
@@ -120,7 +121,7 @@ class AssignedCourseController extends Controller
                         </label>
                     </div>
                 ';
-            })
+                })
 
 
                 //  Bigger Edit Button Icon
