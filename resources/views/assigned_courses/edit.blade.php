@@ -64,7 +64,7 @@
                         <label for="user_id" class="font-weight-bold">
                             User <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control form-control-sm" 
+                        <input type="text" class="form-control form-control-sm"
                             value="{{ $assignedCourse->user->name ?? 'N/A' }}" readonly>
                         <input type="hidden" name="user_id" value="{{ $assignedCourse->user_id }}">
                     </div>
@@ -79,7 +79,7 @@
                         <input type="hidden" name="course_id" value="{{ $assignedCourse->course_id }}">
                     </div>
 
-                    {{-- Expire Date & Time (editable) --}}
+                    {{-- Expire Date & Time (editable, future only) --}}
                     <div class="form-group mb-3">
                         <label for="expire_date" class="font-weight-bold">Expire Date & Time</label>
                         <input type="datetime-local" name="expire_date" id="expire_date"
@@ -94,7 +94,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                         <button type="submit" class="btn btn-success px-3">
-                             Update <i class="fas fa-save mr-1"></i>
+                            Update <i class="fas fa-save mr-1"></i>
                         </button>
                     </div>
                 </form>
@@ -106,4 +106,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- Disable past dates --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const expireInput = document.getElementById('expire_date');
+            const now = new Date();
+            const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                .toISOString().slice(0, 16);
+            expireInput.min = localISOTime;
+        });
+    </script>
 @stop
