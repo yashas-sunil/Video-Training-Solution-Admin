@@ -113,7 +113,7 @@ class AdminController extends Controller
 
         $admin->save();
 
-        return redirect(route('admins.index'))->with('success', 'Admin successfully created');
+        return redirect(route('admins.index'))->with('success', 'User successfully created');
     }
 
 
@@ -152,9 +152,15 @@ class AdminController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'], // alpha_spaces ka alt
+            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'], 
             'email' => 'required|email|unique:users,email,' . $id,
-            'mobile' => 'nullable|regex:/^[0-9]{10}$/',
+            'mobile' => [
+                'required',
+                'regex:/^([0-9\s\-\+\(\)]*)$/',
+                'min:9',
+                'max:10',
+                Rule::unique('users', 'phone')->whereNotNull('phone'),
+            ],
             'role' => 'required|exists:roles,id',
         ]);
 
@@ -169,7 +175,7 @@ class AdminController extends Controller
 
         return redirect()
             ->route('admins.index')
-            ->with('success', 'Admin successfully updated');
+            ->with('success', 'User successfully updated');
     }
 
 
