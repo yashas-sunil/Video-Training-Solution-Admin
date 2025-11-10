@@ -95,6 +95,12 @@
             color: #333;
         }
 
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .courses-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -267,14 +273,14 @@
         <!-- Left: Company Logo -->
         <div class="logo">
             {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
-            <img src="{{ asset('images/logo2.png') }}" alt="Company Logo">
+            <img src="{{ asset('images/logo-2.png') }}" alt="Company Logo">
 
         </div>
 
         <!-- Right: User Info -->
         <div class="user-info">
-            <div>
-                <div style="font-size: 0.85rem;">Welcome back !</div>
+            <div class="user-welcome">
+                <div style="font-size: 16px;">Welcome back !</div>
                 <div style="font-size: 24px;font-weight: bold;">{{ auth()->user()->name }}</div>
             </div>
             <a href="{{ route('logout') }}"
