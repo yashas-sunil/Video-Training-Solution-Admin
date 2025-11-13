@@ -96,31 +96,47 @@ class UserDashboardController extends Controller
             $courseView = $assigned->courseView->first();
             $course = $assigned->course;
 
-            if (!$course) {
-                return null;
-            }
+            if (!$course) return null;
 
             $totalCourses++;
-
             $courseWatchTime = $progressRecords->sum('session_time');
             $totalWatchTime += $courseWatchTime;
 
+            // Expiry check
             $isExpired = false;
-            if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) {
-                $isExpired = true;
-            }
-            if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) {
-                $isExpired = true;
-            }
+            if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) $isExpired = true;
+            if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) $isExpired = true;
+            if ($isExpired) $expiredCoursesCount++;
 
-            if ($isExpired) {
-                $expiredCoursesCount++;
-            }
+            $isCompleted = false;
+            $progressPercent = 0;
 
             if ($progressRecords->isNotEmpty()) {
-                if ($progressRecords->where('cmi_core_lesson_status', '!=', 'completed')->isEmpty()) {
+                foreach ($progressRecords as $progressRecord) {
+                    $decodedProgress = 0;
+                    $suspendData = $progressRecord->suspend_data;
+
+                    if (!empty($suspendData)) {
+                        $decoded = json_decode($suspendData, true);
+                        if (json_last_error() === JSON_ERROR_NONE && isset($decoded['progress_measure'])) {
+                            $decodedProgress = floatval($decoded['progress_measure']) * 100;
+                        } elseif (!empty($progressRecord->progress_measure)) {
+                            $decodedProgress = floatval($progressRecord->progress_measure) * 100;
+                        }
+                    } elseif (!empty($progressRecord->progress_measure)) {
+                        $decodedProgress = floatval($progressRecord->progress_measure) * 100;
+                    }
+
+                    if ($decodedProgress > $progressPercent) $progressPercent = $decodedProgress;
+
+                    $status = strtolower($progressRecord->cmi_core_lesson_status ?? '');
+                    if (in_array($status, ['completed', 'passed'])) $isCompleted = true;
+                }
+
+                if ($isCompleted) {
                     $completedCoursesCount++;
-                } elseif (!$isExpired) {
+                    $progressPercent = 100;
+                } elseif (!$isExpired && $progressPercent > 0) {
                     $inProgressCount++;
                 }
             }
@@ -132,6 +148,8 @@ class UserDashboardController extends Controller
                 'total_session_time' => $courseWatchTime,
                 'is_expired' => $isExpired,
                 'is_disabled' => false,
+                'is_completed' => $isCompleted,
+                'progress_percent' => round($progressPercent, 2),
             ];
         })->filter(fn($item) => !is_null($item));
 
