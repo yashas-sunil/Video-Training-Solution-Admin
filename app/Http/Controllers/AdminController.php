@@ -152,15 +152,22 @@ class AdminController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'], 
-            'email' => 'required|email|unique:users,email,' . $id,
+            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($id),
+            ],
+
             'mobile' => [
                 'required',
                 'regex:/^([0-9\s\-\+\(\)]*)$/',
                 'min:9',
                 'max:10',
-                Rule::unique('users', 'phone')->whereNotNull('phone'),
+                Rule::unique('users', 'phone')->ignore($id),
             ],
+
             'role' => 'required|exists:roles,id',
         ]);
 
