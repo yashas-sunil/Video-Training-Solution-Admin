@@ -58,108 +58,95 @@ class UserDashboardController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public function userindex()
-    {
-        $userId = auth()->id();
+  public function userindex()
+{
+    $userId = auth()->id();
+    $now = \Carbon\Carbon::now();
 
-        $assignedCourses = AssignedCourse::with([
-            'course' => function ($query) {
-                $query->where('status', 1);
-            },
-            'progress' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            },
-            'courseView' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }
-        ])
-            ->where('user_id', $userId)
-            ->where('status', 1)
-            ->get();
+    $assignedCourses = AssignedCourse::with([
+        'course' => fn($query) => $query->where('status', 1),
+        'progress' => fn($query) => $query->where('user_id', $userId),
+        'courseView' => fn($query) => $query->where('user_id', $userId),
+    ])
+    ->where('user_id', $userId)
+    ->where('status', 1)
+    ->get();
 
-        $expiredCoursesCount = 0;
-        $totalCourses = 0;
-        $completedCoursesCount = 0;
-        $inProgressCount = 0;
-        $totalWatchTime = 0;
-        $now = \Carbon\Carbon::now();
+    $completedCoursesCount = 0;
+    $inProgressCount = 0;
+    $expiredCoursesCount = 0;
+    $totalCourses = 0;
+    $totalWatchTime = 0;
 
-        $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
-            &$completedCoursesCount,
-            &$inProgressCount,
-            &$totalWatchTime,
-            &$expiredCoursesCount,
-            &$totalCourses,
-            $now
-        ) {
-            $progressRecords = $assigned->progress;
-            $courseView = $assigned->courseView->first();
-            $course = $assigned->course;
+    $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
+        &$completedCoursesCount,
+        &$inProgressCount,
+        &$expiredCoursesCount,
+        &$totalCourses,
+        &$totalWatchTime,
+        $now
+    ) {
+        $course = $assigned->course;
+        if (!$course) return null;
 
-            if (!$course) return null;
+        $progressRecords = $assigned->progress;
+        $courseView = $assigned->courseView->first();
+        $totalCourses++;
 
-            $totalCourses++;
-            $courseWatchTime = $progressRecords->sum('session_time');
-            $totalWatchTime += $courseWatchTime;
+        $masterLimit = $course->view_limit ?? 1;
+        $userViewed = $courseView->view_limit ?? 0;
+        $currentAttempt = min($userViewed, $masterLimit);
 
-            // Expiry check
-            $isExpired = false;
+        $courseDuration = $course->watch_time ? $course->watch_time * 60 : 0;
+        $totalWatched = $progressRecords->sum('session_time');
+        $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $courseDuration);
+        $watchedThisAttempt = min($watchedThisAttempt, $courseDuration);
+        $totalWatchTime += $totalWatched;
+
+        $isCompleted = $progressRecords->whereIn('cmi_core_lesson_status', ['completed', 'passed'])->isNotEmpty();
+
+        if ($isCompleted) {
+            $progressPercent = 100;
+            $completedCoursesCount++;
+        } elseif ($progressRecords->isNotEmpty()) {
+            $progressPercent = $courseDuration > 0 ? round(($watchedThisAttempt / $courseDuration) * 100, 2) : 0;
+            $inProgressCount++;
+        } else {
+            $progressPercent = 0; // Not started
+        }
+
+        $isExpired = false;
+        if (!$isCompleted) {
             if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) $isExpired = true;
-            if ($courseView && $course->view_limit && $courseView->view_limit > $course->view_limit) $isExpired = true;
+            if ($userViewed > $masterLimit) $isExpired = true;
             if ($isExpired) $expiredCoursesCount++;
+        }
 
-            $isCompleted = false;
-            $progressPercent = 0;
+        $isDisabled = $course->status == 0 || false;
 
-            if ($progressRecords->isNotEmpty()) {
-                foreach ($progressRecords as $progressRecord) {
-                    $decodedProgress = 0;
-                    $suspendData = $progressRecord->suspend_data;
+        return [
+            'course' => $course,
+            'progress' => $progressRecords,
+            'view' => $courseView,
+            'display_view_limit' => $currentAttempt,
+            'total_session_time' => $totalWatched,
+            'watched_this_attempt' => $watchedThisAttempt,
+            'is_expired' => $isExpired,
+            'is_disabled' => $isDisabled,
+            'is_completed' => $isCompleted,
+            'progress_percent' => $progressPercent,
+            'master_limit' => $masterLimit,
+        ];
+    })->filter(fn($item) => !is_null($item));
 
-                    if (!empty($suspendData)) {
-                        $decoded = json_decode($suspendData, true);
-                        if (json_last_error() === JSON_ERROR_NONE && isset($decoded['progress_measure'])) {
-                            $decodedProgress = floatval($decoded['progress_measure']) * 100;
-                        } elseif (!empty($progressRecord->progress_measure)) {
-                            $decodedProgress = floatval($progressRecord->progress_measure) * 100;
-                        }
-                    } elseif (!empty($progressRecord->progress_measure)) {
-                        $decodedProgress = floatval($progressRecord->progress_measure) * 100;
-                    }
+    return view('user.dashboard', [
+        'courses' => $coursesWithProgress,
+        'completedCourses' => $completedCoursesCount,
+        'inProgressCount' => $inProgressCount,
+        'totalCourses' => $totalCourses,
+        'totalWatchTime' => $totalWatchTime,
+        'expiredCoursesCount' => $expiredCoursesCount,
+    ]);
+}
 
-                    if ($decodedProgress > $progressPercent) $progressPercent = $decodedProgress;
-
-                    $status = strtolower($progressRecord->cmi_core_lesson_status ?? '');
-                    if (in_array($status, ['completed', 'passed'])) $isCompleted = true;
-                }
-
-                if ($isCompleted) {
-                    $completedCoursesCount++;
-                    $progressPercent = 100;
-                } elseif (!$isExpired && $progressPercent > 0) {
-                    $inProgressCount++;
-                }
-            }
-
-            return [
-                'course' => $course,
-                'progress' => $progressRecords,
-                'view' => $courseView,
-                'total_session_time' => $courseWatchTime,
-                'is_expired' => $isExpired,
-                'is_disabled' => false,
-                'is_completed' => $isCompleted,
-                'progress_percent' => round($progressPercent, 2),
-            ];
-        })->filter(fn($item) => !is_null($item));
-
-        return view('user.dashboard', [
-            'courses' => $coursesWithProgress,
-            'completedCourses' => $completedCoursesCount,
-            'inProgressCount' => $inProgressCount,
-            'totalCourses' => $totalCourses,
-            'totalWatchTime' => $totalWatchTime,
-            'expiredCoursesCount' => $expiredCoursesCount,
-        ]);
-    }
 }
