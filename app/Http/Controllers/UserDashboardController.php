@@ -58,95 +58,99 @@ class UserDashboardController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-  public function userindex()
-{
-    $userId = auth()->id();
-    $now = \Carbon\Carbon::now();
+    public function userindex()
+    {
+        $userId = auth()->id();
+        $now = \Carbon\Carbon::now();
 
-    $assignedCourses = AssignedCourse::with([
-        'course' => fn($query) => $query->where('status', 1),
-        'progress' => fn($query) => $query->where('user_id', $userId),
-        'courseView' => fn($query) => $query->where('user_id', $userId),
-    ])
-    ->where('user_id', $userId)
-    ->where('status', 1)
-    ->get();
+        $assignedCourses = AssignedCourse::with([
+            'course' => fn($query) => $query->where('status', 1),
+            'progress' => fn($query) => $query->where('user_id', $userId),
+            'courseView' => fn($query) => $query->where('user_id', $userId),
+        ])
+            ->where('user_id', $userId)
+            ->where('status', 1)
+            ->get();
 
-    $completedCoursesCount = 0;
-    $inProgressCount = 0;
-    $expiredCoursesCount = 0;
-    $totalCourses = 0;
-    $totalWatchTime = 0;
+        $completedCoursesCount = 0;
+        $inProgressCount = 0;
+        $expiredCoursesCount = 0;
+        $totalCourses = 0;
+        $totalWatchTime = 0;
 
-    $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
-        &$completedCoursesCount,
-        &$inProgressCount,
-        &$expiredCoursesCount,
-        &$totalCourses,
-        &$totalWatchTime,
-        $now
-    ) {
-        $course = $assigned->course;
-        if (!$course) return null;
+        $coursesWithProgress = $assignedCourses->map(function ($assigned) use (
+            &$completedCoursesCount,
+            &$inProgressCount,
+            &$expiredCoursesCount,
+            &$totalCourses,
+            &$totalWatchTime,
+            $now
+        ) {
+            $course = $assigned->course;
+            if (!$course) return null;
 
-        $progressRecords = $assigned->progress;
-        $courseView = $assigned->courseView->first();
-        $totalCourses++;
+            $progressRecords = $assigned->progress;
+            $courseView = $assigned->courseView->first();
+            $totalCourses++;
 
-        $masterLimit = $course->view_limit ?? 1;
-        $userViewed = $courseView->view_limit ?? 0;
-        $currentAttempt = min($userViewed, $masterLimit);
+            $masterLimit = $course->view_limit ?? 1;
+            $userViewed = $courseView->view_limit ?? 0;
+            $currentAttempt = min($userViewed, $masterLimit);
 
-        $courseDuration = $course->watch_time ? $course->watch_time * 60 : 0;
-        $totalWatched = $progressRecords->sum('session_time');
-        $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $courseDuration);
-        $watchedThisAttempt = min($watchedThisAttempt, $courseDuration);
-        $totalWatchTime += $totalWatched;
+            $courseDuration = $course->watch_time ? $course->watch_time * 60 : 0;
+            $totalWatched = $progressRecords->sum('session_time');
+            $watchedThisAttempt = max(0, $totalWatched - ($currentAttempt - 1) * $courseDuration);
+            $watchedThisAttempt = min($watchedThisAttempt, $courseDuration);
+            $totalWatchTime += $totalWatched;
 
-        $isCompleted = $progressRecords->whereIn('cmi_core_lesson_status', ['completed', 'passed'])->isNotEmpty();
+            $isCompleted = $progressRecords->whereIn('cmi_core_lesson_status', ['completed', 'passed'])->isNotEmpty();
 
-        if ($isCompleted) {
-            $progressPercent = 100;
-            $completedCoursesCount++;
-        } elseif ($progressRecords->isNotEmpty()) {
-            $progressPercent = $courseDuration > 0 ? round(($watchedThisAttempt / $courseDuration) * 100, 2) : 0;
-            $inProgressCount++;
-        } else {
-            $progressPercent = 0; // Not started
-        }
+            if ($isCompleted) {
+                $progressPercent = 100;
+                $completedCoursesCount++;
+            } elseif ($progressRecords->isNotEmpty()) {
+                $progressPercent = $courseDuration > 0 ? round(($watchedThisAttempt / $courseDuration) * 100, 2) : 0;
 
-        $isExpired = false;
-        if (!$isCompleted) {
-            if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) $isExpired = true;
-            if ($userViewed > $masterLimit) $isExpired = true;
-            if ($isExpired) $expiredCoursesCount++;
-        }
+                if ($progressPercent > 80) {
+                    $progressPercent = 80;
+                }
 
-        $isDisabled = $course->status == 0 || false;
+                $inProgressCount++;
+            } else {
+                $progressPercent = 0;
+            }
 
-        return [
-            'course' => $course,
-            'progress' => $progressRecords,
-            'view' => $courseView,
-            'display_view_limit' => $currentAttempt,
-            'total_session_time' => $totalWatched,
-            'watched_this_attempt' => $watchedThisAttempt,
-            'is_expired' => $isExpired,
-            'is_disabled' => $isDisabled,
-            'is_completed' => $isCompleted,
-            'progress_percent' => $progressPercent,
-            'master_limit' => $masterLimit,
-        ];
-    })->filter(fn($item) => !is_null($item));
+            $isExpired = false;
+            if (!$isCompleted) {
+                if ($assigned->expire_date && \Carbon\Carbon::parse($assigned->expire_date)->lt($now)) $isExpired = true;
+                if ($userViewed > $masterLimit) $isExpired = true;
+                if ($isExpired) $expiredCoursesCount++;
+            }
 
-    return view('user.dashboard', [
-        'courses' => $coursesWithProgress,
-        'completedCourses' => $completedCoursesCount,
-        'inProgressCount' => $inProgressCount,
-        'totalCourses' => $totalCourses,
-        'totalWatchTime' => $totalWatchTime,
-        'expiredCoursesCount' => $expiredCoursesCount,
-    ]);
-}
+            $isDisabled = $course->status == 0 || false;
 
+            return [
+                'course' => $course,
+                'progress' => $progressRecords,
+                'view' => $courseView,
+                'display_view_limit' => $currentAttempt,
+                'total_session_time' => $totalWatched,
+                'watched_this_attempt' => $watchedThisAttempt,
+                'is_expired' => $isExpired,
+                'is_disabled' => $isDisabled,
+                'is_completed' => $isCompleted,
+                'progress_percent' => $progressPercent,
+                'master_limit' => $masterLimit,
+            ];
+        })->filter(fn($item) => !is_null($item));
+
+        return view('user.dashboard', [
+            'courses' => $coursesWithProgress,
+            'completedCourses' => $completedCoursesCount,
+            'inProgressCount' => $inProgressCount,
+            'totalCourses' => $totalCourses,
+            'totalWatchTime' => $totalWatchTime,
+            'expiredCoursesCount' => $expiredCoursesCount,
+        ]);
+    }
 }
