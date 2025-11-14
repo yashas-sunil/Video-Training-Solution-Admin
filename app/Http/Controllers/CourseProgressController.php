@@ -180,8 +180,6 @@ public function getAttempts(Request $request)
 {
     $quizName = $request->query('quiz_name');
     $userId   = auth()->id();
-
-    // Pehle attempts fetch karo
     $attempts = AppQuizAttempt::where('user_id', $userId)
         ->where('quiz_name', $quizName)
         ->orderByDesc('attempt_number')
@@ -189,7 +187,7 @@ public function getAttempts(Request $request)
 
     $data = $attempts->map(function ($attempt) use ($userId, $quizName) {
 
-        // Is attempt ke saare answers le aao
+        // Is attempt ke saare answers 
         $answers = QuizAttemptAnswer::where('user_id', $userId)
             ->where('quiz_name', $quizName)
             ->where('chapter_name', $attempt->chapter_name)
