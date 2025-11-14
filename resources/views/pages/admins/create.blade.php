@@ -111,8 +111,17 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="password">Password <span class="text-danger">*</span></label>
-                                    <input type="password" id="password" name="password"
-                                        class="form-control @error('password') is-invalid @enderror" placeholder="Password">
+
+                                    <div class="input-group">
+                                        <input type="password" id="password" name="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Password">
+
+                                        <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
+                                            <i id="toggleIcon" class="fa fa-eye"></i>
+                                        </span>
+                                    </div>
+
                                     @error('password')
                                         <span class="invalid-feedback d-block text-danger" role="alert">
                                             {{ $message }}
@@ -139,21 +148,17 @@
 
 @section('css')
     <style>
-        /* ✅ Validation message color fix */
         .invalid-feedback {
             color: #dc3545 !important;
-            /* red */
             font-size: 0.875rem;
             margin-top: 0.25rem;
         }
 
-        /* ✅ Make sure validation message appears below inputs properly */
         input.is-invalid,
         select.is-invalid {
             border-color: #dc3545 !important;
         }
 
-        /* For jQuery Validate messages */
         label.error {
             color: #dc3545;
             font-size: 0.875rem;
@@ -229,5 +234,20 @@
                 toastr.error("{{ session('error') }}", "Error");
             @endif
         });
+
+        function togglePassword() {
+            let input = document.getElementById("password");
+            let icon = document.getElementById("toggleIcon");
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
     </script>
 @stop

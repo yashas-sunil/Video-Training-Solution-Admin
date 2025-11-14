@@ -18,7 +18,7 @@ class AssignedCourseController extends Controller
 {
     public function create()
     {
-        $users = User::all();
+        $users = User:: where('status','active')->get();
 
         $courses = AppScormPackage::where('status', 1)->get();
 
