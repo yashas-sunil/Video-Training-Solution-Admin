@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 // use App\Models\AssignedCourse;
+use App\ScormPackage;
 use Yajra\DataTables\Html\Builder;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\User;
@@ -9,7 +10,7 @@ use App\Assignedcourse;
 use App\CourseView;
 use App\Models\Course;
 use Carbon\Carbon;
-use App\Models\ScormPackage;
+// use App\Models\ScormPackage;
 use App\ScormPackage as AppScormPackage;
 use Illuminate\Http\Request;
 
@@ -89,31 +90,29 @@ class AssignedCourseController extends Controller
                 ->addColumn('user_name', fn($assign) => $assign->user->name ?? 'N/A')
                 ->addColumn('course_title', fn($assign) => $assign->course->title ?? 'N/A')
                 ->addColumn('view_limit', function ($assign) {
-                    $view = CourseView::where('user_id', $assign->user_id)
+                    $userViews = CourseView::where('user_id', $assign->user_id)
                         ->where('course_id', $assign->course_id)
-                        ->first();
-                    return $view
-                        ? "<span class='badge badge-info'>{$view->view_limit}</span>"
-                        : "<span class='badge badge-secondary'>0</span>";
+                        ->value('view_limit') ?? 0;
+
+                    $masterLimit = ScormPackage::where('id', $assign->course_id)
+                        ->value('view_limit') ?? 0;
+
+                    $displayCount = min($userViews, $masterLimit);
+
+                    return "<span class='badge badge-info'>{$displayCount}</span>";
                 })
-                ->editColumn('enrolled_at', fn($assign) =>
-                $assign->enrolled_at ? Carbon::parse($assign->enrolled_at)->format('d-m-Y') : '-')
-                ->editColumn('expire_date', fn($assign) =>
-                $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d-m-Y H:i') : 'No Expiry')
-
-
-                //  Bigger Toggle Icons
-                // ->addColumn('status', function ($assign) {
-                //     $icon = $assign->status
-                //         ? "<i class='fas fa-toggle-on text-success' style='font-size:30px; cursor:pointer;' title='Active'></i>"
-                //         : "<i class='fas fa-toggle-off text-secondary' style='font-size:30px; cursor:pointer;' title='Inactive'></i>";
-
-                //     return "<span class='status-toggle' data-id='{$assign->id}' data-status='{$assign->status}'>$icon</span>";
-                // })
-
+                ->editColumn(
+                    'enrolled_at',
+                    fn($assign) =>
+                    $assign->enrolled_at ? Carbon::parse($assign->enrolled_at)->format('d-m-Y') : '-'
+                )
+                ->editColumn(
+                    'expire_date',
+                    fn($assign) =>
+                    $assign->expire_date ? Carbon::parse($assign->expire_date)->format('d-m-Y H:i') : 'No Expiry'
+                )
                 ->addColumn('status', function ($assign) {
                     $checked = $assign->status ? 'checked' : '';
-
                     return '
                     <div class="action-buttons">
                         <label class="switch">
@@ -123,15 +122,10 @@ class AssignedCourseController extends Controller
                     </div>
                 ';
                 })
-
-
-                //  Bigger Edit Button Icon
                 ->addColumn('action', function ($assign) {
                     $editUrl = route('assigned-courses.edit', $assign->id);
-
                     return "
-                    <a href='{$editUrl}' title='Edit' 
-                       style='padding:6px 10px; border-radius:6px;'>
+                    <a href='{$editUrl}' title='Edit' style='padding:6px 10px; border-radius:6px;'>
                         <i class='fas fa-edit text-primary fa-lg' style='font-size:22px;'></i>
                     </a>
                 ";
@@ -152,7 +146,6 @@ class AssignedCourseController extends Controller
 
         return view('assigned_courses.index', compact('html'));
     }
-
 
     public function edit($id)
     {

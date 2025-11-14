@@ -33,7 +33,7 @@ class AdminRolesMail extends Mailable
         $this->attributes['web'] = env('WEB_URL').'/admin';
 
         return $this->to($this->attributes['email'])
-            ->subject('JKSHAH ONLINE - REGISTRATION')
+            ->subject('EduEdgeProLMS - Registration Successful')
             ->view('emails.registration_mail')
             ->with('attributes', $this->attributes);
     }
