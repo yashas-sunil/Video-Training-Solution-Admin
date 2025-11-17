@@ -72,7 +72,18 @@
 
                     <br><br>
 
-                    <a href="https://eduedgeprolms.datavoice.co.in/login"
+                    @php
+                        // Dynamic login URL based on environment
+                        if (config('app.env') === 'staging') {
+                            $loginUrl = env('LOGIN_URL_STAGING', 'https://eduedgeprolms.datavoice.co.in/login');
+                        } elseif (config('app.env') === 'qa') {
+                            $loginUrl = env('LOGIN_URL_QA', 'https://qaeduedgeprolms.datavoice.co.in/login');
+                        } else {
+                            $loginUrl = env('LOGIN_URL_PROD', 'https://eduedgeprolms.datavoice.co.in/login');
+                        }
+                    @endphp
+
+                    <a href="{{ $loginUrl }}"
                         style="background-color: #f58457; border: none; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;">
                         Login Now
                     </a>
