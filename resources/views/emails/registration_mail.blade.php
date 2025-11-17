@@ -72,7 +72,7 @@
 
                     <br><br>
 
-                    <a href="https://eduedgeprolms.datavoice.co.in/login"
+                    <a href="https://qaeduedgeprolms.datavoice.co.in/login"
                         style="background-color: #f58457; border: none; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;">
                         Login Now
                     </a>
