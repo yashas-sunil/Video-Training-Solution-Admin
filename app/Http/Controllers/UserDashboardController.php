@@ -141,8 +141,10 @@ class UserDashboardController extends Controller
                 'is_completed' => $isCompleted,
                 'progress_percent' => $progressPercent,
                 'master_limit' => $masterLimit,
+                'expire_date' => $assigned->expire_date,
             ];
         })->filter(fn($item) => !is_null($item));
+
 
         return view('user.dashboard', [
             'courses' => $coursesWithProgress,
