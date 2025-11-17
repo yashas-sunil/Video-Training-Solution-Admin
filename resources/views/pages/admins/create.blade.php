@@ -2,6 +2,32 @@
 
 @section('title', 'Create Admin')
 
+<style>
+    .input-wrapper {
+        position: relative;
+    }
+
+    .clear-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: #dc3545;
+        cursor: pointer;
+        display: none;
+        z-index: 10;
+    }
+
+    .form-control.is-invalid~.clear-icon {
+        display: block !important;
+    }
+
+    .form-control.is-invalid {
+        background-image: none !important;
+        padding-right: 2.3rem;
+    }
+</style>
 @section('content_header')
     <h1 class="m-0 text-dark">Create User</h1>
 @stop
@@ -53,20 +79,28 @@
                             </div>
                         </div>
 
+
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="email">Email <span class="text-danger">*</span></label>
-                                    <input type="email" id="email" name="email"
-                                        class="form-control @error('email') is-invalid @enderror"
-                                        value="{{ old('email') }}" placeholder="Email" required
-                                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                                        oninput="this.value=this.value.replace(/\s/g,'')">
+
+                                    <div class="input-wrapper">
+                                        <input type="email" id="email" name="email"
+                                            class="form-control @error('email') is-invalid @enderror"
+                                            value="{{ old('email') }}" placeholder="Email" required
+                                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                            oninput="this.value=this.value.replace(/\s/g,'')">
+
+                                        <span class="clear-icon" onclick="clearInput('email')">&times;</span>
+                                    </div>
+
                                     @error('email')
                                         <span class="invalid-feedback d-block text-danger" role="alert">
                                             {{ $message }}
                                         </span>
                                     @enderror
+
                                 </div>
                             </div>
 
@@ -248,6 +282,10 @@
                 icon.classList.remove("fa-eye-slash");
                 icon.classList.add("fa-eye");
             }
+        }
+
+        function clearInput(id) {
+            document.getElementById(id).value = '';
         }
     </script>
 @stop
