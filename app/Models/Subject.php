@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subject extends Model
 {
-    use SoftDeletes;
+    protected $connection = 'second_db';
+
+    // use SoftDeletes;
 
     protected $guarded = ['id'];
     protected $appends = [
