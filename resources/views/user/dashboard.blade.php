@@ -472,7 +472,8 @@
                         onclick="alert('⚠️ This course has expired.');" 
                         style="background:#ccc; cursor:not-allowed; opacity:0.7;"
                     @else 
-                        onclick="openScormWindow({{ $course->id ?? 0 }})" 
+                        onclick="openModePage({{ $course->id }})"
+
                         style="background:#007bff;" @endif
                                     class="btn-start"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
@@ -488,7 +489,8 @@
                         onclick="alert('⚠️ This course has expired.');" 
                         style="background:#b6b5b5; cursor:not-allowed; opacity:0.7;"
                     @else 
-                        onclick="openScormWindow({{ $course->id ?? 0 }})" 
+                        onclick="openModePage({{ $course->id }})"
+
                         style="background:#007bff;" @endif
                                     class="btn-resume"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
@@ -505,7 +507,8 @@
                                     @if ($disableCompleted) onclick="alert('⚠️ View limit and watch time have been reached!');"
             style="background:#ccc; cursor:not-allowed; opacity:0.7;"
         @else
-            onclick="openScormWindow({{ $course->id ?? 0 }})"
+            onclick="openModePage({{ $course->id }})"
+
             style="background:#28a745;" @endif
                                     class="btn-resume"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
@@ -555,6 +558,11 @@
                     popup.focus();
                 }
             }
+
+            function openModePage(courseId) {
+    // redirect to mode selection page
+    window.location.href = "/course-mode/" + courseId;
+}
 
             document.getElementById("courseSearch").addEventListener("input", function() {
                 const searchValue = this.value.toLowerCase();

@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\AskAQuestion;
-use App\Models\Package;
-use App\Models\Professor;
-use App\Models\User;
+use App\Goal;
 use Carbon\Carbon;
-use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Html\Builder;
-use Illuminate\Http\Request;
+use App\Subchapter;
+use App\Models\User;
+use App\AskAQuestion;
 use App\Models\Video;
+use App\DifficultLevel;
+use App\Models\Package;
+use App\Models\Subject;
+use App\Models\Professor;
 use App\Models\PackageVideo;
+use Illuminate\Http\Request;
 use App\Models\SubjectPackage;
+use Yajra\DataTables\Html\Builder;
+use Yajra\DataTables\Facades\DataTables;
 
 class QuestionController extends Controller
 {
@@ -128,14 +132,15 @@ class QuestionController extends Controller
         return view('pages.questions.index', compact('table'));
     }
 
-    public function show(int $id)
-    {
-        $question = AskAQuestion::query()->with('answer')->findOrFail($id);
-        $user = User::query()->with('student.course', 'student.level')->find($question->user_id);
-        $package = Package::query()->with('course', 'level', 'subject', 'chapter')->find($question->package_id);
+    public function show($id)
+{
+    $question = AskAQuestion::query()->with('answer')->findOrFail($id);
+    $user = User::query()->with('student.course', 'student.level')->find($question->user_id);
+    $package = Package::query()->with('course', 'level', 'subject', 'chapter')->find($question->package_id);
 
-        return view('pages.questions.show', compact('user', 'package', 'question'));
-    }
+    return view('pages.questions.show', compact('user', 'package', 'question'));
+}
+
 
     public function professors(Builder $builder)
     {
@@ -275,4 +280,25 @@ class QuestionController extends Controller
         return response()->json($response, 200);
     }
     
+    // public function getSubchaptersByChapterId(Request $request)
+    // {
+    //     $chapter_id = $request->input('chapter_id');
+
+    //     if (!$chapter_id) {
+    //         return response()->json([
+    //             'error' => true,
+    //             'message' => 'Chapter ID is required',
+    //             'data' => []
+    //         ], 400);
+    //     }
+
+    //     $subchapters = Subchapter::where('chapter_id', $chapter_id)
+    //         // ->where('status', 1)
+    //         ->get();
+
+    //     return response()->json([
+    //         'error' => false,
+    //         'data' => $subchapters
+    //     ]);
+    // }
 }

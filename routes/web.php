@@ -587,12 +587,25 @@ Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
 
-Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard')->middleware('auth');
+// Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard')->middleware('auth');
 // web.php
 Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->middleware('auth');
 
 // routes/web.php
+Route::get('/dashboard', 'UserDashboardController@dashboard')->name('dashboard')->middleware('auth');
+ Route::get('/questions/filter', 'QuestionController@testquestions')->name('questions.filter')->middleware('auth');
+
+
+// routes/web.php;
 Route::get('/user/dashboard', 'UserDashboardController@userindex')->name('user.dashboard')->middleware('auth');
+Route::get('/user/{id}', 'UserDashboardController@testquestions')->name('user')->middleware('auth');
+Route::get('/get-chapterBy-subject', 'FiltertQuestionController@getChapterbySubject')->name('get.chapterBy.subject')->middleware('auth');
+Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name('get.subchapters')->middleware('auth');
+Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
+Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
+
+
+
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
 
 Route::get('/course/progress/get/{id}', 'CourseProgressController@get');
