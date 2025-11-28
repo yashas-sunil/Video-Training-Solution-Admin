@@ -235,100 +235,95 @@
 
     </div>
 
-    <script>
-        let allQ = [];
-        let qIndex = 0;
-        $("#subject_id").change(function() {
-            let id = $(this).val();
+<script>
+    let allQ = [];
+    let qIndex = 0;
 
-            $("#chapter_id").html('<option>Loading...</option>');
-            $("#subchapter_id").html('<option value="">Select</option>');
+    //  user answers store
+    let userAnswers = {};
 
-            $.get("/get-chapterBy-subject", {
-                subjects_id: id
-            }, function(res) {
+    $("#subject_id").change(function () {
+        let id = $(this).val();
+
+        $("#chapter_id").html('<option>Loading...</option>');
+        $("#subchapter_id").html('<option value="">Select</option>');
+
+        $.get("/get-chapterBy-subject", {
+            subjects_id: id
+        }, function (res) {
+            let html = '<option value="">Select</option>';
+            res.forEach(c => {
+                html += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            $("#chapter_id").html(html);
+        });
+    });
+
+    $("#chapter_id").change(function () {
+        let id = $(this).val();
+
+        $("#subchapter_id").html('<option>Loading...</option>');
+
+        $.ajax({
+            url: "/get-subchapters",
+            type: "GET",
+            data: { chapter_id: id },
+            success: function (res) {
                 let html = '<option value="">Select</option>';
-                res.forEach(c => {
-                    html += `<option value="${c.id}">${c.name}</option>`;
-                });
 
-                $("#chapter_id").html(html);
-            });
-        });
-
-        $("#chapter_id").change(function() {
-            let id = $(this).val();
-
-            $("#subchapter_id").html('<option>Loading...</option>');
-
-            $.ajax({
-                url: "/get-subchapters",
-                type: "GET",
-                data: {
-                    chapter_id: id
-                },
-                success: function(res) {
-                    console.log("Response:", res);
-
-                    let html = '<option value="">Select</option>';
-
-                    if (Array.isArray(res)) {
-                        res.forEach(sc => {
-                            html += `<option value="${sc.id}">${sc.name}</option>`;
-                        });
-                    } else if (res.data) {
-                        res.data.forEach(sc => {
-                            html += `<option value="${sc.id}">${sc.name}</option>`;
-                        });
-                    }
-
-                    $("#subchapter_id").html(html);
-                },
-                error: function(err) {
-                    console.log("Error:", err);
-                    alert("API call Not...");
+                if (Array.isArray(res)) {
+                    res.forEach(sc => {
+                        html += `<option value="${sc.id}">${sc.name}</option>`;
+                    });
+                } else if (res.data) {
+                    res.data.forEach(sc => {
+                        html += `<option value="${sc.id}">${sc.name}</option>`;
+                    });
                 }
-            });
+
+                $("#subchapter_id").html(html);
+            }
         });
+    });
 
-        $("#filterBtn").click(function() {
+    $("#filterBtn").click(function () {
 
-            $("#examBox").html("<p style='text-align:center;'>Loading...</p>");
-            $(".nav-btns").hide();
+        $("#examBox").html("<p style='text-align:center;'>Loading...</p>");
+        $(".nav-btns").hide();
 
-            $.ajax({
-                url: "/qbundle/filter",
-                type: "GET",
-                data: {
-                    subject_id: $("#subject_id").val(),
-                    chapter_id: $("#chapter_id").val(),
-                    subchapter_id: $("#subchapter_id").val(),
-                    difficult_level_id: $("#difficult_level_id").val(),
-                    used_status: $("#used_status").val(),
-                    limit: $("#limit").val()
-                },
+        $.ajax({
+            url: "/qbundle/filter",
+            type: "GET",
+            data: {
+                subject_id: $("#subject_id").val(),
+                chapter_id: $("#chapter_id").val(),
+                subchapter_id: $("#subchapter_id").val(),
+                difficult_level_id: $("#difficult_level_id").val(),
+                used_status: $("#used_status").val(),
+                limit: $("#limit").val()
+            },
+            success: function (res) {
 
-                success: function(res) {
+                allQ = res.data;
+                qIndex = 0;
+                userAnswers = {}; // reset answers
 
-                    allQ = res.data;
-                    qIndex = 0;
-
-                    if (allQ.length === 0) {
-                        $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-                        return;
-                    }
-
-                    showQuestion(qIndex);
-                    $(".nav-btns").show();
+                if (allQ.length === 0) {
+                    $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+                    return;
                 }
-            });
+
+                showQuestion(qIndex);
+                $(".nav-btns").show();
+            }
         });
+    });
 
-        function showQuestion(i) {
-            let q = allQ[i];
+    function showQuestion(i) {
+        let q = allQ[i];
 
-            // QUESTION HTML
-            let html = `
+        let html = `
         <div class="question-card">
             <div class="question-header">
                 <span class="question-number">Question ${i + 1}</span>
@@ -339,54 +334,79 @@
             </div>
 
             <div class="options-container">
-    `;
+        `;
 
-            // OPTIONS LOOP
-            q.answers.forEach((a, idx) => {
-                html += `
+        q.answers.forEach((a, idx) => {
+            let checked = userAnswers[q.id] == a.id ? 'checked' : '';
+            html += `
             <label class="option-item">
-                <input type="radio" name="opt" value="${a.id}">
+                <input type="radio" name="opt"
+                       value="${a.id}"
+                       data-qid="${q.id}"
+                       ${checked}>
                 <div class="option-content">
                     <span class="option-index">${String.fromCharCode(65 + idx)}</span>
                     <span class="option-text">${a.answer}</span>
                 </div>
             </label>
-        `;
-            });
+            `;
+        });
 
-            html += `
-            </div>
-        </div>
-    `;
+        html += `</div></div>`;
 
-            $("#examBox").html(html);
+        $("#examBox").html(html);
+    }
+
+    //  option select store
+    $(document).on("change", "input[name='opt']", function () {
+        let qid = $(this).data("qid");
+        userAnswers[qid] = $(this).val();
+    });
+
+    // BACK BUTTON (UNCHANGED)
+    $("#backBtn").click(function () {
+        if (qIndex > 0) {
+            qIndex--;
+            showQuestion(qIndex);
         }
-        // BACK BUTTON
-        $("#backBtn").click(function() {
-            if (qIndex > 0) {
-                qIndex--;
-                showQuestion(qIndex);
+    });
+
+    //  NEXT BUTTON + RESULT
+    $("#nextBtn").click(function () {
+
+        if (qIndex < allQ.length - 1) {
+            qIndex++;
+            showQuestion(qIndex);
+            return;
+        }
+
+        // calculate result
+        let correct = 0;
+        let wrong = 0;
+
+        allQ.forEach(q => {
+            let right = q.answers.find(a => a.correctans == 1);
+            if (userAnswers[q.id] == right?.id) {
+                correct++;
+            } else {
+                wrong++;
             }
         });
 
-        // NEXT BUTTON
-        $("#nextBtn").click(function() {
-            qIndex++;
-
-            if (qIndex >= allQ.length) {
-                $("#examBox").html(`
+        $("#examBox").html(`
             <div class='completed-box'>
                 <h3>🎉 Exam Completed!</h3>
-                <p>Nice Work! You answered all the questions.</p>
+                <p>Total Questions: ${allQ.length}</p>
+                <p style="color:green">✅ Correct: ${correct}</p>
+                <p style="color:red">❌ Wrong: ${wrong}</p>
+                <h3>Score: ${correct}/${allQ.length}</h3>
             </div>
         `);
-                $(".nav-btns").hide();
-                return;
-            }
 
-            showQuestion(qIndex);
-        });
-    </script>
+        $(".nav-btns").hide();
+    });
+</script>
+
 </body>
 
 </html>
