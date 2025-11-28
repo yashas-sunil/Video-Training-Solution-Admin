@@ -70,7 +70,7 @@ public function filterQBundle(Request $request)
             'Authorization' => 'Bearer ' . $token
         ])
         ->withOptions([
-            'verify' => false   // 👈 SSL verify off kar diya
+            'verify' => false   // 
         ])
         ->post('https://apexstg.datavoice.co.in/api/v1/qbundle/filter', $payload);
 
