@@ -69,66 +69,6 @@
             font-size: 16px;
         }
 
-        /* EXAM BOX */
-        .exam-box {
-            background: white;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
-            min-height: 230px;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        .q-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        /* OPTIONS UPDATED & CLEAN */
-        .options-box {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            cursor: pointer;
-            background: #fff;
-            transition: 0.2s;
-        }
-
-        .option-item:hover {
-            background: #f1f7ff;
-            border-color: #2d89ff;
-        }
-
-        .option-item input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .opt-alpha {
-            font-weight: 700;
-            font-size: 16px;
-            width: 25px;
-            text-align: center;
-        }
-
-        .option-text {
-            font-size: 16px;
-            font-weight: 500;
-        }
 
         /* NAV BUTTONS */
         .nav-btns {
@@ -156,17 +96,86 @@
         .next-btn {
             background: #27ae60;
         }
+
+        /* ===== NAVBAR TABS ===== */
+/* CENTERED NAVBAR TABS */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 15px;
+    background: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.navbar .tabs {
+    display: flex;
+    justify-content: center; /* tabs center */
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+/* Back button left */
+.navbar .back-btn {
+    position: absolute;
+    left: 15px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: none;
+    background: #7f8c8d;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navbar .back-btn:hover {
+    background: #5d6d7e;
+}
+
+.navbar .tab-btn {
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    background: #ddd;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.navbar .tab-btn.active {
+    background: #2d89ff;
+    color: #fff;
+}
+
+
     </style>
 
 </head>
 
 <body>
+<!-- NAVBAR WITH TABS -->
+<div class="navbar">
+    <div class="tabs">
+        <button id="backTabBtn" class="back-btn">⬅ Back</button>
+        <button class="tab-btn active" onclick="openTab('examTab')">📘 User Eduedge Questions</button>
+        <button class="tab-btn" onclick="openTab('questionTab')">📝 Create Eduedge Questions</button>
+                
+    </div>
 
-    <div class="navbar"><b>Exam Mode</b></div>
+    <!-- Back Button -->
+    {{-- <div style="text-align:center; margin-top:10px;">
+        <button id="backTabBtn" class="back-btn">⬅ Back</button>
+    </div> --}}
+</div>
 
-    <div class="container" style="margin-top: 90px;">
+<div class="container" style="margin-top: 90px;">
 
-        <h2>🎯 Question Filter</h2>
+    <!-- ================= TAB 1 : EXAM ================= -->
+    <div id="examTab" class="tab-content active">
+        <!-- ORIGINAL EXAM FILTER & BOX HERE -->
+        {{-- <h2>🎯 Question Filter</h2> --}}
 
         <div class="filter-card">
             <div class="row">
@@ -224,189 +233,137 @@
             <button id="filterBtn">🔍 Start Exam</button>
         </div>
 
-        <div id="examBox" class="exam-box">
-            <p style="text-align:center;color:#666;">No Questions Loaded...</p>
-        </div>
-
-        <div class="nav-btns">
-            <button id="backBtn" class="back-btn">⬅️ Back</button>
-            <button id="nextBtn" class="next-btn">Next ➡️</button>
-        </div>
-
     </div>
 
+    <!-- ================= TAB 2 : QUESTIONS (DUMMY) ================= -->
+    <div id="questionTab" class="tab-content" style="display:none;">
+    <h2>📝 Admin Questions</h2>
+
+   <div class="filter-card">
+
+    <!-- header row -->
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">📝 Questions</h3>
+
+        <button id="startExamFromQuestionTab"
+                style="
+                    background:#2d89ff;
+                    color:#fff;
+                    border:none;
+                    padding:10px 22px;
+                    border-radius:8px;
+                    font-size:15px;
+                    cursor:pointer;
+                ">
+            🔍 Start Exam
+        </button>
+    </div>
+
+    <hr style="margin:15px 0;">
+
+    <!-- questions list -->
+    <ul style="margin:0; padding-left:20px;">
+        <li>Question 1</li>
+        <li>Question 2</li>
+        <li>Question 3</li>
+        <li>Question 4</li>
+    </ul>
+
+</
+
+</div>
+
+
+</div>
 <script>
-    let allQ = [];
-    let qIndex = 0;
+let allQ = [];
+let qIndex = 0;
+let userAnswers = {};
 
-    //  user answers store
-    let userAnswers = {};
+/* ------------------------------
+   SUBJECT → CHAPTER
+--------------------------------*/
+$("#subject_id").change(function () {
+    let id = $(this).val();
+    $("#chapter_id").html('<option>Loading...</option>');
+    $("#subchapter_id").html('<option value="">Select</option>');
 
-    $("#subject_id").change(function () {
-        let id = $(this).val();
+    $.get("/get-chapterBy-subject",{ subjects_id: id },function (res) {
+        let html = '<option value="">Select</option>';
+        res.forEach(c => html += `<option value="${c.id}">${c.name}</option>`);
+        $("#chapter_id").html(html);
+    });
+});
 
-        $("#chapter_id").html('<option>Loading...</option>');
-        $("#subchapter_id").html('<option value="">Select</option>');
+/* ------------------------------
+   CHAPTER → SUBCHAPTER
+--------------------------------*/
+$("#chapter_id").change(function () {
+    let id = $(this).val();
+    $("#subchapter_id").html('<option>Loading...</option>');
 
-        $.get("/get-chapterBy-subject", {
-            subjects_id: id
-        }, function (res) {
-            let html = '<option value="">Select</option>';
-            res.forEach(c => {
-                html += `<option value="${c.id}">${c.name}</option>`;
-            });
-
-            $("#chapter_id").html(html);
+    $.get("/get-subchapters",{ chapter_id: id },function (res) {
+        let html = '<option value="">Select</option>';
+        (res.data || res).forEach(sc => {
+            html += `<option value="${sc.id}">${sc.name}</option>`;
         });
+        $("#subchapter_id").html(html);
+    });
+});
+
+/* ===============================
+   FILTER BUTTON → ONLY REDIRECT
+================================*/
+$("#filterBtn").click(function () {
+
+    let params = $.param({
+        subject_id: $("#subject_id").val(),
+        chapter_id: $("#chapter_id").val(),
+        subchapter_id: $("#subchapter_id").val(),
+        difficult_level_id: $("#difficult_level_id").val(),
+        used_status: $("#used_status").val(),
+        limit: $("#limit").val()
     });
 
-    $("#chapter_id").change(function () {
-        let id = $(this).val();
+    window.location.href = "/exam-page?" + params;
+});
 
-        $("#subchapter_id").html('<option>Loading...</option>');
 
-        $.ajax({
-            url: "/get-subchapters",
-            type: "GET",
-            data: { chapter_id: id },
-            success: function (res) {
-                let html = '<option value="">Select</option>';
+$("#startExamFromQuestionTab").click(function () {
 
-                if (Array.isArray(res)) {
-                    res.forEach(sc => {
-                        html += `<option value="${sc.id}">${sc.name}</option>`;
-                    });
-                } else if (res.data) {
-                    res.data.forEach(sc => {
-                        html += `<option value="${sc.id}">${sc.name}</option>`;
-                    });
-                }
-
-                $("#subchapter_id").html(html);
-            }
-        });
+    let params = $.param({
+        subject_id: 5,
+        chapter_id: 8,
+        subchapter_id: 7,
+        difficult_level_id: 1,
+        used_status: "",
+        limit: 20
     });
 
-    $("#filterBtn").click(function () {
+    window.location.href = "/exam-page?" + params;
+});
 
-        $("#examBox").html("<p style='text-align:center;'>Loading...</p>");
-        $(".nav-btns").hide();
+/* ===============================
+   EXAM PAGE : AUTO LOAD QUESTIONS
+================================*/
+function getParam(name){
+    return new URLSearchParams(window.location.search).get(name);
+}
 
-        $.ajax({
-            url: "/qbundle/filter",
-            type: "GET",
-            data: {
-                subject_id: $("#subject_id").val(),
-                chapter_id: $("#chapter_id").val(),
-                subchapter_id: $("#subchapter_id").val(),
-                difficult_level_id: $("#difficult_level_id").val(),
-                used_status: $("#used_status").val(),
-                limit: $("#limit").val()
-            },
-            success: function (res) {
-
-                allQ = res.data;
-                qIndex = 0;
-                userAnswers = {}; // reset answers
-
-                if (allQ.length === 0) {
-                    $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-                    return;
-                }
-
-                showQuestion(qIndex);
-                $(".nav-btns").show();
-            }
-        });
-    });
-
-    function showQuestion(i) {
-        let q = allQ[i];
-
-        let html = `
-        <div class="question-card">
-            <div class="question-header">
-                <span class="question-number">Question ${i + 1}</span>
-            </div>
-
-            <div class="question-text">
-                ${q.question}
-            </div>
-
-            <div class="options-container">
-        `;
-
-        q.answers.forEach((a, idx) => {
-            let checked = userAnswers[q.id] == a.id ? 'checked' : '';
-            html += `
-            <label class="option-item">
-                <input type="radio" name="opt"
-                       value="${a.id}"
-                       data-qid="${q.id}"
-                       ${checked}>
-                <div class="option-content">
-                    <span class="option-index">${String.fromCharCode(65 + idx)}</span>
-                    <span class="option-text">${a.answer}</span>
-                </div>
-            </label>
-            `;
-        });
-
-        html += `</div></div>`;
-
-        $("#examBox").html(html);
-    }
-
-    //  option select store
-    $(document).on("change", "input[name='opt']", function () {
-        let qid = $(this).data("qid");
-        userAnswers[qid] = $(this).val();
-    });
-
-    // BACK BUTTON (UNCHANGED)
-    $("#backBtn").click(function () {
-        if (qIndex > 0) {
-            qIndex--;
-            showQuestion(qIndex);
-        }
-    });
-
-    //  NEXT BUTTON + RESULT
-    $("#nextBtn").click(function () {
-
-        if (qIndex < allQ.length - 1) {
-            qIndex++;
-            showQuestion(qIndex);
-            return;
-        }
-
-        // calculate result
-        let correct = 0;
-        let wrong = 0;
-
-        allQ.forEach(q => {
-            let right = q.answers.find(a => a.correctans == 1);
-            if (userAnswers[q.id] == right?.id) {
-                correct++;
-            } else {
-                wrong++;
-            }
-        });
-
-        $("#examBox").html(`
-            <div class='completed-box'>
-                <h3>🎉 Exam Completed!</h3>
-                <p>Total Questions: ${allQ.length}</p>
-                <p style="color:green">✅ Correct: ${correct}</p>
-                <p style="color:red">❌ Wrong: ${wrong}</p>
-                <h3>Score: ${correct}/${allQ.length}</h3>
-            </div>
-        `);
-
-        $(".nav-btns").hide();
-    });
 </script>
 
+
+<script>
+function openTab(tabId){
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tc => tc.style.display='none');
+    event.target.classList.add('active');
+    document.getElementById(tabId).style.display='block';
+}
+$("#backTabBtn").click(function(){
+    window.history.back(); 
+});
+</script>
 </body>
 
 </html>

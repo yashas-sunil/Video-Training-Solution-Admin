@@ -545,6 +545,49 @@
                 <div id="attemptContent">Loading...</div>
             </div>
         </div>
+        <!-- Study / Test Modal -->
+<div id="modeModal" style="
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;">
+
+    <div style="
+        background:white;
+        padding:30px;
+        border-radius:10px;
+        width:320px;
+        text-align:center;
+        position:relative;">
+
+        <span onclick="closeModeModal()"
+            style="position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer;">
+            &times;
+        </span>
+
+        <h3 style="margin-bottom:20px;">Choose Mode</h3>
+
+        <button onclick="goStudy()"
+            style="width:100%; padding:10px; margin-bottom:10px;
+            background:#007bff; color:white; border:none;
+            border-radius:6px; font-size:16px;">
+            📘 Study
+        </button>
+
+        <button onclick="goTest()"
+            style="width:100%; padding:10px;
+            background:#28a745; color:white; border:none;
+            border-radius:6px; font-size:16px;">
+            📝 Test
+        </button>
+
+    </div>
+</div>
+
 
         <script>
             function openScormWindow(courseId) {
@@ -559,10 +602,10 @@
                 }
             }
 
-            function openModePage(courseId) {
-    // redirect to mode selection page
-    window.location.href = "/course-mode/" + courseId;
-}
+//             function openModePage(courseId) {
+//     // redirect to mode selection page
+//     window.location.href = "/course-mode/" + courseId;
+// }
 
             document.getElementById("courseSearch").addEventListener("input", function() {
                 const searchValue = this.value.toLowerCase();
@@ -680,6 +723,54 @@
                     }
                 });
             }
+
+             // ✅ GLOBAL VARIABLE
+    let selectedCourseId = null;
+
+    // ✅ Start / Resume / Completed click
+    function openModePage(courseId) {
+        selectedCourseId = courseId;
+        document.getElementById('modeModal').style.display = 'flex';
+    }
+
+    function closeModeModal() {
+        document.getElementById('modeModal').style.display = 'none';
+    }
+
+    // ✅ STUDY
+    function goStudy() {
+        if (!selectedCourseId) {
+            alert('Course ID missing!');
+            return;
+        }
+
+        closeModeModal();
+
+        const width = screen.availWidth;
+        const height = screen.availHeight;
+
+        const popup = window.open(
+            `/view/${selectedCourseId}`,
+            '_blank',
+            `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`
+        );
+
+        if (!popup) {
+            alert("Please allow popups.");
+        }
+    }
+
+    // ✅ TEST (TERA ROUTE)
+    function goTest() {
+        if (!selectedCourseId) {
+            alert('Course ID missing!');
+            return;
+        }
+
+        closeModeModal();
+
+        window.location.href = `/user/${selectedCourseId}`;
+    }
         </script>
 
 </body>

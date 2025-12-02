@@ -604,6 +604,9 @@ Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name
 Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
 Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
 
+Route::get('/exam-page', function () {
+    return view('exam_page'); 
+});
 
 
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
