@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Quiz Attempts</title>
     <style>
@@ -25,12 +26,16 @@
 
         /* Navbar */
         .navbar {
-            background-color: #007bff;
+            background-color: #700002;
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: white;
+            position: fixed;
+            top: 0px;
+            width: -webkit-fill-available;
+            z-index: 1;
         }
 
         .navbar .logo img {
@@ -44,9 +49,44 @@
             gap: 1rem;
         }
 
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 10px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+        }
+
+        .user-info a {
+            display: flex;
+            gap: 5px;
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            align-items: center;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 7px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+            font-size: 14px;
+        }
+
+        .user-info-mobile {
+            display: none;
+        }
+
+
         /* Page content */
         .page-content {
             padding: 20px;
+            margin-top: 89px;
         }
 
         /* Attempts grid */
@@ -54,18 +94,18 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
+            justify-items: stretch;
         }
 
         .attempt-card {
-            border: 1px solid #ddd;
+
             border-radius: 8px;
             padding: 15px;
             background: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             width: auto;
-            height: 130px;
-            box-sizing: border-box;
-            overflow: hidden;
+            height: auto;
+            margin-top: 30px;
         }
 
         .attempt-card p {
@@ -97,11 +137,8 @@
         }
 
         .quiz-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
             margin: 0;
-            font-size: 25px;
+            font-size: 17px;
             font-weight: bold;
         }
 
@@ -113,6 +150,7 @@
         .toolbar-actions {
             display: flex;
             gap: 10px;
+            height: fit-content;
         }
 
         /* Filter button (just image, no style) */
@@ -139,7 +177,7 @@
             font-size: 14px;
             font-weight: 500;
             border-radius: 6px;
-            background: #007bff;
+            background: #2C3E50;
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -156,7 +194,6 @@
             position: fixed;
             top: 0;
             right: -400px;
-            width: 300px;
             height: 100%;
             background: #fff;
             border-left: 1px solid #ddd;
@@ -269,16 +306,128 @@
             display: block;
         }
 
+        .performance_con {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-around;
+            align-items: center;
+            gap: 30px;
+
+        }
+
+        .container_cards {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            border: 3px solid #700002;
+            border-radius: 20px;
+            padding: 50px;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .best-score {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .best-score p:first-child {
+            margin: 0;
+            font-family: sans-serif;
+            font-weight: 400;
+            font-size: 34px;
+            line-height: 100%;
+        }
+
+        .best-score p:last-child {
+            margin: 0;
+            font-family: sans-serif;
+            font-weight: 300;
+            font-size: 16px;
+            line-height: 100%;
+        }
+
         @media (max-width: 992px) {
             .attempts-grid {
-                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
         }
 
-        .user-welcome {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        @media (max-width: 425px) {
+            .navbar {
+                padding: 15px 6px;
+            }
+
+            .navbar .logo img {
+                height: 30px;
+                width: auto;
+            }
+
+            .navbar .user-info {
+                gap: 8px;
+            }
+
+            .user-welcome {
+                gap: 4px;
+                padding: 6px 10px;
+            }
+
+            .user-info a {
+                margin-left: 0px;
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+
+            .user-info-mobile {
+                display: flex !important;
+                gap: 8px;
+            }
+
+            .user-welcome {
+                gap: 4px;
+                padding: 6px 10px;
+            }
+
+            .user-info a {
+                margin-left: 0px;
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+
+            .user-info-mobile a {
+                color: white;
+                text-decoration: none;
+            }
+
+            .user-info {
+                display: none !important;
+            }
+
+            .toolbar {
+                flex-wrap: wrap;
+            }
+
+            .user-welcome {
+                gap: 4px;
+                padding: 6px 10px;
+            }
+                .container_cards {
+                    width: 100%!important;
+                }
+        }
+        @media (max-width: 768px) {
+            .performance_con {
+                flex-wrap: wrap!important;
+                gap: 20px;
+            }
+            .container_cards {
+                padding: 20px!important;
+                width: auto;
+            }
         }
     </style>
 </head>
@@ -297,13 +446,25 @@
         <!-- Right: User Info -->
         <div class="user-info">
             <div class="user-welcome">
-                <div style="font-size: 16px;">Welcome back !</div>
-                <div style="font-size: 24px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                <div style="font-size: 14px;">Welcome back !</div>
+                <div style="font-size: 14px;font-weight: bold;">{{ auth()->user()->name }}</div>
             </div>
             <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                style="display: flex; gap: 5px; color:white; text-decoration: none; margin-left: 20px;">Logout<img
-                    src="{{ asset('images/logout.png') }}" alt="Logout"></a>
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout<img
+                    src="{{ asset('images/Logout2.png') }}" alt="Logout"></a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </div>
+        <div class="user-info-mobile">
+            <a href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <div class="user-welcome">
+                    <div style="font-size: 12px;">Welcome back !</div>
+                    <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                    <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                </div>
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
@@ -313,40 +474,141 @@
     <!-- Page Content -->
     <div class="page-content">
 
-        <div class="toolbar">
-            <h2>Quiz Attempts</h2>
-            <div class="toolbar-actions">
-
-                <!-- Filter Button -->
-                <button class="btn-filter" onclick="openFilter()">
-                    <img src="{{ asset('images/filter.png') }}" alt="Filter" />
-                </button>
-
-                <!-- Back Button -->
-                <button class="btn-link" onclick="window.history.back()">
-                    ⬅ Back
-                </button>
-
+        <div class="toolbar" style="margin: 20px 0px;">
+            <div class="toolbar_r">
+                <h2 style="font-family: sans-serif;margin: 0;">Quiz Attempts</h2>
+                <p style="font-weight: lighter;">Review your performance and track your progress</p>
             </div>
-            <h2 class="quiz-title">{{ $quizName }}</h2>
+            <div class="sub-toolbar"
+                style="display: flex;align-items: center;flex-wrap: nowrap;flex-direction: row;gap: 10px;">
+                <div class="quiz_name"
+                    style="background: #BEDBFF26;border: 2px solid #BEDBFF;border-radius: 13px;padding: 12px;display: flex;align-items: flex-start;flex-direction: column;flex-wrap: nowrap;gap: 10px;">
+                    <p style="margin: 0;font-size: 14px;font-weight: 100;">Course</p>
+                    <h2 class="quiz-title">{{ $quizName }}</h2>
+                </div>
+                <div class="toolbar-actions">
+
+                    <!-- Filter Button -->
+                    <button class="btn-filter" onclick="openFilter()">
+                        <img src="{{ asset('images/filter.png') }}" alt="Filter" />
+                    </button>
+
+                    <!-- Back Button --><button class="btn-link" style="gap: 5px;" onclick="window.history.back()">
+                        <img src="{{ asset('images/Left.png') }}" alt="Back"
+                            style="width:15px; height:15px; cursor:pointer;" />
+
+                        Back
+                    </button>
+
+                </div>
+            </div>
+
         </div>
+
+        <!-- Performance -->
+        @php
+            $highestScore = max(array_column($attempts->toArray(), 'score_percent'));
+            $scores = array_column($attempts->toArray(), 'score_percent');
+            $highestScore = max($scores);
+            $averageScore = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
+            $scores = array_column($attempts->toArray(), 'score_percent');
+
+            $highestScore = max($scores);
+            $averageScore = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
+            $totalAttempts = count($attempts);
+        @endphp
+
+        <div class="performance_con">
+            <div class="container_cards">
+                <img src="{{ asset('images/Performance.png') }}" alt="Performance" style="width:60px; height:60px;" />
+
+                <div class="best-score">
+                    <p>{{ $highestScore }}%</p>
+                    <p>Best Score</p>
+                </div>
+            </div>
+            <div class="container_cards">
+                <img src="{{ asset('images/Average.png') }}" alt="Average" style="width:60px; height:60px;" />
+
+                <div class="best-score">
+                    <p>{{ $averageScore }}%</p>
+                    <p>Average Score</p>
+                </div>
+            </div>
+            <div class="container_cards">
+                <img src="{{ asset('images/TTAttempts.png') }}" alt="TTAttempts" style="width:60px; height:60px;" />
+
+                <div class="best-score">
+                    <p>{{ $totalAttempts }}</p>
+                    <p>Total Attempts</p>
+                </div>
+            </div>
+        </div>
+
+
 
 
         <!-- Attempts -->
         <div class="attempts-grid" id="attemptsGrid">
             @forelse($attempts as $attempt)
-                <div class="attempt-card" data-score="{{ $attempt['score_percent'] }}"
+                <div class="attempt-card" data-score="{{ $attempt['score_percent'] }}" style="border:{{ $attempt['score_percent'] >= 60 ? '1px solid #00A63E' : '1px solid #E7000B' }}"
                     data-chapter="{{ $attempt['chapter_name'] }}" data-attempt="{{ $attempt['attempt_number'] }}"
                     data-date="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}"
                     data-time="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i') }}">
-                    <p><strong>Chapter:</strong> {{ $attempt['chapter_name'] }}</p>
                     <p>
-                        <strong>Attempt:</strong> {{ $attempt['attempt_number'] }}
-                        <span style="font-size:12px; color:#777;">({{ $attempt['attempt_time'] }})</span>
-                    </p>
-                    <p><strong>Score:</strong> {{ $attempt['score_percent'] }}%</p>
+                    <div class="sec1"
+                        style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-between;align-items: center;">
+                        <div class="attempt_se1" style="display: flex;align-items: center;">
+                            <p
+                                style="font-family: sans-serif; font-weight: bold; font-size: 16px;color: {{ $attempt['score_percent'] >= 60 ? '#00A63E' : '#E7000B' }};">
+                                Attempt: {{ $attempt['attempt_number'] }}</p>
+                            <div
+                                class="passing"style="background-color: {{ $attempt['score_percent'] >= 60 ? '#00A63E' : '#E7000B' }};color: #ffffff;padding: 5px 10px;border-radius: 15px;font-size: 10px;margin-left: 10px;">
+                                @if ($attempt['score_percent'] >= 60)
+                                    <span>Passed</span>
+                                @else
+                                    <span>Failed</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="best_score"
+                            style="display: {{ $highestScore == $attempt['score_percent'] ? 'flex' : 'none' }}; border-radius: 20px; color:#ffffff; padding: 5px 10px; width: fit-content;gap: 5px;align-items: center;">
+                            <img src="{{ asset('images/Prize.png') }}" alt="Best Score"
+                                style="width:35px; height:auto;" />
+                        </div>
+                    </div>
+                    <div class="sec2"
+                        style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-between;">
+                        <div class="sec2_l" style="display: flex;flex-direction: column;flex-wrap: nowrap;gap: 5px;">
 
-                    <a href="{{ url('/course-attempts/' . $quizName . '/view/' . $attempt['attempt_number']) }}">
+                            <p style="font-family: sans-serif;font-weight: 600;font-size: 12px;line-height: 100%;">
+                                Chapter: {{ $attempt['chapter_name'] }}</p>
+                            <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                                <img src="{{ asset('images/Calendar.png') }}" alt="Date"
+                                style="width:16px;height:auto;margin-right:5px;" />
+                            <span
+                                style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px;">
+                                <img src="{{ asset('images/Clock.png') }}" alt="Date"
+                                style="width:16px;height:auto;margin-right:5px;" />
+                                <span
+                                style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000; align-items: center;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i:s') }}</span>
+                            </div>
+                        </div>
+                        <div class="sec2_r"
+                            style="display: flex;flex-direction: column;flex-wrap: nowrap;gap:5px;margin: 8px 0;align-items: center;">
+                            <p
+                                style="font-family: sans-serif;font-weight: 400;font-size: 48px;line-height: 100%;color:{{ $attempt['score_percent'] >= 60 ? '#00A63E' : '#E7000B' }};margin: 0;">
+                                {{ $attempt['score_percent'] }}%</p>
+                            <p>Score</p>
+                        </div>
+                    </div>
+
+                    <a style="color:#FFFFFF; background-color:#2C3E50; display: flex; padding: 10px 8px;margin-top: 8px; border-radius: 4px; font-size: 12px; justify-content: center;align-items: center;"
+                     href="{{ url('/course-attempts/' . $quizName . '/view/' . $attempt['attempt_number']) }}">
+                        <img src="{{ asset('images/Eye.png') }}" alt="View Questions"
+                            style="width:15px; height:15px; vertical-align: middle; margin-right: 5px;" />
                         View Questions
                     </a>
                 </div>
@@ -355,6 +617,7 @@
             @endforelse
         </div>
     </div>
+
 
     <!-- Overlay -->
     <div id="overlay" class="overlay" onclick="closeFilter()"></div>

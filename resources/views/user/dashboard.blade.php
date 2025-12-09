@@ -1,8 +1,12 @@
 <!DOCTYPE html>
+
+
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
+    <link href="https://fonts.cdnfonts.com/css/digital-numbers" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,12 +28,16 @@
         }
 
         .navbar {
-            background-color: #007bff;
+            background-color: #700002;
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: white;
+            position: fixed;
+            top: 0px;
+            width: -webkit-fill-available;
+            z-index: 1;
         }
 
         .navbar .logo img {
@@ -45,6 +53,8 @@
 
         .container {
             padding: 2rem;
+            justify-items: center;
+            margin-top: 89px;
         }
 
         .stats {
@@ -54,7 +64,8 @@
             margin-bottom: 2rem;
         }
 
-        .stat-card {
+        .stat-card,
+        .stat-card-time {
             justify-content: center;
             display: flex;
             flex-direction: column;
@@ -70,6 +81,16 @@
             /* optional: uncomment for absolute positioning */
             transition: transform 0.3s ease;
             /* optional hover effect */
+            border-width: 7px 2px 2px 2px;
+            border-style: solid;
+            border-color: #700002;
+        }
+
+        .stat-card-time {
+            background: #282843;
+            border: none;
+            padding: 30px;
+
         }
 
         /* Optional: hover effect for Figma look */
@@ -83,10 +104,23 @@
             color: #007bff;
         }
 
+        .stat-card-time h2 {
+            margin: 0;
+            font-family: 'Digital Numbers', sans-serif;
+            font-weight: 400;
+            font-size: 30px;
+            color: #FFFFFF;
+        }
+
         .stat-card p {
             font-size: 12px;
             margin: 2px 0;
-            color: #666;
+            color: #000000;
+        }
+
+        .stat-card-time p {
+            font-size: 12px;
+            color: #FFFFFF;
         }
 
         h2 {
@@ -98,6 +132,29 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            opacity: 1;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 10px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+        }
+
+        .user-info a {
+            display: flex;
+            gap: 5px;
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            align-items: center;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 7px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+            font-size: 14px;
         }
 
         .courses-grid {
@@ -107,7 +164,6 @@
             justify-content: flex-start;
             gap: 1rem;
             width: 100%;
-            border-radius: 20px;
             overflow-y: auto;
             max-height: none;
             margin: 0 auto;
@@ -143,10 +199,6 @@
             overflow: hidden;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: #28a745;
-        }
 
         .btn-resume {
             display: flex;
@@ -192,6 +244,50 @@
             font-size: 16px;
         }
 
+
+
+        .your_courses {
+            background: #282842;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            padding: 5px 20px;
+            border-radius: 15px;
+            width: 97%;
+        }
+
+        .yourcourses_header {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-info-mobile {
+            display: none;
+        }
+
+        .dropdown-btn {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+            width: 140px;
+
+            /* Remove default arrow */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            /* Add custom arrow */
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23000000' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+
         @media (max-width: 992px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -211,18 +307,165 @@
             .stat-card p {
                 font-size: 16px;
             }
+
         }
 
         /* Small screens (≤ 425px) */
         @media (max-width: 425px) {
-            .stats {
-                grid-template-columns: repeat(1, 1fr) !important;
+
+
+            .container {
+                padding: 1rem;
             }
 
             .course-card {
                 width: 100%;
             }
+
+            .navbar {
+                padding: 15px 6px;
+            }
+
+            .navbar .logo img {
+                height: 30px;
+                width: auto;
+            }
+
+            .navbar .user-info {
+                gap: 8px;
+            }
+
+            .user-welcome {
+                gap: 4px;
+                padding: 6px 10px;
+            }
+
+            .user-info a {
+                margin-left: 0px;
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+
+            .your_courses {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                padding: 15px 20px;
+            }
+
+            .yourcourses_header h2 {
+                font-size: 17px;
+            }
+
+            .Search_Bar {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 1px !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                width: 100%;
+            }
+
+            .Search_Bar Select {
+                width: 100%;
+            }
+
+            .user-info-mobile {
+                display: flex !important;
+                gap: 8px;
+            }
+
+            .user-welcome {
+                gap: 4px;
+                padding: 6px 10px;
+            }
+
+            .user-info a {
+                margin-left: 0px;
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+
+            .user-info-mobile a {
+                color: white;
+                text-decoration: none;
+            }
+
+            .user-info {
+                display: none !important;
+            }
+
+            .stat-card,
+            .stat-card-time {
+                width: 70px;
+            }
+
+            .stat-card h2 {
+                font-size: 20px;
+            }
+
+            .stat-card p {
+                font-size: 12px;
+            }
+
+            .stat-card-time {
+                padding: 5px;
+                width: 112px !important;
+                height: auto;
+            }
+
+            .stat-card-time h2 {
+                font-size: 15px;
+            }
+
+            .percent-card {
+                right: 15px !important;
+                top: 106px !important;
+                width: 53px !important;
+                height: 15% !important;
+                padding: 0px !important;
+            }
+
+            .percent-no {
+                font-size: 18px !important;
+            }
+
+            .percent-completed {
+                font-size: 8px !important;
+            }
+
+            .course_detail_text {
+                font-size: 10px !important;
+            }
+
+            .Tag {
+                padding: 4px 12px !important;
+                font-size: 10px !important;
+            }
+
+            .course-title {
+                font-size: 14px !important;
+            }
+
+            .course_details_container {
+                gap: 5px !important;
+            }
+
+            .ActionButtons a span {
+                font-size: 12px !important;
+            }
+
+            .ActionButtons {
+                align-self: center !important;
+            }
+
+            .upperline h2 {
+                font-size: 20px !important;
+            }
+
         }
+
+
 
         /* Modal Styles */
         #attemptModal {
@@ -278,13 +521,27 @@
         <!-- Right: User Info -->
         <div class="user-info">
             <div class="user-welcome">
-                <div style="font-size: 16px;">Welcome back !</div>
-                <div style="font-size: 24px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                <div style="font-size: 14px;">Welcome back !</div>
+                <div style="font-size: 14px;font-weight: bold;">{{ auth()->user()->name }}</div>
             </div>
             <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                style="display: flex; gap: 5px; color:white; text-decoration: none; margin-left: 20px;">Logout<img
-                    src="{{ asset('images/logout.png') }}" alt="Logout"></a>
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout<img
+                    src="{{ asset('images/Logout2.png') }}" alt="Logout"></a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </div>
+
+        <!-- Right: User Info-mobile -->
+        <div class="user-info-mobile">
+            <a href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <div class="user-welcome">
+                    <div style="font-size: 12px;">Welcome back !</div>
+                    <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                    <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                </div>
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
@@ -292,25 +549,37 @@
     </div>
     <!-- Main Content -->
     <div class="container">
+        <div class="header_journey"
+            style="display: flex;flex-direction: column;align-items: flex-start;width: 100%; margin: 20px;">
+            <div class="upperline" style="display: flex;align-items: center;">
+                <img src="{{ asset('images/Increase.png') }}" alt="Learning Journey"
+                    style="width:26px; height:26px;margin-right:10px;" />
+                <h2 style="color:#000000; margin: 0px; align-self: center; font-family: 'system-ui'; font-weight: 600;">
+                    Your Learning Journey</h2>
+            </div>
+            <p style="font-size: 17px; color: #000000B2; margin-top: 5px; font-weight: 400;">Track your progress and
+                achievements</p>
+        </div>
         <div class="stats">
 
             <!-- 1️ Total Courses Purchased -->
             <div class="stat-card" onclick="filterCourses('all')" style="cursor:pointer;">
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-purchase.png') }}" alt="Total Courses Purchased"
+                    <img src="{{ asset('images/total-purchase2.png') }}" alt="Total Courses Purchased"
                         style="width:40px; height:40px;" />
                 </div>
-                <h2>{{ $totalCourses }}</h2>
+                <h2 style="color: #700002;">{{ $totalCourses }}</h2>
                 <p>Total Courses Purchased</p>
             </div>
 
             <!-- 2️ Courses Not Started -->
-            <div class="stat-card" onclick="filterCourses('not-started')" style="cursor:pointer;">
+            <div class="stat-card" onclick="filterCourses('not-started')"
+                style="cursor:pointer; border-color: #818181;">
                 <div style="margin-bottom:6px;">
-                    <img src="{{ asset('images/pending.png') }}" alt="Courses Not Started"
+                    <img src="{{ asset('images/pending2.png') }}" alt="Courses Not Started"
                         style="width:40px; height:40px;" />
                 </div>
-                <h2>
+                <h2 style="color: #818181;">
                     {{ $courses->filter(function ($course) {
                             return !$course['is_expired'] && !$course['is_disabled'] && $course['progress']->isEmpty();
                         })->count() }}
@@ -319,12 +588,13 @@
             </div>
 
             <!-- 3️ Courses In Progress -->
-            <div class="stat-card" onclick="filterCourses('in-progress')" style="cursor:pointer;">
+            <div class="stat-card" onclick="filterCourses('in-progress')"
+                style="cursor:pointer; border-color: #5A6AFF;">
                 <div style="margin-bottom:6px;">
-                    <img src="{{ asset('images/course-in-progress.png') }}" alt="Courses in Progress"
+                    <img src="{{ asset('images/course-in-progress2.png') }}" alt="Courses in Progress"
                         style="width:40px; height:40px;" />
                 </div>
-                <h2>
+                <h2 style="color: #5A6AFF;">
                     {{ $courses->filter(function ($course) {
                             return !$course['is_expired'] &&
                                 !$course['is_disabled'] &&
@@ -335,29 +605,29 @@
             </div>
 
             <!-- 4️ Completed Courses -->
-            <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer;">
+            <div class="stat-card" onclick="filterCourses('completed')" style="cursor:pointer; border-color: #23B358;">
                 <div style="margin-bottom:6px;">
-                    <img src="{{ asset('images/completed-course.png') }}" alt="Completed Courses"
+                    <img src="{{ asset('images/completed-course2.png') }}" alt="Completed Courses"
                         style="width:40px; height:40px;" />
                 </div>
-                <h2>{{ $completedCourses }}</h2>
+                <h2 style="color: #23B358;">{{ $completedCourses }}</h2>
                 <p>Completed Courses</p>
             </div>
 
             <!-- 5️ Expired Courses -->
-            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer;">
+            <div class="stat-card" onclick="filterCourses('expired')" style="cursor:pointer; border-color: #F65E1D;">
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/course-expire.png') }}" alt="Expired Courses"
+                    <img src="{{ asset('images/course-expire2.png') }}" alt="Expired Courses"
                         style="width:40px; height:40px;" />
                 </div>
-                <h2>{{ $expiredCoursesCount }}</h2>
+                <h2 style="color: #F65E1D;">{{ $expiredCoursesCount }}</h2>
                 <p>Expired Courses</p>
             </div>
 
             <!-- 6️ Total Watch Time -->
-            <div class="stat-card">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('images/total-watch-time.png') }}" alt="Total Watch Time"
+            <div class="stat-card-time">
+                <div style="margin-top:10px;">
+                    <img src="{{ asset('images/total-watch-time2.png') }}" alt="Total Watch Time"
                         style="width:40px; height:40px;" />
                 </div>
                 <h2>{{ gmdate('H:i:s', $totalWatchTime) }}</h2>
@@ -366,24 +636,33 @@
 
         </div>
 
-        <h2 style="margin-bottom:10px; text-align:center;">📚 Your Courses</h2>
+        <div class="your_courses">
+            <div class="yourcourses_header">
+                <img src="{{ asset('images/your_courses.png') }}" alt="Total Watch Time"
+                    style="width:40px; height:40px;" />
+                <h2
+                    style="color:#FFFFFF; margin: 0px; align-self: center; font-family: 'system-ui'; font-weight: 400;">
+                    Your Courses</h2>
+            </div>
 
-        <!-- Search + Filter -->
-        <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:20px;">
-            <input type="text" id="courseSearch" placeholder="Search your courses..."
-                style="width:200px; padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
-            <select id="courseFilter"
-                style="padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
-                <option value="all">All Courses</option>
-                <option value="completed">Completed</option>
-                <option value="in-progress">In Progress</option>
-                <option value="not-started">Not Started</option>
-            </select>
+            <!-- Search + Filter -->
+            <div class="Search_Bar" style="display:flex; justify-content:flex-end; align-items:center; gap:40px;">
+                <input type="text" id="courseSearch" placeholder="Search your courses..."
+                    style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px;">
+                <select id="courseFilter" class="dropdown-btn"
+                    style="padding:8px 30px;border-radius:6px;border: 1px solid #ccc;
+                    font-size:14px;-webkit-appearance: none;text-align: left;padding-left: 10px!important; ">
+                    <option value="all">All Courses</option>
+                    <option value="completed">Completed</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="not-started">Not Started</option>
+                </select>
+            </div>
         </div>
 
         <!-- Courses Grid -->
         <div class="courses-grid"
-            style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:{{ count($courses) === 1 ? 'center' : 'flex-start' }};">
+            style="display:flex; flex-wrap:nowrap; gap:1rem; justify-content:center; flex-direction: column; align-items: center; margin: 30px 0px;">
             @forelse($courses as $item)
                 @php
                     $course = $item['course'] ?? null;
@@ -423,50 +702,97 @@
                 <div class="course-card" data-status="{{ $status }}"
                     data-disabled="{{ $isDisabled ? 'true' : 'false' }}"
                     data-expired="{{ $isExpired ? 'true' : 'false' }}"
-                    style="background:white; padding:1rem 1.5rem; text-align:center; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:{{ count($courses) === 1 ? '500px' : '48%' }}; max-width:90%; box-sizing:border-box; position:relative;">
+                    style="background:white; padding:3rem 1.5rem; border-radius:20px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width: 100%;
+                           box-sizing: border-box; position: relative; border-width: 2px 2px 2px 7px; border-style: solid; border-color: {{ $status == 'completed' ? '#58B100' : '#700002' }}; display: flex;
+                           flex-direction: column; flex-wrap: nowrap; gap: 10px">
 
-                    @if ($isExpired)
-                        <span
-                            style="position:absolute; top:10px; right:10px; background:#dc354644; color:red; padding:6px 10px; border-radius:6px; font-size:12px;">
-                            Expired
-                        </span>
-                    @endif
+                    <div class="title_n_status"
+                        style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center;">
 
-                    <div class="course-title" style="font-size:1.2rem; font-weight:bold; color:#333;">
-                        {{ $course->title ?? 'Untitled Course' }}
-                    </div>
+                        <div class="course-title"
+                            style="font-size:1.5em;font-family: sans-serif;font-weight: 400;color: #000000;">
 
-                    <div style="margin-top:4px; font-size:0.9rem; color:#555;">
-                        Attempt: {{ $currentAttempt }} / {{ $masterLimit }}
-                    </div>
-
-                    <div class="course-info" style="margin-top:0.5rem; font-size:0.95rem;">
-                        <div style="margin-bottom:0.3rem;">
-                            Watched: {{ gmdate('H:i:s', $watchedThisAttempt) }} / {{ gmdate('H:i:s', $duration) }}
+                            {{ $course->title ?? 'Untitled Course' }}
                         </div>
 
-                        <div style="margin-top:0.3rem; color:#c00; font-size:0.9rem;">
-                            Expire Date:
-                            {{ $item['expire_date'] ? \Carbon\Carbon::parse($item['expire_date'])->format('d M Y h:i A') : 'N/A' }}
-                        </div>
+                        @if ($isExpired)
+                            <span class="Tag"
+                                style="background: linear-gradient(90deg, #700002 5%, #900205 100%); color:#ffffff;padding: 4px 16px;border-radius: 20px;font-size: 12px;align-content: center;height: fit-content;margin-left: 10px; margin-top: 2px; font-family: sans-serif;">
+                                Expired
+                            </span>
+                        @endif
 
 
-                        <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
-                            <div class="progress-bar"
-                                style="flex:1; background:#eee; border-radius:5px; height:10px; overflow:hidden; position:relative;">
-                                <div class="progress-fill"
-                                    style="height:100%; background:#28a745; width:{{ $percent }}%; transition:width 0.5s;">
+                    </div>
+                    <div class="course-infocontainer">
+
+                        <div class="course-info"
+                            style="margin-top: 0;font-size: 12px;display: flex;flex-direction: column;flex-wrap: nowrap;gap: 9px;font-family: sans-serif;">
+
+
+                            <div class="details_percent-container"
+                                style="display: flex;flex-direction: row;justify-content: space-between;">
+                                <div class="course_details_container"
+                                    style="display: flex;flex-direction: column;justify-content: space-between;">
+                                    <div class="course_details"
+                                        style="display: flex;flex-direction: row;flex-wrap: nowrap;align-content: center;align-items: center;">
+                                        <img src="{{ asset('images/Ellipse.svg') }}" alt="Dot"
+                                            style="width:10px;height:10px;background: #0000009E;border-radius: 50px;" />
+                                        <div class="course_detail_text"
+                                            style=" margin-top: 0;font-size: 12px;color: #0000009E;font-family: sans-serif;font-weight: 400;display: flex;margin-left: 8px;">
+                                            Attempt: {{ $currentAttempt }} / {{ $masterLimit }}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="course_details"
+                                        style="display: flex;flex-direction: row;flex-wrap: nowrap;align-content: center;align-items: center;">
+                                        <img src="{{ asset('images/Ellipse.svg') }}" alt="Dot"
+                                            style="width:10px;height:10px;background: #23233BE3;border-radius: 50px;" />
+                                        <div class="course_detail_text"
+                                            style="margin-bottom:0;color: #23233BE3;font-weight: 400;margin-left:8px">
+                                            Watched: {{ gmdate('H:i:s', $watchedThisAttempt) }} /
+                                            {{ gmdate('H:i:s', $duration) }}
+                                        </div>
+                                    </div>
+
+                                    <div class="course_details"
+                                        style="display: flex;flex-direction: row;flex-wrap: nowrap;align-content: center;align-items: center;">
+                                        <img src="{{ asset('images/Ellipse.svg') }}" alt="Dot"
+                                            style="width:10px;height:10px;background: #700002;border-radius: 50px;" />
+                                        <div class="course_detail_text"
+                                            style="margin-top:0;color: #700002;font-weight: 400;margin-left:8px">
+                                            Expire Date:
+                                            {{ $item['expire_date'] ? \Carbon\Carbon::parse($item['expire_date'])->format('d M Y h:i A') : 'N/A' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="percent-card"
+                                    style="right: 50px;top: 60px;width: 109px;height: 30%;border-radius: 5px;color: #FFFFFF;box-shadow: 5px 5px 10px 1px #00000040;text-align: center; align-content: center; display: grid; padding: 14px 0px;">
+                                    <span class="percent-no"
+                                        style="font-size:35px; font-weight:normal; color: {{ $status == 'completed' ? '#58B100' : '#700002' }}; font-family: sans-serif;">{{ $percent }}%</span>
+                                    <span class="percent-completed"
+                                        style="font-family:sans-serif; font-weight: 400; font-size: 10px; color: #000000;">Completed</span>
                                 </div>
                             </div>
-                            <span style="min-width:35px; font-weight:bold; color:#28a745;">{{ $percent }}%</span>
-                        </div>
 
-                        {{-- Action Buttons --}}
-                        <div
-                            style="display:flex; justify-content:center; align-items:center; margin-top:0.5rem; gap:8px;">
-                            @if ($status === 'not-started')
-                                <a href="javascript:void(0);"
-                                    @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');" 
+
+                            <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
+                                <div class="progress-bar"
+                                    style="flex:1;background: #D9D9D9;border-radius:5px;height:10px;overflow:hidden;position:relative;box-shadow: 0px 4px 5px -3px #00000040 inset;">
+                                    <div class="progress-fill"
+                                        style="height:100%; background: {{ $status == 'completed' ? '#58B100' : '#700002' }}; width:{{ $percent }}%; transition:width 0.5s;border-radius:10px;">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {{-- Action Buttons --}}
+                            <div class="ActionButtons"
+                                style="display:flex; justify-content:flex-start; align-items:center; margin-top:0.5rem; gap:8px;">
+                                @if ($status === 'not-started')
+                                    <a href="javascript:void(0);"
+                                        @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');" 
                         style="background:#ccc; cursor:not-allowed; opacity:0.7;"
                     @elseif ($isExpired) 
                         onclick="alert('⚠️ This course has expired.');" 
@@ -474,60 +800,62 @@
                     @else 
                         onclick="openModePage({{ $course->id }})"
 
-                        style="background:#007bff;" @endif
-                                    class="btn-start"
-                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
-                                    <img src="{{ asset('images/start-btn.png') }}" alt="Start"
-                                        style="width:18px; height:25px; margin-right:8px;" />
-                                    <span style="color:white; font-weight:bold; font-size:14px;">Start</span>
-                                </a>
-                            @elseif ($status === 'in-progress')
-                                <a href="javascript:void(0);"
-                                    @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');" 
+                        style="background:#2C2C49;" @endif
+                                        class="btn-start"
+                                        style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
+                                        <img src="{{ asset('images/ResumeButton2.png') }}" alt="Start"
+                                            style="width:20px; height:20px; margin-right:8px;" />
+                                        <span style="color:white; font-family:sans-serif font-size:14px;">Start</span>
+                                    </a>
+                                @elseif ($status === 'in-progress')
+                                    <a href="javascript:void(0);"
+                                        @if ($isDisabled) onclick="alert('⚠️ This course is currently disabled.');" 
                         style="background:#ccc; cursor:not-allowed; opacity:0.7;"
                     @elseif ($isExpired) 
                         onclick="alert('⚠️ This course has expired.');" 
-                        style="background:#b6b5b5; cursor:not-allowed; opacity:0.7;"
+                        style="background:#000000; cursor:not-allowed; opacity:0.7;"
                     @else 
                         onclick="openModePage({{ $course->id }})"
 
-                        style="background:#007bff;" @endif
-                                    class="btn-resume"
-                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
-                                    <img src="{{ asset('images/Resume Button.png') }}" alt="Resume"
-                                        style="width:18px; height:25px; margin-right:5px;" />
-                                    <span style="color:white; font-weight:bold; font-size:14px;">Resume</span>
-                                </a>
-                            @elseif ($status === 'completed')
-                                @php
-                                    $disableCompleted = $currentAttempt >= $masterLimit;
-                                @endphp
+                        style="background:#2C2C49;" @endif
+                                        class="btn-resume"
+                                        style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#d0e4ff; padding:6px 10px; border-radius:6px; height:32px;">
+                                        <img src="{{ asset('images/ResumeButton2.png') }}" alt="Resume"
+                                            style="width:20px; height:20px; margin-right:5px;" />
+                                        <span
+                                            style="color:white; font-family:sans-serif; font-size:14px;">Resume</span>
+                                    </a>
+                                @elseif ($status === 'completed')
+                                    @php
+                                        $disableCompleted = $currentAttempt >= $masterLimit;
+                                    @endphp
 
-                                <a href="javascript:void(0);"
-                                    @if ($disableCompleted) onclick="alert('⚠️ View limit and watch time have been reached!');"
+                                    <a href="javascript:void(0);"
+                                        @if ($disableCompleted) onclick="alert('⚠️ View limit and watch time have been reached!');"
             style="background:#ccc; cursor:not-allowed; opacity:0.7;"
         @else
             onclick="openModePage({{ $course->id }})"
 
-            style="background:#28a745;" @endif
-                                    class="btn-resume"
-                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
+            style="background:#58B100;" @endif
+                                        class="btn-resume"
+                                        style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
 
-                                    <img src="{{ asset('images/Resume Button.png') }}" alt="Completed"
-                                        style="width:18px; height:25px; margin-right:5px;" />
+                                        <img src="{{ asset('images/Check Mark.png') }}" alt="Completed"
+                                            style="width:20px; height:20px; margin-right:5px;" />
 
-                                    <span style="color:white; font-weight:bold; font-size:14px;">Completed</span>
+                                        <span
+                                            style="color:white; font-family:sans-serif; font-size:14px;">Completed</span>
+                                    </a>
+                                @endif
+
+                                {{-- View Attempts --}}
+                                <a href="javascript:void(0);" class="btn-attempts"
+                                    onclick="showAttempts('{{ $course->title ?? '' }}')"
+                                    style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; background:#ffffff; border: 2px solid #2C2C49;">
+                                    <span style="color:#2C2C49; font-size:14px; font-family: sans-serif;">View
+                                        Attempts</span>
                                 </a>
-                            @endif
-
-                            {{-- View Attempts --}}
-                            <a href="javascript:void(0);" class="btn-attempts"
-                                onclick="showAttempts('{{ $course->title ?? '' }}')"
-                                style="display:inline-flex; align-items:center; justify-content:center; text-align:center; background:#CCE5FF; padding:6px 10px; border-radius:6px; height:27px;">
-                                <img src="{{ asset('images/View.png') }}" alt="View Attempts"
-                                    style="width:18px; height:18px; margin-right:5px;" />
-                                <span style="color:#007BFF; font-weight:bold; font-size:14px;">View Attempts</span>
-                            </a>
+                            </div>
                         </div>
 
                     </div>
@@ -546,7 +874,8 @@
             </div>
         </div>
         <!-- Study / Test Modal -->
-<div id="modeModal" style="
+        <div id="modeModal"
+            style="
     display:none;
     position:fixed;
     top:0;left:0;
@@ -556,7 +885,8 @@
     justify-content:center;
     align-items:center;">
 
-    <div style="
+            <div
+                style="
         background:white;
         padding:30px;
         border-radius:10px;
@@ -564,29 +894,29 @@
         text-align:center;
         position:relative;">
 
-        <span onclick="closeModeModal()"
-            style="position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer;">
-            &times;
-        </span>
+                <span onclick="closeModeModal()"
+                    style="position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer;">
+                    &times;
+                </span>
 
-        <h3 style="margin-bottom:20px;">Choose Mode</h3>
+                <h3 style="margin-bottom:20px;">Choose Mode</h3>
 
-        <button onclick="goStudy()"
-            style="width:100%; padding:10px; margin-bottom:10px;
+                <button onclick="goStudy()"
+                    style="width:100%; padding:10px; margin-bottom:10px;
             background:#007bff; color:white; border:none;
             border-radius:6px; font-size:16px;">
-            📘 Study
-        </button>
+                    📘 Study
+                </button>
 
-        <button onclick="goTest()"
-            style="width:100%; padding:10px;
+                <button onclick="goTest()"
+                    style="width:100%; padding:10px;
             background:#28a745; color:white; border:none;
             border-radius:6px; font-size:16px;">
-            📝 Test
-        </button>
+                    📝 Test
+                </button>
 
-    </div>
-</div>
+            </div>
+        </div>
 
 
         <script>
@@ -602,10 +932,10 @@
                 }
             }
 
-//             function openModePage(courseId) {
-//     // redirect to mode selection page
-//     window.location.href = "/course-mode/" + courseId;
-// }
+            //             function openModePage(courseId) {
+            //     // redirect to mode selection page
+            //     window.location.href = "/course-mode/" + courseId;
+            // }
 
             document.getElementById("courseSearch").addEventListener("input", function() {
                 const searchValue = this.value.toLowerCase();
@@ -669,24 +999,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                                                                                                    Q${i + 1}: ${q.question_id}
-                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Q${i + 1}: ${q.question_id}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                                                                            ${isCorrect}
-                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ${isCorrect}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
             }).join('')}
         </div>
     `;
@@ -724,53 +1054,53 @@
                 });
             }
 
-             // ✅ GLOBAL VARIABLE
-    let selectedCourseId = null;
+            // ✅ GLOBAL VARIABLE
+            let selectedCourseId = null;
 
-    // ✅ Start / Resume / Completed click
-    function openModePage(courseId) {
-        selectedCourseId = courseId;
-        document.getElementById('modeModal').style.display = 'flex';
-    }
+            // ✅ Start / Resume / Completed click
+            function openModePage(courseId) {
+                selectedCourseId = courseId;
+                document.getElementById('modeModal').style.display = 'flex';
+            }
 
-    function closeModeModal() {
-        document.getElementById('modeModal').style.display = 'none';
-    }
+            function closeModeModal() {
+                document.getElementById('modeModal').style.display = 'none';
+            }
 
-    // ✅ STUDY
-    function goStudy() {
-        if (!selectedCourseId) {
-            alert('Course ID missing!');
-            return;
-        }
+            // ✅ STUDY
+            function goStudy() {
+                if (!selectedCourseId) {
+                    alert('Course ID missing!');
+                    return;
+                }
 
-        closeModeModal();
+                closeModeModal();
 
-        const width = screen.availWidth;
-        const height = screen.availHeight;
+                const width = screen.availWidth;
+                const height = screen.availHeight;
 
-        const popup = window.open(
-            `/view/${selectedCourseId}`,
-            '_blank',
-            `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`
-        );
+                const popup = window.open(
+                    `/view/${selectedCourseId}`,
+                    '_blank',
+                    `width=${width},height=${height},top=0,left=0,resizable=yes,scrollbars=yes`
+                );
 
-        if (!popup) {
-            alert("Please allow popups.");
-        }
-    }
+                if (!popup) {
+                    alert("Please allow popups.");
+                }
+            }
 
-    // ✅ TEST (TERA ROUTE)
-    function goTest() {
-        if (!selectedCourseId) {
-            alert('Course ID missing!');
-            return;
-        }
+            // ✅ TEST (TERA ROUTE)
+            function goTest() {
+                if (!selectedCourseId) {
+                    alert('Course ID missing!');
+                    return;
+                }
 
-        closeModeModal();
+                closeModeModal();
 
-        window.location.href = `/user/${selectedCourseId}`;
-    }
+                window.location.href = `/user/${selectedCourseId}`;
+            }
         </script>
 
 </body>
