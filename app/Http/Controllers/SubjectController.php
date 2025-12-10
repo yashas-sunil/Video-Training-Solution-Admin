@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Level;
+use App\Models\Video;
+use App\Models\Chapter;
+use App\Models\Subject;
+use App\Models\LevelType;
+use App\Models\Professor;
+use App\Models\PackageType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
-use App\Models\Subject;
-use App\Models\PackageType;
-use App\Models\LevelType;
-use App\Models\Video;
-use App\Models\Professor;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class SubjectController extends Controller
@@ -243,4 +244,64 @@ class SubjectController extends Controller
         $professors = Professor::whereIn('id', $professorIds)->orderBy('name')->get();
         return json_encode($professors);
     }
+
+    public function getChapterBySubjectId(Request $request)
+    {
+        /*"We retrieve all topics of a particular chapter. 
+        In $idStatusOne, we have those topics with a status of 1. 
+        In $idNoInc, we have those topics with a status of 0, 
+        but only if there is at least one topic with a status of 1. 
+        Therefore, if there is one topic with a status of 1 and another with a status of 0, we should not allow the creation of a subchapter, as one active topic is present."
+        */
+        if(isset($request->noSubjTopic)){
+            $idStatusOne=[];
+            $idNoInc=[];
+            $id = $request->input('subjects_id');
+            $idDetails = DB::table('topics')
+                        ->where('topics.subject_id', $id)
+                        ->whereNull('topics.subchapter_id')
+                        ->select('topics.*')
+                        ->get()
+                        ->toArray();
+            foreach($idDetails as $idDetail){
+                if($idDetail->status == 1){
+                    $idStatusOne[$idDetail->chapters_id][]=$idDetail->id;
+                }
+            }
+
+            foreach($idDetails as $idDetail){
+                foreach($idStatusOne as $key=>$value){
+                    if($idDetail->chapters_id == $key){
+                        $idNoInc[]=$idDetail->id;
+                    }
+                }
+            }
+            
+            $chapters = Chapter::select('chapters.*')
+                        ->leftJoin('topics', 'chapters.id', '=', 'topics.chapters_id')
+                        ->where('chapters.status', 1)
+                        ->where('chapters.subjects_id', $id)
+                        ->where(function ($query) use ($id) {
+                            $query->where(function ($q) use ($id) {
+                                $q->whereNotNull('topics.subchapter_id');
+                            })
+                            ->orWhere(function ($q) use ($id) {
+                                $q->where('topics.status', 0);
+                            })
+                            ->orWhereNull('topics.chapters_id');
+                        })
+                        ->where(function ($query) use ($idNoInc) {
+                            $query->whereNotIn('topics.id', $idNoInc)
+                                ->orWhereNull('topics.id');
+                        })
+                        ->distinct()
+                        ->get();
+
+            return response()->json($chapters);
+        }
+        $id = $request->input('subjects_id');
+        $chapters = Chapter::where('subjects_id', $id)->where('status', Subject::ACTIVE)->get();
+        return response()->json($chapters);
+    }
+
 }
