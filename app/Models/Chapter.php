@@ -10,6 +10,8 @@ class Chapter extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
+      const INACTIVE=0;
+    const ACTIVE=1;
     protected $appends = [
         'has_package'
     ];
