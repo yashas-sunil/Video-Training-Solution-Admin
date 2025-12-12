@@ -364,9 +364,8 @@
 
         <div class="sub-navbar">
             <div class="tabs">
-                <button id="backTabBtn" class="back-btn"><img src="{{ asset('images/backbtn.png') }}"
-                        alt="BackBtn"></button>
-                <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p>
+                <button id="backTabBtn" class="back-btn"style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img src="{{ asset('images/backbtn.png') }}"
+                        alt="BackBtn"><p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p></button>
 
 
             </div>

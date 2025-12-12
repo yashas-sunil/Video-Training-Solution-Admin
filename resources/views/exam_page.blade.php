@@ -79,19 +79,33 @@
             color: #ffffff;
             font-family: sans-serif;
             font-weight: 400;
+            margin-right: 10px;
         }
 
         /* ===== QUESTION ===== */
         .question-title {
             font-size: 20px;
             font-weight: 700;
+            background: #ffffff;
+            display: flex;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+            margin-bottom: 20px;
         }
 
         /* ===== OPTIONS ===== */
         .options-box {
-            display: flex;
             flex-direction: column;
             gap: 14px;
+            font-size: 20px;
+            font-weight: 700;
+            background: #ffffff;
+            display: flex;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+            margin-bottom: 20px;
         }
 
         .option-item {
@@ -118,7 +132,8 @@
 
         .option-alpha {
             font-weight: 700;
-            width: 25px;
+            width: 20px;
+            font-size:16px;
         }
 
         .option-text {
@@ -135,7 +150,7 @@
             flex-wrap: nowrap;
         }
 
-        
+
         .next-btn {
             padding: 10px 28px;
             border: none;
@@ -204,8 +219,9 @@
             align-items: center;
 
         }
+
         .back-btn:hover {
-                background: linear-gradient(180deg, #700002 0%, #440102e0 100%);
+            background: linear-gradient(180deg, #700002 0%, #440102e0 100%);
         }
 
         .back_btn img {
@@ -384,9 +400,9 @@
         <!-- TOP BACK BUTTON -->
         <div class="top-back">
             <div class="tabs">
-                <button id="topBackBtn" class="back_btn"><img src="{{ asset('images/backbtn.png') }}"
-                        alt="BackBtn"></button>
-                <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p>
+                <button id="topBackBtn" class="back_btn" style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img src="{{ asset('images/backbtn.png') }}"
+                        alt="BackBtn"><p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back</p></button>
+                
 
 
             </div>
@@ -436,18 +452,18 @@
                     $(".nav-btns").show();
                 });
 
-                function showQuestion(i){
-    let q = allQ[i];
+                function showQuestion(i) {
+                    let q = allQ[i];
 
-    let html = `
+                    let html = `
         <div class="question-title">
-            <b>Q${i+1}:</b> ${q.question}
+            <div class="Q-no">Q${i+1}</div> ${q.question}
         </div>
         <div class="options-box">
     `;
 
-    q.answers.forEach((a,idx)=>{
-        html += `
+                    q.answers.forEach((a, idx) => {
+                        html += `
             <label class="option-item">
                 <input type="radio" name="opt"
                     value="${a.id}"
@@ -457,11 +473,11 @@
                 <span class="option-text">${a.answer}</span>
             </label>
         `;
-    });
+                    });
 
-    html += `</div>`;
-    $("#examBox").html(html);
-}
+                    html += `</div>`;
+                    $("#examBox").html(html);
+                }
 
 
                 $(document).on("change", "input[name=opt]", function() {
