@@ -292,9 +292,9 @@
         }
 
         .popup-mode button:hover {
-                transform: translateY(-4px);
-                transition: transform 0.3s ease;
-            }
+            transform: translateY(-4px);
+            transition: transform 0.3s ease;
+        }
 
         .cross-btn {
             width: 12px;
@@ -477,10 +477,11 @@
             .upperline h2 {
                 font-size: 20px !important;
             }
+
             .popup-mode {
                 width: 70% !important;
             }
-            
+
 
         }
 
@@ -898,36 +899,43 @@
 
             <div class="popup-mode"
                 style="background: #ffffff;padding:30px;border-radius: 20px;width:380px;height: 360px;text-align:center;position:relative;backdrop-filter: blur(8px);overflow: hidden;">
-                <div class="popuptop" style="background: #ffffff;height: 27%;width: 100%;position: absolute;left: 0px;top: 0px;">
+                <div class="popuptop"
+                    style="background: #ffffff;height: 27%;width: 100%;position: absolute;left: 0px;top: 0px;">
                     <span onclick="closeModeModal()"
                         style="position:absolute; top:4px; right:15px; font-size:24px; cursor:pointer;">
                         <img src="{{ asset('images/cross.svg') }}" class="cross-btn" alt="Close" />
                     </span>
 
-                    <h3 style="margin-bottom:0px;font-family: system-ui;font-weight: 400;font-size: 24px;color: #000000;margin-top: 36px;">Choose
+                    <h3
+                        style="margin-bottom:0px;font-family: system-ui;font-weight: 400;font-size: 24px;color: #000000;margin-top: 36px;">
+                        Choose
                         Your Mode</h3>
-                        <p style="top: 72px;left: 64px;color: #00000085;font-size: 12px;">
-                            Select how you'd like to proceed with this module</p>
+                    <p style="top: 72px;left: 64px;color: #00000085;font-size: 12px;">
+                        Select how you'd like to proceed with this module</p>
                 </div>
                 <button onclick="goStudy()"
                     style=" width:100%; padding: 20px; padding-top: 10px; margin-bottom:10px; background: #ffffff; color:rgb(0, 0, 0);
                      border:none; border-radius: 15px; font-size:16px;margin-top: 120px;display: flex;align-items: center;justify-content:flex-start;flex-wrap: nowrap; box-shadow: 0 8px 25px rgba(0, 0, 0, 30%);cursor:pointer;">
-                     <img src="{{ asset('images/Study.png') }}" alt="Study"
+                    <img src="{{ asset('images/Study.png') }}" alt="Study"
                         style="width:50px; height:50px; margin-right:20px; vertical-align: middle;" />
-                        <div class="btn-text" style=" display: flex; flex-direction: column; text-align: left;gap: 5px;margin-top: 10px;">
-                     <p style=" margin: 0; font-size: 20px; font-weight: 400; font-family: system-ui;">Study</p>
-                     <p style=" margin: 0px; font-size: 12px; font-weight: 100;">Learn at your own pace with detailed explanations</p>
+                    <div class="btn-text"
+                        style=" display: flex; flex-direction: column; text-align: left;gap: 5px;margin-top: 10px;">
+                        <p style=" margin: 0; font-size: 20px; font-weight: 400; font-family: system-ui;">Study</p>
+                        <p style=" margin: 0px; font-size: 12px; font-weight: 100;">Learn at your own pace with
+                            detailed explanations</p>
                     </div>
                 </button>
 
                 <button onclick="goTest()"
                     style="width:100%; padding: 20px; padding-top: 10px; margin-bottom:10px; background: #ffffff; color:rgb(0, 0, 0);
                      border:none; border-radius: 15px; font-size:16px;margin-top: 20px;display: flex;align-items: center;justify-content:flex-start;flex-wrap: nowrap; box-shadow: 0 8px 25px rgba(0, 0, 0, 30%);cursor:pointer;">
-                     <img src="{{ asset('images/Test.png') }}" alt="Test"
+                    <img src="{{ asset('images/Test.png') }}" alt="Test"
                         style="width:50px; height:50px; margin-right:20px; vertical-align: middle;" />
-                        <div class="btn-text"  style=" display: flex; flex-direction: column; text-align: left;gap: 5px;margin-top: 10px;">
-                     <p style=" margin: 0; font-size: 20px; font-weight: 400; font-family: system-ui;">Test</p>
-                     <p style=" margin: 0px; font-size: 12px; font-weight: 100;">Challenge yourself and track your progress</p>
+                    <div class="btn-text"
+                        style=" display: flex; flex-direction: column; text-align: left;gap: 5px;margin-top: 10px;">
+                        <p style=" margin: 0; font-size: 20px; font-weight: 400; font-family: system-ui;">Test</p>
+                        <p style=" margin: 0px; font-size: 12px; font-weight: 100;">Challenge yourself and track your
+                            progress</p>
                     </div>
                 </button>
 
@@ -954,32 +962,26 @@
             // }
 
             document.getElementById("courseSearch").addEventListener("input", function() {
+
                 const searchValue = this.value.toLowerCase();
                 const filterValue = document.getElementById("courseFilter").value;
 
                 const courses = document.querySelectorAll(".course-card");
-                courses.forEach(function(card) {
-                    const title = card.querySelector(".course-title").textContent.toLowerCase();
 
-                    const percentText = card.querySelector(".progress-bar-wrapper span").textContent.replace(
-                        '%', '').trim();
-                    const percent = parseFloat(percentText);
+                courses.forEach(function(card) {
+
+                    const title = card.querySelector(".course-title")?.textContent.toLowerCase() || "";
+                    const status = card.getAttribute("data-status");
 
                     let matchesSearch = title.includes(searchValue);
                     let matchesFilter = true;
 
-                    if (filterValue === "completed") {
-                        matchesFilter = percent === 100;
-                    } else if (filterValue === "in-progress") {
-                        matchesFilter = percent > 0 && percent < 100;
+                    if (filterValue !== "all") {
+                        matchesFilter = (status === filterValue);
                     }
 
                     card.style.display = (matchesSearch && matchesFilter) ? "block" : "none";
                 });
-            });
-
-            document.getElementById("courseFilter").addEventListener("change", function() {
-                document.getElementById("courseSearch").dispatchEvent(new Event("input"));
             });
 
             document.getElementById("courseFilter").addEventListener("change", function() {
@@ -1015,24 +1017,24 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="font-weight:bold; margin-bottom:6px;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Q${i + 1}: ${q.question_id}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-weight:bold; margin-bottom:6px;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Q${i + 1}: ${q.question_id}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            🧍 Your Answer: ${q.user_answer || '-'}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    🧍 Your Answer: ${q.user_answer || '-'}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            📌 Correct Answer: ${q.correct_answer || '-'}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    📌 Correct Answer: ${q.correct_answer || '-'}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ${isCorrect}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ${isCorrect}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
             }).join('')}
         </div>
     `;
