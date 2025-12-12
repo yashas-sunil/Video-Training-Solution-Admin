@@ -506,17 +506,16 @@
         </div>
 
         <!-- Performance -->
-        @php
-            $highestScore = max(array_column($attempts->toArray(), 'score_percent'));
-            $scores = array_column($attempts->toArray(), 'score_percent');
-            $highestScore = max($scores);
-            $averageScore = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
-            $scores = array_column($attempts->toArray(), 'score_percent');
-
-            $highestScore = max($scores);
-            $averageScore = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
-            $totalAttempts = count($attempts);
-        @endphp
+       @php
+    $scores = count($attempts) > 0 
+        ? array_column($attempts->toArray(), 'score_percent') 
+        : [];
+    $highestScore = count($scores) > 0 ? max($scores) : 0;
+    $averageScore = count($scores) > 0 
+        ? round(array_sum($scores) / count($scores), 2) 
+        : 0;
+    $totalAttempts = count($attempts);
+@endphp
 
         <div class="performance_con">
             <div class="container_cards">

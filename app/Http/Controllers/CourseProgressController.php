@@ -268,5 +268,4 @@ public function viewAttempt($quizName, $attemptNumber)
     ]);
 }
 
-
 }
