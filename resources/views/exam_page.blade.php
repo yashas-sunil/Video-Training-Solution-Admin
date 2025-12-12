@@ -436,38 +436,33 @@
                     $(".nav-btns").show();
                 });
 
-                function showQuestion(i) {
-                    let q = allQ[i];
+                function showQuestion(i){
+    let q = allQ[i];
 
-                    let html = `
-        <div class="questions-container">
-            <div class="Q-no">Q${i+1}</div>
-                
-            <div class="question-title">
-                Question ${i+1}
-            </div>
-            </div>
-            <div class="options-container">
-            <div class="options-box">
-                </div>
+    let html = `
+        <div class="question-title">
+            <b>Q${i+1}:</b> ${q.question}
+        </div>
+        <div class="options-box">
+    `;
+
+    q.answers.forEach((a,idx)=>{
+        html += `
+            <label class="option-item">
+                <input type="radio" name="opt"
+                    value="${a.id}"
+                    data-qid="${q.id}"
+                    ${answers[q.id]==a.id?'checked':''}>
+                <span class="option-alpha">${String.fromCharCode(65+idx)}</span>
+                <span class="option-text">${a.answer}</span>
+            </label>
         `;
+    });
 
-                    q.answers.forEach((a, idx) => {
-                        html += `
-                <label class="option-item">
-                    <input type="radio" name="opt"
-                        value="${a.id}"
-                        data-qid="${q.id}"
-                        ${answers[q.id]==a.id?'checked':''}>
-                    <span class="option-alpha">${String.fromCharCode(65+idx)}</span>
-                    <span class="option-text">${a.answer}</span>
-                </label>
-            `;
-                    });
+    html += `</div>`;
+    $("#examBox").html(html);
+}
 
-                    html += `</div>`;
-                    $("#examBox").html(html);
-                }
 
                 $(document).on("change", "input[name=opt]", function() {
                     answers[$(this).data("qid")] = $(this).val();
