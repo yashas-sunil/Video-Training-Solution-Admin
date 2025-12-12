@@ -629,6 +629,9 @@ Route::resource('assigned-courses', 'AssignedCourseController');
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
 Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
 
+Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create');
+ Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store');
+
 
 
 
