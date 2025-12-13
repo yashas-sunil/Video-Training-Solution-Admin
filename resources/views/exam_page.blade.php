@@ -21,6 +21,7 @@
         .main-container {
             box-sizing: border-box;
             padding: 40px;
+            padding-bottom: 0px;
         }
 
         * {
@@ -80,6 +81,8 @@
             font-family: sans-serif;
             font-weight: 400;
             margin-right: 10px;
+            height: fit-content;
+
         }
 
         /* ===== QUESTION ===== */
@@ -105,7 +108,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .option-item {
@@ -133,7 +136,7 @@
         .option-alpha {
             font-weight: 700;
             width: 20px;
-            font-size:16px;
+            font-size: 16px;
         }
 
         .option-text {
@@ -144,7 +147,8 @@
         /* ===== NAV BUTTONS ===== */
         .nav-btns {
             display: flex;
-            width: 40%;
+            width: 100%;
+            max-width: 520px;
             justify-content: space-between;
             flex-direction: row;
             flex-wrap: nowrap;
@@ -172,8 +176,28 @@
         .top-back {
             width: 100%;
             display: flex;
-            margin-top: 70px;
-            flex-direction: row-reverse;
+            margin-top: 65px;
+            flex-direction: row;
+            margin-bottom: 20px;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: flex-end;
+        }
+
+        .test_progress {
+            background: #ffffff;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 3px 4px 11px 0px #00000040;
+            padding: 8px 20px;
+            padding-bottom: 20px;
+        }
+
+        .test_text {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-between;
         }
 
 
@@ -306,6 +330,10 @@
 
         @media (max-width: 425px) {
 
+
+            .main-container {
+                padding: 10px !important;
+            }
             .navbar {
                 padding: 15px 6px !important;
             }
@@ -354,6 +382,11 @@
             .user-info {
                 display: none !important;
             }
+            .top-back {
+                flex-direction: column-reverse!important;
+                align-items: flex-end!important;
+
+            }
         }
     </style>
 </head>
@@ -399,12 +432,27 @@
 
         <!-- TOP BACK BUTTON -->
         <div class="top-back">
+            <div class="test_progress">
+                <div class="test_text">
+                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;">Question 1/n-1</p>
+                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;color: #700002;font-weight: 600;">50%</p>
+                </div>
+                <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="progress-bar"
+                        style="flex:1;background: #D9D9D9;border-radius:5px;height:10px;overflow:hidden;position:relative;box-shadow: 0px 4px 5px -3px #00000040 inset;">
+                        <div class="progress-fill"
+                            style="height:100%; background:#700002; width:50%; transition:width 0.5s;border-radius:10px;">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
             <div class="tabs">
-                <button id="topBackBtn" class="back_btn" style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img src="{{ asset('images/backbtn.png') }}"
-                        alt="BackBtn"><p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back</p></button>
-                
-
-
+                <button id="topBackBtn" class="back_btn"
+                    style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img
+                        src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
+                    <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back</p>
+                </button>
             </div>
         </div>
         <div class="exam-wrapper">
@@ -442,7 +490,7 @@
 
                 $.get("/qbundle/filter", data, function(res) {
                     allQ = res.data || [];
-
+                    console.log("total:", allQ.length);
                     if (allQ.length === 0) {
                         $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
                         return;

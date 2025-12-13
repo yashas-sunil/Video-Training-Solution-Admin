@@ -74,6 +74,7 @@
             align-items: center;
             cursor: pointer;
         }
+
         #filterBtn:hover {
             background: linear-gradient(180deg, #0e3da2 0%, rgba(12, 56, 150, 0.81) 100%);
         }
@@ -154,6 +155,7 @@
             .user-info {
                 display: none !important;
             }
+
             .Exam-setup {
                 flex-wrap: wrap;
             }
@@ -170,9 +172,6 @@
             align-items: center;
             gap: 15px;
             box-sizing: border-box;
-            position: absolute;
-            top: 110px;
-            right: 50px;
 
         }
 
@@ -182,13 +181,20 @@
         .sub-navbar {
             width: 100%;
             background: #f8f9fa;
-            margin-top: 135px;
+            margin-top: 130px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             padding: 0;
             box-sizing: border-box;
             border-radius: 20px 20px 0px 0px;
+        }
+
+        .examstup_tabs {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            padding: 0px 22px;
         }
 
 
@@ -363,30 +369,37 @@
         <!-- sub-navbar WITH TABS -->
 
         <div class="sub-navbar">
-            <div class="tabs">
-                <button id="backTabBtn" class="back-btn"style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img src="{{ asset('images/backbtn.png') }}"
-                        alt="BackBtn"><p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p></button>
+            <div class="examstup_tabs">
+                <div class="tabs">
+                    <button id="backTabBtn"
+                        class="back-btn"style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img
+                            src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
+                        <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p>
+                    </button>
 
 
-            </div>
-            <div class="Exam_setup-header" style=" display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 14px 26px;">
-                <img src="{{ asset('images/Settings.png') }}"
-                        alt="Settings" style=" width: 50px; height: 50px;">
-                <div class="Exam_setup-text" style=" display: flex; flex-direction: column;gap:4px">
-                    <p style=" margin: 0;font-family: sans-serif;font-size: 20px;font-weight: 400;">Exam Setup</p>
-                    <p style=" margin: 0;font-size: 12px;font-family: sans-serif;font-weight: 100;">Configure your exam parameters and preferences</p>
+                </div>
+
+                <div class="Exam_setup-header"
+                    style=" display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 14px 0px;">
+                    <img src="{{ asset('images/Settings.png') }}" alt="Settings" style=" width: 50px; height: 50px;">
+                    <div class="Exam_setup-text" style=" display: flex; flex-direction: column;gap:4px">
+                        <p style=" margin: 0;font-family: sans-serif;font-size: 20px;font-weight: 400;">Exam Setup</p>
+                        <p style=" margin: 0;font-size: 12px;font-family: sans-serif;font-weight: 100;">Configure your
+                            exam parameters and preferences</p>
+                    </div>
                 </div>
             </div>
             <div class="Exam-setup">
-                <button class="tab-btn active" onclick="openTab('examTab')"><img
-                        src="{{ asset('images/user-test.png') }}"
-                        alt="User-test"style="width: 20px;height: 20px;margin-right: 5px;">User Eduedge
+                <button class="tab-btn " onclick="openTab('examTab')"><img src="{{ asset('images/user-test.png') }}"
+                        alt="User-test"style="width: 20px;height: 20px;margin-right: 5px;"> Eduedge Created
                     Questions</button>
-                <button class="tab-btn" onclick="openTab('questionTab')"><img
+                <button class="tab-btn active" onclick="openTab('questionTab')"><img
                         src="{{ asset('images/create-test.png') }}"
-                        alt="create-test"style="width: 20px;height: 20px;margin-right: 5px;">Create Eduedge
+                        alt="create-test"style="width: 20px;height: 20px;margin-right: 5px;">Create User
                     Questions</button>
             </div>
+
 
             <!-- Back Button -->
             {{-- <div style="text-align:center; margin-top:10px;">
@@ -397,7 +410,7 @@
         <div class="container" style="margin-top: 0px;">
 
             <!-- ================= TAB 1 : EXAM ================= -->
-            <div id="examTab" class="tab-content active">
+            <div id="examTab" class="tab-content" style="display:none;">
                 <!-- ORIGINAL EXAM FILTER & BOX HERE -->
                 {{-- <h2>🎯 Question Filter</h2> --}}
 
@@ -462,8 +475,7 @@
             </div>
 
             <!-- ================= TAB 2 : QUESTIONS (DUMMY) ================= -->
-            <div id="questionTab" class="tab-content" style="display:none;">
-                <h2>📝 Admin Questions</h2>
+            <div id="questionTab" class="tab-content active">
 
                 <div class="filter-card">
 
