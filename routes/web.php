@@ -586,6 +586,29 @@ Route::get('/upload', 'ScormController@showForm');
 Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
+Route::get('/launch', 'LaunchController@launch');
+
+Route::get('/test-token', function () {
+
+    $student_id = 'STD-000062';
+    $course_id  = 'CFA-FOUNDATION';
+    $email      = 'johsaawasasn@example.com';
+    $timestamp  = time();
+
+    $token = hash_hmac(
+        'sha256',
+        $student_id . $course_id . $email . $timestamp,
+        config('app.key')
+    );
+
+    return response()->json([
+        'student_id' => $student_id,
+        'course_id'  => $course_id,
+        'email'      => $email,
+        'timestamp'  => $timestamp,
+        'token'      => $token,
+    ]);
+});
 
 // Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard')->middleware('auth');
 // web.php

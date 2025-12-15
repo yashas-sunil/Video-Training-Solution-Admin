@@ -90,7 +90,7 @@ public function roleRelation()
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','role','status'
+        'name', 'email', 'password','role','status','student_uid','phone'
     ];
 
     /**

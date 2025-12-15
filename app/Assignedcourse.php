@@ -9,7 +9,7 @@ class Assignedcourse extends Model
 {
     protected $table = 'assigned_courses';
 
-    protected $fillable = ['user_id', 'course_id', 'expire_date', 'enrolled_at'];
+    protected $fillable = ['user_id', 'course_id', 'expire_date', 'enrolled_at','amount'];
 
     public $timestamps = true;
 
