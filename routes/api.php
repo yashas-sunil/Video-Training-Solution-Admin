@@ -18,3 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
     Route::post('get-chapterBy-subject', 'SubjectController@getChapterBySubjectId');
+Route::post('/v1/student/register','StudentRegisterController@register');
