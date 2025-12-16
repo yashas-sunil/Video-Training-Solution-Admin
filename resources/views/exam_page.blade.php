@@ -207,6 +207,7 @@
             flex-direction: row;
             flex-wrap: nowrap;
         }
+
         .check_ans-btns {
             display: flex;
             width: 100%;
@@ -308,6 +309,23 @@
 
         .back-btn:hover {
             background: linear-gradient(180deg, #700002 0%, #440102e0 100%);
+        }
+
+        .check-btn {
+            background: linear-gradient(180deg, #155DFC 0%, #155DFCe0 100%);
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 9px;
+            border-width: 1px;
+            border: 2px solid #e3eefb;
+            cursor: pointer;
+            box-shadow: 3px 4px 11px 0px #00000040;
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .check-btn:hover {
+            background: linear-gradient(180deg, #155DFC 0%, #1145b5e0 100%);
         }
 
         .back_btn img {
@@ -488,15 +506,16 @@
             font-size: 18px;
             margin-top: 10px;
         }
-        .correct-answer {
-    background: #e6fff1;
-    border: 1px solid #00c950;
-}
 
-.wrong-answer {
-    background: #ffeaea;
-    border: 1px solid #ff4d4d;
-}
+        .correct-answer {
+            background: #e6fff1;
+            border: 1px solid #00c950;
+        }
+
+        .wrong-answer {
+            background: #ffeaea;
+            border: 1px solid #ff4d4d;
+        }
 
 
 
@@ -624,8 +643,12 @@
         <div class="top-back">
             <div class="test_progress">
                 <div class="test_text">
-                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;">Question 1/n-1</p>
-                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;color: #700002;font-weight: 600;">50%
+                    <p id="questionCounter" style="margin:0;margin-bottom:10px;margin-top:5px;">
+                        Question 1 / 10
+                    </p>
+                    <p id="questionPercent"
+                        style="margin:0;margin-bottom:10px;margin-top:5px;color:#700002;font-weight:600;">
+                        0%
                     </p>
                 </div>
                 <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
@@ -659,48 +682,64 @@
                         style="margin-left: 10px; rotate: 180deg;width: 15px;height: 15px;"></button>
             </div>
             <div class="check_ans-btns" style="display:none">
-                <button id="check_ans_btn" class="back-btn"><img src="{{ asset('images/arrow.png') }}" alt="arrow"
-                        style="margin-right: 10px;width: 15px;height: 15px;">Check Answer</button>
+                <button id="check_ans_btn" class="check-btn"><img src="{{ asset('images/review.png') }}" alt="arrow"
+                        style="margin-right: 10px;width: 15px;height: 15px;">Review Answers</button>
 
             </div>
 
         </div>
 
         <script>
-$(function () {
+            $(function() {
 
-    let allQ = [];
-    let qIndex = 0;
-    let answers = {};
-    let reviewMode = false;
-    let resultHTML = "";
+                        let allQ = [];
+                        let qIndex = 0;
+                        let answers = {};
+                        let reviewMode = false;
+                        let resultHTML = "";
 
-    const qp = n => new URLSearchParams(window.location.search).get(n);
+                        const qp = n => new URLSearchParams(window.location.search).get(n);
 
-    let data = {
-        subject_id: qp('subject_id'),
-        chapter_id: qp('chapter_id'),
-        subchapter_id: qp('subchapter_id'),
-        difficult_level_id: qp('difficult_level_id'),
-        used_status: qp('used_status'),
-        limit: qp('limit')
-    };
+                        let data = {
+                            subject_id: qp('subject_id'),
+                            chapter_id: qp('chapter_id'),
+                            subchapter_id: qp('subchapter_id'),
+                            difficult_level_id: qp('difficult_level_id'),
+                            used_status: qp('used_status'),
+                            limit: qp('limit')
+                        };
 
-    $.get("/qbundle/filter", data, function (res) {
-        allQ = res.data || [];
-        if (allQ.length === 0) {
-            $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-            return;
-        }
-        showQuestion(0);
-        $(".nav-btns").show();
-    });
+                        $.get("/qbundle/filter", data, function(res) {
+                            allQ = res.data || [];
+                            if (allQ.length === 0) {
+                                $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+                                return;
+                            }
+                            showQuestion(0);
+                            $(".nav-btns").show();
+                        });
 
-    function showQuestion(i) {
-        let q = allQ[i];
-        let rightAns = q.answers.find(a => a.correctans == 1)?.id;
+                        function updateTestProgress() {
+                            let current = qIndex + 1;
+                            let total = allQ.length;
 
-        let html = `
+                            let percent = Math.round((current / total) * 100);
+
+                            $("#questionCounter").text(`Question ${current} / ${total}`);
+                            $("#questionPercent").text(`${percent}%`);
+
+                            $(".progress-fill").css("width", percent + "%");
+                        }
+
+                        
+
+
+                            function showQuestion(i) {
+                                updateTestProgress();
+                                let q = allQ[i];
+                                let rightAns = q.answers.find(a => a.correctans == 1)?.id;
+
+                                let html = `
         <div class="sub-exambox-q">
             <div class="question-title">
                 <div class="Q-no">Q${i + 1}</div> ${q.question}
@@ -708,17 +747,17 @@ $(function () {
             <div class="options-box">
         `;
 
-        q.answers.forEach((a, idx) => {
+                                q.answers.forEach((a, idx) => {
 
-            let checked = answers[q.id] == a.id ? 'checked' : '';
-            let cls = '';
+                                    let checked = answers[q.id] == a.id ? 'checked' : '';
+                                    let cls = '';
 
-            if (reviewMode) {
-                if (a.id == rightAns) cls = ' correct-answer';
-                if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
-            }
+                                    if (reviewMode) {
+                                        if (a.id == rightAns) cls = ' correct-answer';
+                                        if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
+                                    }
 
-            html += `
+                                    html += `
             <label class="option-item ${cls}">
                 <input type="radio" name="opt"
                     value="${a.id}"
@@ -729,73 +768,73 @@ $(function () {
                 <span class="option-text">${a.answer}</span>
             </label>
             `;
-        });
+                                });
 
-        html += `</div></div>`;
-        $("#examBox").html(html);
-    }
+                                html += `</div></div>`;
+                                $("#examBox").html(html);
+                            }
 
-    $(document).on("change", "input[name=opt]", function () {
-        if (!reviewMode) {
-            answers[$(this).data("qid")] = $(this).val();
-        }
-    });
+                            $(document).on("change", "input[name=opt]", function() {
+                                if (!reviewMode) {
+                                    answers[$(this).data("qid")] = $(this).val();
+                                }
+                            });
 
-    $("#backBtn").click(() => {
-        if (qIndex > 0) {
-            qIndex--;
-            showQuestion(qIndex);
-        }
-    });
+                            $("#backBtn").click(() => {
+                                if (qIndex > 0) {
+                                    qIndex--;
+                                    showQuestion(qIndex);
+                                }
+                            });
 
-    $("#nextBtn").click(() => {
+                            $("#nextBtn").click(() => {
 
-        // 🔁 REVIEW MODE
-        if (reviewMode) {
-            if (qIndex < allQ.length - 1) {
-                qIndex++;
-                showQuestion(qIndex);
-            } else {
-                // ⬅️ Back to SAME result page
-                reviewMode = false;
-                $("#examBox").html(resultHTML);
-                $(".nav-btns").hide();
-                $(".check_ans-btns").show();
-            }
-            return;
-        }
+                                // 🔁 REVIEW MODE
+                                if (reviewMode) {
+                                    if (qIndex < allQ.length - 1) {
+                                        qIndex++;
+                                        showQuestion(qIndex);
+                                    } else {
+                                        // ⬅️ Back to SAME result page
+                                        reviewMode = false;
+                                        $("#examBox").html(resultHTML);
+                                        $(".nav-btns").hide();
+                                        $(".check_ans-btns").show();
+                                    }
+                                    return;
+                                }
 
-        // 📝 NORMAL EXAM MODE
-        if (qIndex < allQ.length - 1) {
-            qIndex++;
-            showQuestion(qIndex);
-            return;
-        }
+                                // 📝 NORMAL EXAM MODE
+                                if (qIndex < allQ.length - 1) {
+                                    qIndex++;
+                                    showQuestion(qIndex);
+                                    return;
+                                }
 
-        // ✅ RESULT CALCULATION (UNCHANGED)
-        let correct = 0;
-        let wrong = 0;
+                                // ✅ RESULT CALCULATION (UNCHANGED)
+                                let correct = 0;
+                                let wrong = 0;
 
-        allQ.forEach(q => {
-            let right = q.answers.find(a => a.correctans == 1);
-            if (answers[q.id] == right?.id) {
-                correct++;
-            } else {
-                wrong++;
-            }
-        });
+                                allQ.forEach(q => {
+                                    let right = q.answers.find(a => a.correctans == 1);
+                                    if (answers[q.id] == right?.id) {
+                                        correct++;
+                                    } else {
+                                        wrong++;
+                                    }
+                                });
 
-        let percentage = Math.round((correct / allQ.length) * 100);
-        let radius = 64;
-        let circumference = 2 * Math.PI * radius;
-        let offset = -(circumference * (1 - percentage / 100));
-        let passed = percentage >= 40;
+                                let percentage = Math.round((correct / allQ.length) * 100);
+                                let radius = 64;
+                                let circumference = 2 * Math.PI * radius;
+                                let offset = -(circumference * (1 - percentage / 100));
+                                let passed = percentage >= 40;
 
-        $(".check_ans-btns").show();
-        $(".nav-btns").hide();
+                                $(".check_ans-btns").show();
+                                $(".nav-btns").hide();
 
-        // 🔒 STORE RESULT PAGE EXACTLY AS IT IS
-        resultHTML = `
+                                // 🔒 STORE RESULT PAGE EXACTLY AS IT IS
+                                resultHTML = `
 <div class="sub-exambox">
 
     <div class="question-title2">
@@ -852,24 +891,24 @@ $(function () {
 </div>
 `;
 
-        $("#examBox").html(resultHTML);
-    });
+                                $("#examBox").html(resultHTML);
+                            });
 
-    // ✅ START REVIEW
-    $("#check_ans_btn").click(() => {
-        reviewMode = true;
-        qIndex = 0;
-        $(".check_ans-btns").hide();
-        $(".nav-btns").show();
-        showQuestion(qIndex);
-    });
+                            // ✅ START REVIEW
+                            $("#check_ans_btn").click(() => {
+                                reviewMode = true;
+                                qIndex = 0;
+                                $(".check_ans-btns").hide();
+                                $(".nav-btns").show();
+                                showQuestion(qIndex);
+                            });
 
-});
+                        });
 
-$("#topBackBtn").click(function () {
-    history.back();
-});
-</script>
+                    $("#topBackBtn").click(function() {
+                        history.back();
+                    });
+        </script>
 
     </div>
 
