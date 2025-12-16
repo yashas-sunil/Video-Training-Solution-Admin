@@ -408,7 +408,7 @@
             display: none;
         }
 
-        ..result-circle-wrap {
+        .result-circle-wrap {
             position: relative;
             width: 140px;
             height: 140px;
@@ -421,12 +421,13 @@
         }
 
         .result-circle-text {
-            transform: translate(110%, -324%);
+            transform: translate(13%, -324%);
             font-size: 22px;
             font-weight: bold;
             color: #333;
             pointer-events: none;
             width: fit-content;
+            margin: auto;
         }
 
         .result-stats {
