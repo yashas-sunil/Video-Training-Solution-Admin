@@ -159,6 +159,9 @@
             .Exam-setup {
                 flex-wrap: wrap;
             }
+            .Exam_setup-text p {
+                display: none;
+            }
         }
 
         /* ===== sub-navbar TABS ===== */
