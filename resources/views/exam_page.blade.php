@@ -43,6 +43,11 @@
             border-radius: 16px;
         }
 
+        .sub-exambox {
+            border: 3px solid #00A63E;
+            border-radius: 16px;
+        }
+
         .questions-container {
             width: 100%;
             max-width: 520px;
@@ -97,6 +102,55 @@
             margin-bottom: 20px;
         }
 
+        .question-title2 {
+            font-size: 20px;
+            font-weight: 700;
+            background: #00A63E;
+            display: flex;
+            padding: 20px;
+            border-radius: 10px 10px 0px 0px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+            margin-bottom: 20px;
+            color: #ffffff;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-wrapper {
+            position: relative;
+            width: 144px;
+            height: 144px;
+        }
+
+        .progress-svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle {
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-circle.passed {
+            stroke: #22c55e;
+        }
+
+        .progress-circle.failed {
+            stroke: #ef4444;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+
         /* ===== OPTIONS ===== */
         .options-box {
             flex-direction: column;
@@ -146,6 +200,14 @@
 
         /* ===== NAV BUTTONS ===== */
         .nav-btns {
+            display: flex;
+            width: 100%;
+            max-width: 520px;
+            justify-content: space-between;
+            flex-direction: row;
+            flex-wrap: nowrap;
+        }
+        .check_ans-btns {
             display: flex;
             width: 100%;
             max-width: 520px;
@@ -328,12 +390,125 @@
             display: none;
         }
 
+        ..result-circle-wrap {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 15px auto;
+        }
+
+        .result-circle-wrap svg {
+            display: block;
+            transform: rotate(-90deg);
+        }
+
+        .result-circle-text {
+            transform: translate(110%, -324%);
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            pointer-events: none;
+            width: fit-content;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 2px solid;
+            background: #fff;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        /* Correct */
+        .correct-card {
+            border-color: #86efac;
+            background: #f0fdf4;
+        }
+
+        .correct-icon {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        /* Wrong */
+        .wrong-card {
+            border-color: #fca5a5;
+            background: #fff1f2;
+        }
+
+        .wrong-icon {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        /* Total */
+        .total-card {
+            border-color: #c4b5fd;
+            background: #faf5ff;
+        }
+
+        .total-icon {
+            background: #8b5cf6;
+            color: #fff;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .correct-answer {
+    background: #e6fff1;
+    border: 1px solid #00c950;
+}
+
+.wrong-answer {
+    background: #ffeaea;
+    border: 1px solid #ff4d4d;
+}
+
+
+
+
+
         @media (max-width: 425px) {
 
 
             .main-container {
                 padding: 10px !important;
             }
+
             .navbar {
                 padding: 15px 6px !important;
             }
@@ -382,11 +557,26 @@
             .user-info {
                 display: none !important;
             }
+
             .top-back {
-                flex-direction: column-reverse!important;
-                align-items: flex-end!important;
+                flex-direction: column-reverse !important;
+                align-items: flex-end !important;
 
             }
+
+            .stat-header {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .result-stats {
+                gap: 0;
+
+            }
+
         }
     </style>
 </head>
@@ -435,7 +625,8 @@
             <div class="test_progress">
                 <div class="test_text">
                     <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;">Question 1/n-1</p>
-                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;color: #700002;font-weight: 600;">50%</p>
+                    <p style=" margin: 0px; margin-bottom: 10px;margin-top: 5px;color: #700002;font-weight: 600;">50%
+                    </p>
                 </div>
                 <div class="progress-bar-wrapper" style="display:flex; align-items:center; gap:0.5rem;">
                     <div class="progress-bar"
@@ -467,123 +658,219 @@
                 <button id="nextBtn" class="back-btn">Next<img src="{{ asset('images/arrow.png') }}" alt="arrow"
                         style="margin-left: 10px; rotate: 180deg;width: 15px;height: 15px;"></button>
             </div>
+            <div class="check_ans-btns" style="display:none">
+                <button id="check_ans_btn" class="back-btn"><img src="{{ asset('images/arrow.png') }}" alt="arrow"
+                        style="margin-right: 10px;width: 15px;height: 15px;">Check Answer</button>
+
+            </div>
 
         </div>
 
         <script>
-            $(function() {
+$(function () {
 
-                let allQ = [];
-                let qIndex = 0;
-                let answers = {};
+    let allQ = [];
+    let qIndex = 0;
+    let answers = {};
+    let reviewMode = false;
+    let resultHTML = "";
 
-                const qp = n => new URLSearchParams(window.location.search).get(n);
+    const qp = n => new URLSearchParams(window.location.search).get(n);
 
-                let data = {
-                    subject_id: qp('subject_id'),
-                    chapter_id: qp('chapter_id'),
-                    subchapter_id: qp('subchapter_id'),
-                    difficult_level_id: qp('difficult_level_id'),
-                    used_status: qp('used_status'),
-                    limit: qp('limit')
-                };
+    let data = {
+        subject_id: qp('subject_id'),
+        chapter_id: qp('chapter_id'),
+        subchapter_id: qp('subchapter_id'),
+        difficult_level_id: qp('difficult_level_id'),
+        used_status: qp('used_status'),
+        limit: qp('limit')
+    };
 
-                $.get("/qbundle/filter", data, function(res) {
-                    allQ = res.data || [];
-                    console.log("total:", allQ.length);
-                    if (allQ.length === 0) {
-                        $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-                        return;
-                    }
+    $.get("/qbundle/filter", data, function (res) {
+        allQ = res.data || [];
+        if (allQ.length === 0) {
+            $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+            return;
+        }
+        showQuestion(0);
+        $(".nav-btns").show();
+    });
 
-                    showQuestion(0);
-                    $(".nav-btns").show();
-                });
+    function showQuestion(i) {
+        let q = allQ[i];
+        let rightAns = q.answers.find(a => a.correctans == 1)?.id;
 
-                function showQuestion(i) {
-                    let q = allQ[i];
+        let html = `
+        <div class="sub-exambox-q">
+            <div class="question-title">
+                <div class="Q-no">Q${i + 1}</div> ${q.question}
+            </div>
+            <div class="options-box">
+        `;
 
-                    let html = `
-        <div class="question-title">
-            <div class="Q-no">Q${i+1}</div> ${q.question}
-        </div>
-        <div class="options-box">
-    `;
+        q.answers.forEach((a, idx) => {
 
-                    q.answers.forEach((a, idx) => {
-                        html += `
-            <label class="option-item">
+            let checked = answers[q.id] == a.id ? 'checked' : '';
+            let cls = '';
+
+            if (reviewMode) {
+                if (a.id == rightAns) cls = ' correct-answer';
+                if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
+            }
+
+            html += `
+            <label class="option-item ${cls}">
                 <input type="radio" name="opt"
                     value="${a.id}"
                     data-qid="${q.id}"
-                    ${answers[q.id]==a.id?'checked':''}>
-                <span class="option-alpha">${String.fromCharCode(65+idx)}</span>
+                    ${checked}
+                    ${reviewMode ? 'disabled' : ''}>
+                <span class="option-alpha">${String.fromCharCode(65 + idx)}</span>
                 <span class="option-text">${a.answer}</span>
             </label>
-        `;
-                    });
+            `;
+        });
 
-                    html += `</div>`;
-                    $("#examBox").html(html);
-                }
+        html += `</div></div>`;
+        $("#examBox").html(html);
+    }
 
+    $(document).on("change", "input[name=opt]", function () {
+        if (!reviewMode) {
+            answers[$(this).data("qid")] = $(this).val();
+        }
+    });
 
-                $(document).on("change", "input[name=opt]", function() {
-                    answers[$(this).data("qid")] = $(this).val();
-                });
+    $("#backBtn").click(() => {
+        if (qIndex > 0) {
+            qIndex--;
+            showQuestion(qIndex);
+        }
+    });
 
-                $("#backBtn").click(() => {
-                    if (qIndex > 0) {
-                        qIndex--;
-                        showQuestion(qIndex);
-                    }
-                });
+    $("#nextBtn").click(() => {
 
-                $("#nextBtn").click(() => {
-                    if (qIndex < allQ.length - 1) {
-                        qIndex++;
-                        showQuestion(qIndex);
-                        return;
-                    }
+        // 🔁 REVIEW MODE
+        if (reviewMode) {
+            if (qIndex < allQ.length - 1) {
+                qIndex++;
+                showQuestion(qIndex);
+            } else {
+                // ⬅️ Back to SAME result page
+                reviewMode = false;
+                $("#examBox").html(resultHTML);
+                $(".nav-btns").hide();
+                $(".check_ans-btns").show();
+            }
+            return;
+        }
 
-                    // ✅ RESULT CALCULATION
-                    let correct = 0;
-                    let wrong = 0;
+        // 📝 NORMAL EXAM MODE
+        if (qIndex < allQ.length - 1) {
+            qIndex++;
+            showQuestion(qIndex);
+            return;
+        }
 
-                    allQ.forEach(q => {
-                        let right = q.answers.find(a => a.correctans == 1);
-                        if (answers[q.id] == right?.id) {
-                            correct++;
-                        } else {
-                            wrong++;
-                        }
-                    });
+        // ✅ RESULT CALCULATION (UNCHANGED)
+        let correct = 0;
+        let wrong = 0;
 
-                    $("#examBox").html(`
-            <div class="question-title">🎉 Exam Completed</div>
+        allQ.forEach(q => {
+            let right = q.answers.find(a => a.correctans == 1);
+            if (answers[q.id] == right?.id) {
+                correct++;
+            } else {
+                wrong++;
+            }
+        });
 
-            <p style="text-align:center;font-size:18px;color:green;">
-                ✅ Correct : <b>${correct}</b>
-            </p>
+        let percentage = Math.round((correct / allQ.length) * 100);
+        let radius = 64;
+        let circumference = 2 * Math.PI * radius;
+        let offset = -(circumference * (1 - percentage / 100));
+        let passed = percentage >= 40;
 
-            <p style="text-align:center;font-size:18px;color:red;">
-                ❌ Wrong : <b>${wrong}</b>
-            </p>
+        $(".check_ans-btns").show();
+        $(".nav-btns").hide();
 
-            <p style="text-align:center;font-size:20px;margin-top:10px;">
-                Score : <b>${correct} / ${allQ.length}</b>
-            </p>
-        `);
+        // 🔒 STORE RESULT PAGE EXACTLY AS IT IS
+        resultHTML = `
+<div class="sub-exambox">
 
-                    $(".nav-btns").hide();
-                });
+    <div class="question-title2">
+        <img src="{{ asset('images/test_completed.png') }}" alt="Company Logo">
+        Exam Completed
+    </div>
 
-            });
+    <div class="result-full" style=" padding: 15px; justify-items: center;">
+        <div class="result-circle-wrap">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="${radius}" stroke="#e4e6eb" stroke-width="10" fill="transparent"/>
+                <circle
+                    cx="70" cy="70" r="${radius}"
+                    stroke-width="10"
+                    stroke="#00c950"
+                    fill="transparent"
+                    stroke-dasharray="${circumference}"
+                    stroke-dashoffset="${offset}"
+                    stroke-linecap="round"
+                    class="result-progress ${passed ? 'result-pass' : 'result-fail'}"
+                />
+            </svg>
+            <div class="result-circle-text">${percentage}%</div>
+        </div>
 
-            $("#topBackBtn").click(function() {
-                history.back();
-            });
-        </script>
+        <div class="result-stats">
+
+            <div class="stat-card correct-card">
+                <div class="stat-header">
+                    <span class="stat-icon correct-icon">✓</span>
+                    <span class="stat-title">Correct</span>
+                </div>
+                <div class="stat-value">${correct}</div>
+            </div>
+
+            <div class="stat-card wrong-card">
+                <div class="stat-header">
+                    <span class="stat-icon wrong-icon">✕</span>
+                    <span class="stat-title">Wrong</span>
+                </div>
+                <div class="stat-value">${wrong}</div>
+            </div>
+
+            <div class="stat-card total-card">
+                <div class="stat-header">
+                    <span class="stat-icon total-icon">≡</span>
+                    <span class="stat-title">Total</span>
+                </div>
+                <div class="stat-value">${allQ.length}</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+`;
+
+        $("#examBox").html(resultHTML);
+    });
+
+    // ✅ START REVIEW
+    $("#check_ans_btn").click(() => {
+        reviewMode = true;
+        qIndex = 0;
+        $(".check_ans-btns").hide();
+        $(".nav-btns").show();
+        showQuestion(qIndex);
+    });
+
+});
+
+$("#topBackBtn").click(function () {
+    history.back();
+});
+</script>
+
     </div>
 
 </body>
