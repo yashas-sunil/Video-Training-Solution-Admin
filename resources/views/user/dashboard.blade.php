@@ -856,7 +856,9 @@
         @else
             onclick="openModePage({{ $course->id }})"
 
-            style="background:#58B100;" @endif
+            style="background:#58B100;"
+            
+             @endif
                                         class="btn-resume"
                                         style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; height:32px;">
 
@@ -869,11 +871,20 @@
                                 @endif
 
                                 {{-- View Attempts --}}
+                                
                                 <a href="javascript:void(0);" class="btn-attempts"
+                                 @if ($currentAttempt == 1) 
+                                 
+                        onclick="alert('⚠️ No attempts yet.');" 
+                        span style="background:#ccc; cursor:not-allowed; opacity:0.7;">View
+                                        Attempts</span>
+                        @else 
                                     onclick="showAttempts('{{ $course->title ?? '' }}')"
                                     style="display:inline-flex; align-items:center; justify-content:center; text-align:center; padding:6px 10px; border-radius:6px; background:#ffffff; border: 2px solid #2C2C49;">
                                     <span style="color:#2C2C49; font-size:14px; font-family: sans-serif;">View
                                         Attempts</span>
+                                        
+                                        @endif 
                                 </a>
                             </div>
                         </div>
