@@ -19,3 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
     Route::post('get-chapterBy-subject', 'SubjectController@getChapterBySubjectId');
 Route::post('/v1/student/register','StudentRegisterController@register');
+Route::post('/save-user-answers', 'FiltertQuestionController@store')->name('course.progress.save');
