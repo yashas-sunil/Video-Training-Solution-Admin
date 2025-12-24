@@ -7,6 +7,7 @@ use App\ScormPackage;
 use App\Assignedcourse;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,7 +18,7 @@ class StudentRegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string',
             'email'       => 'required|email|unique:users,email',
-           'phone' => 'required|digits:10|unique:users,phone',
+            'phone'       => 'required|digits:10|unique:users,phone',
             'course'      => 'required|string',
             'amount_paid' => 'required|numeric',
             'expiry_date' => 'required|date|after:today'
@@ -48,13 +49,23 @@ class StudentRegisterController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'phone'    => $request->phone,
-            'password' => Hash::make(Str::random(10)),
+            'password' => Hash::make(Str::random(12)),
             'role'     => 2
         ]);
 
         $studentUid = 'STD-' . str_pad($student->id, 6, '0', STR_PAD_LEFT);
-        $student->student_uid = $studentUid;
-        $student->save();
+
+        $token = hash_hmac(
+            'sha256',
+            $student->email . '|' . $studentUid . '|' . now()->timestamp,
+            config('app.key')
+        );
+
+        $student->update([
+            'student_uid'       => $studentUid,
+            'api_token'         => $token,
+            'token_expires_at'  => Carbon::now()->addDays(1)
+        ]);
 
         AssignedCourse::create([
             'user_id'     => $student->id,
@@ -67,6 +78,8 @@ class StudentRegisterController extends Controller
         return response()->json([
             'status'     => 'success',
             'student_id' => $studentUid,
+            'token'      => $token,
+            // 'expires_at' => $student->token_expires_at,
             'message'    => 'Student registered successfully'
         ]);
     }
