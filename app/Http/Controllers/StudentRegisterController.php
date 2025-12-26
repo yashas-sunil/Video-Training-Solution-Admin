@@ -63,8 +63,8 @@ class StudentRegisterController extends Controller
 
         $student->update([
             'student_uid'       => $studentUid,
-            'api_token'         => $token,
-            'token_expires_at'  => Carbon::now()->addDays(1)
+            'api_token'         => $token
+            // 'token_expires_at'  => Carbon::now()->addDays(1)
         ]);
 
         AssignedCourse::create([
