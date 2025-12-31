@@ -350,7 +350,7 @@ return [
                 ],
 
                  [
-                    'text'        => 'Admin Chapter',
+                    'text'        => 'Chapter',
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'chapters'
                 ],
