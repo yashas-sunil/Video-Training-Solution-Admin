@@ -115,7 +115,7 @@
                         </div> --}}
 
                             <div class="d-flex" style="gap:10px;">
-                                <a href="{{ route('courses.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('chapters') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left mr-1"></i> Back
                                 </a>
 
