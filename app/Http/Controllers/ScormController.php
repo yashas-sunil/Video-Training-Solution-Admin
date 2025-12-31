@@ -58,13 +58,15 @@ class ScormController extends Controller
     public function uploadChapterScorm(Request $request)
 {
     Log::info("Chapter SCORM Upload Start");
-
+    //     Log::info('Request Data:', $request->all());
+    // Log::info('Files:', $request->allFiles());
+//dd($request->all->());
     $request->validate([
-        'course_id'    => 'required|exists:courses,id',
+        'course_id'    => 'required|exists:scorm_packages,id',
         'chapter_name' => 'required|string|max:255',
         'zip_file'     => 'required|mimes:zip|max:1024000',
     ]);
-
+//dd($request->all());
     Log::info("Validation Passed (Chapter SCORM)");
 
 
@@ -217,7 +219,7 @@ class ScormController extends Controller
     }
 public function Chapters()
 {
-    $courses = AppScormPackage::select('title')->get();
+    $courses = AppScormPackage::select('id','title')->get();
 
     return view('courses.chapter', compact('courses'));
 }
