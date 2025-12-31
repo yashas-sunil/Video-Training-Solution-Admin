@@ -350,10 +350,16 @@ return [
                 ],
 
                  [
-                    'text'        => 'Qbsummary',
+                    'text'        => 'Admin Chapter',
                     'icon'        => 'fas fa-caret-right',
-                    'url'         => 'qb-summary'
+                    'url'         => 'admin/chapter'
                 ],
+
+                //  [
+                //     'text'        => 'Qbsummary',
+                //     'icon'        => 'fas fa-caret-right',
+                //     'url'         => 'qb-summary'
+                // ],
                 // [
                 //     'text'        => 'Levels',
                 //     'url'         => 'levels'
