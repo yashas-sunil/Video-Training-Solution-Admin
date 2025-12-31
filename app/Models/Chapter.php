@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Models;
-
+use App\ScormPackage as AppScormPackage;
+use App\Models\Course;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,6 +21,10 @@ class Chapter extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function courses()
+{
+    return $this->belongsTo(AppScormPackage::class, 'id');
+}
     public function level() {
         return $this->belongsTo(Level::class);
     }

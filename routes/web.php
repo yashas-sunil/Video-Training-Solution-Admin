@@ -588,7 +588,9 @@ Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
 Route::get('/launch', 'LaunchController@launch');
-Route::get('/chapter', 'ScormController@Chapters')->name('chapter');
+Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create');
+Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
+
 
 Route::get('/test-token', function () {
 

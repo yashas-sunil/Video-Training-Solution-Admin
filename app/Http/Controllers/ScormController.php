@@ -7,12 +7,14 @@ use App\CourseView;
 use App\CourseProgress;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Html\Builder;
 use App\Services\ScormCloudService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use App\ScormPackage as AppScormPackage;
-use App\CourseProgress as AppCourseProgress;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use App\CourseProgress as AppCourseProgress;
 
 class ScormController extends Controller
 {
@@ -228,6 +230,44 @@ public function Chapters()
     $courses = AppScormPackage::select('id','title')->get();
 
     return view('courses.chapter', compact('courses'));
+}
+
+public function chapterindex(Builder $builder)
+{
+    if (request()->ajax()) {
+
+        $query = Chapter::join('scorm_packages', 'chapters.course_id', '=', 'scorm_packages.id') 
+            ->select('chapters.*', 'scorm_packages.title as course_title'); 
+
+        return DataTables::of($query)
+            ->addColumn('course_title', function ($chapter) {
+                return $chapter->course_title; 
+            })
+            ->addColumn('chapter_name', function ($chapter) {
+                return $chapter->name; 
+            })
+            ->rawColumns(['course_title', 'chapter_name'])
+            ->make(true); 
+    }
+
+    $html = $builder->columns([
+        [
+            'data'  => 'course_title',
+            'name'  => 'scorm_packages.title', 
+            'title' => 'Course Title',
+            'orderable' => true,
+            'searchable' => true
+        ],
+        [
+            'data'  => 'chapter_name',
+            'name'  => 'chapters.name',
+            'title' => 'Chapter Name',
+            'orderable' => true,
+            'searchable' => true
+        ],
+    ]);
+
+    return view('courses.chapterlist', compact('html'));
 }
 
 }
