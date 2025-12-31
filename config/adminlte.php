@@ -352,7 +352,7 @@ return [
                  [
                     'text'        => 'Admin Chapter',
                     'icon'        => 'fas fa-caret-right',
-                    'url'         => 'admin/chapter'
+                    'url'         => 'chapter'
                 ],
 
                 //  [
