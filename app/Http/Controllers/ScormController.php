@@ -135,7 +135,10 @@ class ScormController extends Controller
 
     Log::info("Chapter SCORM Uploaded Successfully");
 
-    return redirect()->back()->with('success', 'Chapter SCORM uploaded successfully.');
+    // return redirect()->back()->with('success', 'Chapter SCORM uploaded successfully.');
+     return redirect()
+        ->route('chapters')
+        ->with('success', 'Course created successfully.');
 }
 
 
