@@ -348,6 +348,18 @@ return [
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'assigned-courses'
                 ],
+
+                 [
+                    'text'        => 'Admin Chapter',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'admin/chapter'
+                ],
+
+                //  [
+                //     'text'        => 'Qbsummary',
+                //     'icon'        => 'fas fa-caret-right',
+                //     'url'         => 'qb-summary'
+                // ],
                 // [
                 //     'text'        => 'Levels',
                 //     'url'         => 'levels'

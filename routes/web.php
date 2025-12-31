@@ -586,13 +586,52 @@ Route::get('/upload', 'ScormController@showForm');
 Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
+Route::get('/launch', 'LaunchController@launch');
 
-Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard')->middleware('auth');
+Route::get('/test-token', function () {
+
+    $student_id = 'STD-000062';
+    $course_id  = 'CFA-FOUNDATION';
+    $email      = 'johsaawasasn@example.com';
+    $timestamp  = time();
+
+    $token = hash_hmac(
+        'sha256',
+        $student_id . $course_id . $email . $timestamp,
+        config('app.key')
+    );
+
+    return response()->json([
+        'student_id' => $student_id,
+        'course_id'  => $course_id,
+        'email'      => $email,
+        'timestamp'  => $timestamp,
+        'token'      => $token,
+    ]);
+});
+
+// Route::get('/dashboard', 'UserDashboardController@index')->name('user.dashboard')->middleware('auth');
 // web.php
 Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->middleware('auth');
 
 // routes/web.php
+Route::get('/dashboard', 'UserDashboardController@dashboard')->name('dashboard')->middleware('auth');
+ Route::get('/questions/filter', 'QuestionController@testquestions')->name('questions.filter')->middleware('auth');
+
+
+// routes/web.php;
 Route::get('/user/dashboard', 'UserDashboardController@userindex')->name('user.dashboard')->middleware('auth');
+Route::get('/user/{id}', 'UserDashboardController@testquestions')->name('user')->middleware('auth');
+Route::get('/get-chapterBy-subject', 'FiltertQuestionController@getChapterbySubject')->name('get.chapterBy.subject')->middleware('auth');
+Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name('get.subchapters')->middleware('auth');
+Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
+Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
+
+Route::get('/exam-page', function () {
+    return view('exam_page'); 
+});
+
+
 Route::post('/course/progress/save', 'CourseProgressController@save')->name('course.progress.save');
 
 Route::get('/course/progress/get/{id}', 'CourseProgressController@get');
@@ -612,6 +651,9 @@ Route::get('/course-attempts/{quizName}/view/{attemptNumber}', 'CourseProgressCo
 Route::resource('assigned-courses', 'AssignedCourseController');
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
 Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
+
+Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create');
+ Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store');
 
 
 

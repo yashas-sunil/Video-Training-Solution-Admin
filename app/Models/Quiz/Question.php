@@ -2,22 +2,28 @@
 
 namespace App\Models\Quiz;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Madzipper;
-use Storage;
-use File;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Illuminate\Support\Facades\Input;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Style;
-use Modules\Master\Entities\Languages;
-use Illuminate\Support\Facades\Auth;
-use App\Jobs\QuestionAnswerUpload;
 use DB;
+use File;
+use Storage;
+use Madzipper;
 use Validator;
+use App\Answer;
+use App\AnswerType;
+use App\Subchapter;
+use App\DifficultLevel;
+use App\Models\Chapter;
+use App\Models\Subject;
+use App\Jobs\QuestionAnswerUpload;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
+use Modules\Master\Entities\Languages;
+use Illuminate\Database\Eloquent\Model;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Style;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 // use Illuminate\Support\Facades\Redirect;
 // use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -248,4 +254,33 @@ class Question extends Model
         return $this->hasMany('App\Models\Quiz\Answer','question_id','id')->inRandomOrder()->where('is_correct',0)->limit(2);
     }
 
+     public function answers()
+    {
+        return $this->hasMany(Answer::class, 'question_id', 'id');
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id', 'id');
+    }
+     public function chapter()
+    {
+        return $this->belongsTo(Chapter::class, 'chapter_id', 'id');
+    }
+     public function subChapter()
+    {
+        return $this->belongsTo(Subchapter::class, 'subchapter_id', 'id');
+    }
+ public function answerType()
+    {
+        return $this->belongsTo(AnswerType::class, 'answer_types_id', 'id');
+    }
+    public function difficultLevel()
+    {
+        return $this->belongsTo(DifficultLevel::class, 'difficult_level_id', 'id');
+    }
+
+     public function userAttempts()
+    {
+        return $this->hasMany(UserAnswers::class, 'question_id');
+    }
 }

@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subject extends Model
 {
-    use SoftDeletes;
+    // protected $connection = 'second_db';
+
+    // use SoftDeletes;
 
     protected $guarded = ['id'];
+    const ACTIVE = 1;
+    const INACTIVE = 0;
     protected $appends = [
         'has_package'
     ];

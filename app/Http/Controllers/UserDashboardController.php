@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use App\Goal;
 use App\Assignedcourse;
 use App\CourseProgress;
+use App\DifficultLevel;
+use App\Models\Subject;
 use Illuminate\Http\Request;
-use Auth;
-use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class UserDashboardController extends Controller
 {
@@ -153,6 +156,66 @@ class UserDashboardController extends Controller
             'totalCourses' => $totalCourses,
             'totalWatchTime' => $totalWatchTime,
             'expiredCoursesCount' => $expiredCoursesCount,
+        ]);
+    }
+
+    public function dashboard()
+    {
+
+        return view('dashboard');
+    }
+
+    // public function test(Request $request)
+    // {
+    //     $user = session('user');
+    //     //dd($user);
+    //     if (!$user || empty($user['id'])) {
+    //         return redirect('/login')->with('error', 'Please login again.');
+    //     }
+
+    //     $goal = Goal::where('user_id', $user['id'])->first();
+
+    //     if ($goal && !empty($goal->course_id)) {
+    //         $subjects = Subject::where('course_id', $goal->course_id)
+    //             ->select('id', 'name')
+    //             ->get();
+    //     } else {
+    //         $subjects = collect([]);
+    //     }
+
+    //     $levels = DifficultLevel::select('id', 'name')->get();
+
+    //     return view('question.filter_ui', [
+    //         'subjects' => $subjects,
+    //         'levels'   => $levels,
+    //         'goal'     => $goal
+    //     ]);
+    // }
+
+    public function testquestions(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect('/login')->with('error', 'Please login again.');
+        }
+
+        $goal = Goal::where('user_id', $user->id)->first();
+
+        if ($goal && !empty($goal->course_id)) {
+            $subjects = Subject::where('course_id', $goal->course_id)
+                ->select('id', 'name')
+                ->get();
+        } else {
+            $subjects = collect([]);
+        }
+
+        $levels = DifficultLevel::select('id', 'name')->get();
+
+        return view('question.filter_ui', [
+            'subjects' => $subjects,
+            'levels'   => $levels,
+            'goal'     => $goal
         ]);
     }
 }

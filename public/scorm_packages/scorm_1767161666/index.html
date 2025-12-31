@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SCORM Real Course</title>
+  <script>
+    function startCourse() {
+      document.getElementById("status").innerHTML = "🔵 SCORM Course Started...<br>LMSInitialize called ✅<br>Tracking progress...";
+    }
+
+    function finishCourse() {
+      document.getElementById("status").innerHTML += "<br>✅ LMSFinish called<br>📊 Progress saved.";
+    }
+  </script>
+</head>
+<body>
+  <h1>Welcome to the SCORM Test Course</h1>
+  <p>This is a fully structured SCORM course package.</p>
+  <button onclick="startCourse()">Start Course ✅</button>
+  <button onclick="finishCourse()">Finish Course 🛑</button>
+  <div id="status" style="margin-top:20px;"></div>
+</body>
+</html>
