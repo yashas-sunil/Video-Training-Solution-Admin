@@ -1093,46 +1093,15 @@
             }
 
             function goStudy() {
-                if (!selectedCourseId) {
-                    alert('Course ID missing!');
-                    return;
-                }
+    if (!selectedCourseId) {
+        alert('Course ID missing!');
+        return;
+    }
 
-                closeModeModal();
+    closeModeModal();
 
-                fetch(`/course/${selectedCourseId}/chapters`)
-                    .then(res => res.json())
-                    .then(chapters => {
-                        if (!chapters.length) {
-                            alert("No chapters available.");
-                            return;
-                        }
-
-                        let chapterHtml = chapters.map(ch => `
-                <div style="padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:6px; cursor:pointer;"
-                    onclick="openChapter(${ch.id})">
-                    ${ch.name}
-                </div>
-            `).join('');
-
-                        let modal = document.createElement('div');
-                        modal.id = 'chapterModal';
-                        modal.style =
-                            'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999;';
-                        modal.innerHTML = `
-                <div style="background:#fff; padding:20px; border-radius:12px; width:400px; max-height:80%; overflow:auto;">
-                    <h3>Select Chapter</h3>
-                    ${chapterHtml}
-                    <button onclick="document.getElementById('chapterModal').remove()" style="margin-top:15px;">Close</button>
-                </div>
-            `;
-                        document.body.appendChild(modal);
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Error fetching chapters.');
-                    });
-            }
+    window.location.href = `/course/${selectedCourseId}/chapters`;
+}
 
             function openChapter(chapterId) {
 
