@@ -55,7 +55,7 @@ class ScormController extends Controller
             ->with('success', 'Course created successfully.');
     }
 
-   public function uploadChapter(Request $request)
+   public function uploadChapterScorm(Request $request)
 {
     Log::info("Chapter SCORM Upload Start");
 
@@ -124,7 +124,9 @@ class ScormController extends Controller
 
     Log::info("Chapter SCORM uploaded successfully");
 
-    return back()->with('success', 'Chapter uploaded successfully.');
+     return redirect()
+            ->route('courses.index')
+            ->with('success', 'Chapter created successfully.');
 }
 
 
