@@ -590,6 +590,13 @@ Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm
 Route::get('/launch', 'LaunchController@launch');
 Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create');
 Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
+Route::get('/course/{course}/chapters', 'ScormController@getChapters')
+    ->name('course.chapters');
+
+    // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
+// chapter open
+Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
+    ->name('chapter.view');
 
 
 Route::get('/test-token', function () {
