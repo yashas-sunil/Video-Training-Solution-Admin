@@ -328,12 +328,12 @@ class ScormController extends Controller
         ]);
     }
     public function getChapters($courseId)
-    {
-        // dd($courseId);
-        $chapters = Chapter::where('course_id', $courseId)
-            ->orderBy('id', 'asc')
-            ->get(['id', 'name']);
+{
+    $chapters = Chapter::where('course_id', $courseId)
+        ->orderBy('id', 'asc')
+        ->get();
 
-        return response()->json($chapters);
-    }
+    return view('chapters.list', compact('chapters', 'courseId'));
+}
+
 }
