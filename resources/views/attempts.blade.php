@@ -323,10 +323,10 @@
             align-items: center;
             border: 3px solid #700002;
             border-radius: 20px;
-            padding: 50px;
+            padding: 20px;
             gap: 15px;
             justify-content: center;
-            width: 100%;
+            width: 18%;
         }
 
         .best-score {
@@ -416,7 +416,7 @@
                 padding: 6px 10px;
             }
                 .container_cards {
-                    width: 100%!important;
+                    width: 60%!important;
                 }
         }
         @media (max-width: 768px) {
@@ -475,17 +475,17 @@
     <div class="page-content">
 
         <div class="toolbar" style="margin: 20px 0px;">
-            <div class="toolbar_r">
+            <div class="toolbar_r"><div class="quiz_name"
+                    style="background: #BEDBFF26;border: 2px solid #BEDBFF;border-radius: 13px;padding: 12px;display: flex;align-items: flex-start;flex-direction: column;flex-wrap: nowrap;gap: 10px;margin: 16px;margin-left: 0px;">
+                    <p style="margin: 0;font-size: 14px;font-weight: 100;">Course</p>
+                    <h2 class="quiz-title">{{ $quizName }}</h2>
+                </div>
                 <h2 style="font-family: sans-serif;margin: 0;">Quiz Attempts</h2>
                 <p style="font-weight: lighter;">Review your performance and track your progress</p>
             </div>
             <div class="sub-toolbar"
                 style="display: flex;align-items: center;flex-wrap: nowrap;flex-direction: row;gap: 10px;">
-                <div class="quiz_name"
-                    style="background: #BEDBFF26;border: 2px solid #BEDBFF;border-radius: 13px;padding: 12px;display: flex;align-items: flex-start;flex-direction: column;flex-wrap: nowrap;gap: 10px;">
-                    <p style="margin: 0;font-size: 14px;font-weight: 100;">Course</p>
-                    <h2 class="quiz-title">{{ $quizName }}</h2>
-                </div>
+                
                 <div class="toolbar-actions">
 
                     <!-- Filter Button -->
@@ -518,12 +518,13 @@
 @endphp
 
         <div class="performance_con">
+            
             <div class="container_cards">
-                <img src="{{ asset('images/Performance.png') }}" alt="Performance" style="width:60px; height:60px;" />
+                <img src="{{ asset('images/TTAttempts.png') }}" alt="TTAttempts" style="width:60px; height:60px;" />
 
                 <div class="best-score">
-                    <p>{{ $highestScore }}%</p>
-                    <p>Best Score</p>
+                    <p>{{ $totalAttempts }}</p>
+                    <p>Total Attempts</p>
                 </div>
             </div>
             <div class="container_cards">
@@ -535,13 +536,14 @@
                 </div>
             </div>
             <div class="container_cards">
-                <img src="{{ asset('images/TTAttempts.png') }}" alt="TTAttempts" style="width:60px; height:60px;" />
+                <img src="{{ asset('images/Performance.png') }}" alt="Performance" style="width:60px; height:60px;" />
 
                 <div class="best-score">
-                    <p>{{ $totalAttempts }}</p>
-                    <p>Total Attempts</p>
+                    <p>{{ $highestScore }}%</p>
+                    <p>Best Score</p>
                 </div>
             </div>
+            
         </div>
 
 
@@ -554,10 +556,10 @@
                     data-chapter="{{ $attempt['chapter_name'] }}" data-attempt="{{ $attempt['attempt_number'] }}"
                     data-date="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}"
                     data-time="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i') }}">
-                    <p>
+                    
                     <div class="sec1"
                         style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-between;align-items: center;">
-                        <div class="attempt_se1" style="display: flex;align-items: center;">
+                        <div class="attempt_se1" style="display: flex;align-items: center;    margin: 10px 0px;">
                             <p
                                 style="font-family: sans-serif; font-weight: bold; font-size: 16px;color: {{ $attempt['score_percent'] >= 60 ? '#00A63E' : '#E7000B' }};">
                                 Attempt: {{ $attempt['attempt_number'] }}</p>
@@ -573,7 +575,7 @@
                         <div class="best_score"
                             style="display: {{ $highestScore == $attempt['score_percent'] ? 'flex' : 'none' }}; border-radius: 20px; color:#ffffff; padding: 5px 10px; width: fit-content;gap: 5px;align-items: center;">
                             <img src="{{ asset('images/Prize.png') }}" alt="Best Score"
-                                style="width:35px; height:auto;" />
+                                style="width:35px;height:auto;" />
                         </div>
                     </div>
                     <div class="sec2"

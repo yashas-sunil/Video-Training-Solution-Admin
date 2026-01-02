@@ -17,6 +17,12 @@ class Chapter extends Model
         'has_package'
     ];
 
+    protected $fillable = [
+        'course_id',
+        'name',
+        'folder_name',
+        'launch_file',
+    ];
     public function course() {
         return $this->belongsTo(Course::class);
     }
