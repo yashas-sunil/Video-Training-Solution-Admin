@@ -20,13 +20,18 @@
             align-items: center;
             color: white;
             position: fixed;
-            top: 0;
-            width: -webkit-fill-available;
-            z-index: 1000;
+            top: 0px;
+            width: 100%;
+            left: 0;
+            box-sizing: border-box;
+            z-index: 1;
         }
+
+
 
         .navbar .logo img {
             height: 55px;
+            width: auto;
         }
 
         .navbar .user-info {
@@ -35,13 +40,28 @@
             gap: 1rem;
         }
 
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 10px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+        }
+
         .user-info a {
             display: flex;
             gap: 5px;
             color: white;
             text-decoration: none;
+            margin-left: 20px;
             align-items: center;
             border-radius: 30px;
+            border-width: 3px;
             background: #8D8D8D87;
             border: 3px solid #FFFFFF33;
             padding: 7px 20px;
@@ -49,14 +69,8 @@
             font-size: 14px;
         }
 
-        .user-welcome {
-            display: flex;
-            gap: 10px;
-            border-radius: 30px;
-            background: #8D8D8D87;
-            border: 3px solid #FFFFFF33;
-            padding: 10px 20px;
-            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+        .user-info-mobile {
+            display: none;
         }
 
         .page-content {
@@ -170,6 +184,58 @@
                 width: 100%;
             }
         }
+         @media (max-width: 425px) {
+
+            .navbar {
+                padding: 15px 6px !important;
+            }
+
+            .navbar .logo img {
+                height: 30px !important;
+                width: auto !important;
+            }
+
+            .navbar .user-info {
+                gap: 8px !important;
+            }
+
+            .user-welcome {
+                gap: 4px !important;
+                padding: 6px 10px !important;
+            }
+
+            .user-info a {
+                margin-left: 0px !important;
+                padding: 3px 10px !important;
+                font-size: 12px !important;
+            }
+
+            .user-info-mobile {
+                display: flex !important;
+                gap: 8px !important;
+            }
+
+            .user-welcome {
+                gap: 4px !important;
+                padding: 6px 10px !important;
+            }
+
+            .user-info a {
+                margin-left: 0px !important;
+                padding: 3px 10px !important;
+                font-size: 12px !important;
+            }
+
+            .user-info-mobile a {
+                color: white !important;
+                text-decoration: none !important;
+            }
+
+            .user-info {
+                display: none !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -195,6 +261,19 @@
                 @csrf
             </form>
         </div>
+        <div class="user-info-mobile">
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <div class="user-welcome">
+                        <div style="font-size: 12px;">Welcome back !</div>
+                        <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                        <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                    </div>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
     </div>
 
     <div class="page-content">
