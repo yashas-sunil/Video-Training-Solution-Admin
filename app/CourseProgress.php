@@ -12,7 +12,7 @@ class CourseProgress extends Model
 {
     protected $table = 'course_progress';
 
-    protected $fillable = ['user_id', 'course_id', 'progress_percent', 'cmi_core_lesson_location', 'cmi_core_lesson_status', 'progress_data'];
+    protected $fillable = ['user_id', 'course_id','chapter_id', 'progress_percent', 'cmi_core_lesson_location', 'cmi_core_lesson_status', 'progress_data'];
     protected $casts = [
         'progress_data' => 'array',
     ];

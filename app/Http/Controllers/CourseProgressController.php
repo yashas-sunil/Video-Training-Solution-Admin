@@ -17,6 +17,7 @@ public function save(Request $request)
   //  dd($request->all());
     $request->validate([
         'course_id' => 'required|integer',
+         'chapter_id' => 'nullable|integer', 
         'session_time' => 'nullable|integer',
         'progress_percent' => 'nullable|integer',
         'cmi_core_lesson_location' => 'nullable|string',
@@ -29,6 +30,7 @@ public function save(Request $request)
     $progress = AppCourseProgress::firstOrNew([
         'user_id' => $userId,
         'course_id' => $request->course_id,
+         'chapter_id' => $request->chapter_id,
     ]);
 
     //  Session time logic
@@ -40,20 +42,17 @@ public function save(Request $request)
     $course = AppScormPackage::find($request->course_id);
     $totalDuration = $course->duration_in_seconds ?? 0;
 
-    //  Lesson status
     $status = $request->cmi_core_lesson_status ?? $progress->cmi_core_lesson_status;
     if ($totalDuration > 0 && $totalSessionTime >= $totalDuration) {
         $status = 'completed';
     }
-
-    // 💾 Save core fields
     $progress->session_time = $totalSessionTime;
     $progress->resume_from_time = $totalSessionTime;
     $progress->cmi_core_lesson_location = $request->cmi_core_lesson_location ?? $progress->cmi_core_lesson_location;
     $progress->cmi_core_lesson_status = $status;
     $progress->progress_percent = $request->progress_percent ?? $progress->progress_percent ?? 0;
     $progress->last_watched_at = now();
-
+    $progress->chapter_id = $request->chapter_id;
     //  Store suspend_data in progress_data JSON column
     $existingProgressData = $progress->progress_data ?? [];
     $existingProgressData['suspend_data'] = $request->suspend_data ?? null;
