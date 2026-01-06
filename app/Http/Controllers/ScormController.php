@@ -320,6 +320,7 @@ class ScormController extends Controller
             'launchUrl'    => $launchUrl,
             'title'        => $chapter->name,
             'courseId'     => $chapter->course_id,
+            'chapterId'  => $chapter->id,   
             'resumeTime'   => $progress->resume_from_time ?? 0,
             'lastLocation' => $progress->cmi_core_lesson_location ?? '',
             'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
@@ -327,13 +328,62 @@ class ScormController extends Controller
             'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
         ]);
     }
-    public function getChapters($courseId)
+public function getChapters($courseId)
 {
+    $userId = auth()->id();
+
+    $allProgress = AppCourseProgress::where('user_id', $userId)
+        ->where('course_id', $courseId)
+        ->whereNotNull('chapter_id')
+        ->get();
+
     $chapters = Chapter::where('course_id', $courseId)
         ->orderBy('id', 'asc')
-        ->get();
+        ->get()
+        ->map(function ($chapter) use ($allProgress) {
+
+            $chapterProgress = $allProgress->where('chapter_id', $chapter->id);
+
+            $totalSessionTime = (int) $chapterProgress->sum('session_time');
+
+            // duration in seconds
+            $duration = (!empty($chapter->watch_time) && $chapter->watch_time > 0)
+                ? (int) $chapter->watch_time
+                : 30 * 60;
+
+            if ($totalSessionTime > 0 && $duration > 0) {
+
+                // 🔥 MAIN FIX: progress till 80 only
+                $rawPercent = ($totalSessionTime / $duration) * 80;
+
+                $percent = max(1, floor($rawPercent));
+
+            } else {
+                $percent = 0;
+            }
+
+            // cap at 80
+            if ($percent > 80) {
+                $percent = 80;
+            }
+
+            // SCORM completion
+            $isCompleted = $chapterProgress
+                ->whereIn('cmi_core_lesson_status', ['completed', 'passed'])
+                ->isNotEmpty();
+
+            if ($isCompleted) {
+                $percent = 100;
+            }
+
+            $chapter->progress_percent = $percent;
+            $chapter->is_completed = $isCompleted;
+
+            return $chapter;
+        });
 
     return view('chapters.list', compact('chapters', 'courseId'));
 }
+
 
 }
