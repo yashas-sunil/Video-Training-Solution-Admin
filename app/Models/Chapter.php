@@ -75,6 +75,11 @@ class Chapter extends Model
     {
         return $this->hasOne(Video::class);
     }
+
+    public function manualContents()
+    {
+        return $this->hasMany(ChapterManualContent::class);
+    }
     public function getHasPackageAttribute()
     {
         $package_withChapter = Package::where('chapter_id',$this->id)->get();
