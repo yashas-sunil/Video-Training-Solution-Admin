@@ -6,12 +6,14 @@ use ZipArchive;
 use App\CourseView;
 use App\CourseProgress;
 use App\Models\Chapter;
+use App\Models\ChapterManualContent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 use App\Services\ScormCloudService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use App\ScormPackage as AppScormPackage;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 use App\CourseProgress as AppCourseProgress;
@@ -128,6 +130,74 @@ class ScormController extends Controller
             ->route('courses.index')
             ->with('success', 'Chapter created successfully.');
 }
+
+
+
+    public function uploadChapterManual(Request $request)
+    {
+        Log::info('Chapter Manual Upload Start');
+
+        $manualTypes = [
+            'detailed_trainer_slides' => 'Detailed Trainer Slides',
+            'glossary' => 'Glossary',
+            'infographics' => 'Infographics',
+            'summary_slides' => 'Summary Slides',
+            'textbook' => 'Textbook',
+            'videos' => 'Videos',
+            'map' => 'Map',
+        ];
+
+        $rules = [
+            'course_id' => 'required|integer',
+            'chapter_name' => 'required|string',
+        ];
+
+        foreach ($manualTypes as $key => $label) {
+            $rules["manual_{$key}"] = 'nullable|array';
+            $rules["manual_{$key}.*"] = 'nullable|file|max:204800';
+        }
+
+        $validated = $request->validate($rules);
+
+        $chapter = Chapter::create([
+            'course_id' => $validated['course_id'],
+            'name' => $validated['chapter_name'],
+        ]);
+
+        foreach ($manualTypes as $key => $label) {
+            $fieldName = "manual_{$key}";
+
+            if ($request->hasFile($fieldName)) {
+                foreach ($request->file($fieldName) as $file) {
+                    if (!$file) {
+                        continue;
+                    }
+
+                    $path = $file->store("manual_uploads/{$chapter->id}/{$key}", 'public');
+
+                    ChapterManualContent::create([
+                        'chapter_id' => $chapter->id,
+                        'content_type' => $label,
+                        'file_path' => $path,
+                        'original_name' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getClientMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            }
+        }
+
+        if ($chapter->manualContents()->count() === 0) {
+            $chapter->delete();
+            return back()->with('error', 'Please upload at least one file for manual content.');
+        }
+
+        Log::info('Chapter manual content uploaded successfully');
+
+        return redirect()
+            ->route('chapters')
+            ->with('success', 'Manual chapter uploaded successfully.');
+    }
 
 
 
@@ -276,7 +346,33 @@ class ScormController extends Controller
 
     public function viewChapter($id)
     {
-        $chapter = Chapter::findOrFail($id);
+        $chapter = Chapter::with('manualContents')->findOrFail($id);
+
+        // If this chapter has manual uploads and no SCORM launch file, show manual view
+        if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
+            $grouped = $chapter->manualContents
+                ->groupBy('content_type')
+                ->map(function ($items) {
+                    return $items->map(function ($content) {
+                        return [
+                            'id' => $content->id,
+                            'label' => $content->content_type,
+                            'url' => Storage::url($content->file_path),
+                            'original_name' => $content->original_name ?? basename($content->file_path),
+                            'size' => $content->file_size,
+                        ];
+                    });
+                });
+
+            $types = $grouped->keys()->values();
+
+            return view('chapters.manual', [
+                'chapter' => $chapter,
+                'groupedContents' => $grouped,
+                'types' => $types,
+            ]);
+        }
+
         $userId = auth()->id();
 
         // watch time agar chapter level pe hai

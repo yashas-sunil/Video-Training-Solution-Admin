@@ -584,6 +584,7 @@ Route::get('videos/get-player/{id}', 'VideoController@getPlayer');
 //new route add 
 Route::get('/upload', 'ScormController@showForm');
 Route::post('/admin/chapter/upload', 'ScormController@uploadChapterScorm') ->name('chapter.scorm.upload');
+Route::post('/admin/chapter/manual-upload', 'ScormController@uploadChapterManual')->name('chapter.manual.upload');
 Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
