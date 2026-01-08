@@ -10,6 +10,7 @@ class ChapterManualContent extends Model
 
     protected $fillable = [
         'chapter_id',
+        'lesson_id',
         'content_type',
         'file_path',
         'original_name',
@@ -20,6 +21,21 @@ class ChapterManualContent extends Model
     public function chapter()
     {
         return $this->belongsTo(Chapter::class);
+    }
+
+    public function lesson()
+    {
+        return $this->belongsTo(Lesson::class);
+    }
+
+    public function isLessonContent()
+    {
+        return !is_null($this->lesson_id);
+    }
+
+    public function isChapterContent()
+    {
+        return is_null($this->lesson_id);
     }
 }
 
