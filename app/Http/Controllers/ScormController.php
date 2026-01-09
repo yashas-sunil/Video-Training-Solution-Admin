@@ -532,31 +532,75 @@ class ScormController extends Controller
 
     public function viewChapter($id)
     {
-        $chapter = Chapter::with('manualContents')->findOrFail($id);
+       $chapter = Chapter::with('manualContents')->findOrFail($id);
 
-        if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
-            $grouped = $chapter->manualContents
-                ->groupBy('content_type')
-                ->map(function ($items) {
-                    return $items->map(function ($content) {
-                        return [
-                            'id' => $content->id,
-                            'label' => $content->content_type,
-                            'url' => asset($content->file_path),  // No 'storage/' prefix
-                            'original_name' => $content->original_name ?? basename($content->file_path),
-                            'size' => $content->file_size,
-                        ];
-                    });
-                });
+if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
 
-            $types = $grouped->keys()->values();
+    // Types for overview and lessons
+    $overviewTypes = [
+        'Glossary',
+        'Infographics',
+        'Textbook',
+        'Map',
+    ];
 
-            return view('chapters.manual', [
-                'chapter' => $chapter,
-                'groupedContents' => $grouped,
-                'types' => $types,
-            ]);
-        }
+    $lessonTypes = [
+        'Detailed Trainer Slides',
+        'Summary Slides',
+        'Videos',
+    ];
+
+    // Overview contents (no lesson_id)
+    $overview = $chapter->manualContents
+        ->whereNull('lesson_id')
+        ->whereIn('content_type', $overviewTypes)
+        ->groupBy('content_type')
+        ->map(function ($items) {
+            return $items->map(function ($content) {
+                return [
+                    'id' => $content->id,
+                    'label' => $content->content_type,
+                    'url' => asset($content->file_path),
+                    'original_name' => $content->original_name ?? basename($content->file_path),
+                    'size' => $content->file_size,
+                ];
+            });
+        });
+
+    // Lessons contents (with lesson_id)
+    $lessons = $chapter->manualContents
+        ->whereNotNull('lesson_id')
+        ->whereIn('content_type', $lessonTypes)
+        ->groupBy('lesson_id')
+        ->map(function ($lessonItems) {
+            $lesson = \App\Models\Lesson::find($lessonItems->first()->lesson_id);
+
+            return [
+                'lesson_id'   => $lesson->id,
+                'lesson_name' => $lesson->lesson_name,
+                'contents' => $lessonItems
+                    ->groupBy('content_type')
+                    ->map(function ($items) {
+                        return $items->map(function ($content) {
+                            return [
+                                'id' => $content->id,
+                                'url' => asset($content->file_path),
+                                'original_name' => $content->original_name ?? basename($content->file_path),
+                                'size' => $content->file_size,
+                            ];
+                        });
+                    }),
+            ];
+        })
+        ->values();
+
+    // Return to view
+    return view('chapters.manual', [
+        'chapter' => $chapter,
+        'overview' => $overview,
+        'lessons' => $lessons,
+    ]);
+}
 
         $userId = auth()->id();
 
@@ -635,7 +679,6 @@ public function getChapters($courseId)
 
             if ($totalSessionTime > 0 && $duration > 0) {
 
-                // 🔥 MAIN FIX: progress till 80 only
                 $rawPercent = ($totalSessionTime / $duration) * 80;
 
                 $percent = max(1, floor($rawPercent));
