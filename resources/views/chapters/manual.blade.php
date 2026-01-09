@@ -45,12 +45,11 @@
             color: #700002;
         }
 
-        .overview, .lessons-wrapper {
-            margin-bottom: 30px;
+        .overview {
+            margin-bottom: 40px;
         }
 
-        .overview .grid,
-        .lesson-contents .grid {
+        .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 14px;
@@ -61,22 +60,12 @@
             border: 1px solid #e6e6e6;
             border-radius: 10px;
             padding: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-        }
-        .card h3 {
-            margin: 0 0 6px 0;
-            font-size: 16px;
-        }
-        .small {
-            font-size: 12px;
-            color: #777;
         }
 
         /* overview layout */
         .overview-item {
             display: flex;
             gap: 24px;
-            align-items: flex-start;
             margin-bottom: 26px;
         }
         .overview-item .label {
@@ -84,10 +73,6 @@
             text-align: right;
             font-weight: bold;
             font-size: 16px;
-            padding-top: 6px;
-        }
-        .overview-item .content {
-            flex: 1;
         }
 
         .lessons-wrapper {
@@ -104,7 +89,6 @@
             width: 100%;
             margin-bottom: 6px;
             padding: 8px;
-            text-align: left;
             border-radius: 6px;
             border: 1px solid #700002;
             background: #fff;
@@ -115,55 +99,35 @@
             background: #700002;
             color: #fff;
         }
+
         .lesson-contents {
             flex: 1;
         }
-        .lesson-contents .type-section {
+
+        /* 🔥 IMPORTANT: lesson kabhi hide nahi hoga */
+        .lesson-section {
             display: none;
-        }
-        .lesson-contents .type-section.active {
-            display: block;
+            margin-bottom: 60px;
         }
 
-        /* 🔹 NEW: Floating Back to Overview Button */
-        .back-to-overview {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #700002;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 999;
+        .continue-wrap {
+            margin-top: 30px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
 
-<!-- 🔹 Floating Button -->
-<div class="back-to-overview" id="backToOverview">
-    ↑ Back to Overview
-</div>
-
 <div class="page">
 
     <div class="header">
-        <div>
-            <h1>{{ $chapter->name }}</h1>
-            <div class="small">Manual uploads for this chapter</div>
-        </div>
-        <div>
-            <button class="btn secondary" onclick="window.history.back()">← Back</button>
-        </div>
+        <h1>{{ $chapter->name }}</h1>
+        <button class="btn secondary" onclick="window.history.back()">← Back</button>
     </div>
 
-    {{-- 🔹 Overview Section --}}
-    <div class="overview" id="overviewSection">
+    {{-- 🔹 OVERVIEW (no click, same as before) --}}
+    <div class="overview">
         <h2>Overview</h2>
 
         @foreach ($overview as $label => $items)
@@ -175,11 +139,6 @@
                             <div class="card">
                                 <h3>{{ $content['original_name'] }}</h3>
                                 <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
-                                @if ($content['size'])
-                                    <div class="small">
-                                        Size: {{ round($content['size'] / 1024, 1) }} KB
-                                    </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -188,32 +147,42 @@
         @endforeach
     </div>
 
-    {{-- 🔹 Lessons Section --}}
-    <div class="lessons-wrapper" id="lessonsSection">
+    {{-- 🔹 LESSONS --}}
+    <div class="lessons-wrapper">
         <div class="lessons-list">
-            @foreach ($lessons as $idx => $lesson)
-                <button class="{{ $idx === 0 ? 'active' : '' }}"
-                        data-lesson="{{ $lesson['lesson_id'] }}">
+            @foreach ($lessons as $i => $lesson)
+                <button data-index="{{ $i }}">
                     {{ $lesson['lesson_name'] }}
                 </button>
             @endforeach
         </div>
 
         <div class="lesson-contents">
-            @foreach ($lessons as $idx => $lesson)
-                <div class="type-section {{ $idx === 0 ? 'active' : '' }}"
-                     data-lesson="{{ $lesson['lesson_id'] }}">
+            @foreach ($lessons as $i => $lesson)
+                <div class="lesson-section" id="lesson-{{ $i }}">
+
                     @foreach ($lesson['contents'] as $type => $items)
-                        <h4>{{ $type }}</h4>
+                        <h3>{{ $type }}</h3>
                         <div class="grid">
                             @foreach ($items as $content)
                                 <div class="card">
-                                    <h3>{{ $content['original_name'] }}</h3>
+                                    <h4>{{ $content['original_name'] }}</h4>
                                     <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
                                 </div>
                             @endforeach
                         </div>
                     @endforeach
+
+                    {{-- 🔹 CONTINUE --}}
+                    @if(isset($lessons[$i + 1]))
+                        <div class="continue-wrap">
+                            <button class="btn continue-btn"
+                                    data-next="{{ $i + 1 }}">
+                                Continue →
+                            </button>
+                        </div>
+                    @endif
+
                 </div>
             @endforeach
         </div>
@@ -222,36 +191,45 @@
 </div>
 
 <script>
-    const lessonButtons = document.querySelectorAll('.lessons-list button');
-    const lessonSections = document.querySelectorAll('.lesson-contents .type-section');
-    const backBtn = document.getElementById('backToOverview');
-    const overviewSection = document.getElementById('overviewSection');
+    const lessonBtns = document.querySelectorAll('.lessons-list button');
+    const lessonSections = document.querySelectorAll('.lesson-section');
+    const continueBtns = document.querySelectorAll('.continue-btn');
 
-    lessonButtons.forEach(btn => {
+    let unlocked = 0;
+
+    function showLessonsTill(index) {
+        for (let i = 0; i <= index; i++) {
+            if (lessonSections[i]) {
+                lessonSections[i].style.display = 'block';
+            }
+        }
+
+        lessonBtns.forEach(btn => btn.classList.remove('active'));
+        if (lessonBtns[index]) {
+            lessonBtns[index].classList.add('active');
+        }
+
+        lessonSections[index].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Sidebar click
+    lessonBtns.forEach((btn, index) => {
         btn.addEventListener('click', () => {
-            const lessonId = btn.getAttribute('data-lesson');
-            lessonButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            lessonSections.forEach(sec => {
-                sec.classList.toggle('active', sec.getAttribute('data-lesson') === lessonId);
-            });
+            unlocked = Math.max(unlocked, index);
+            showLessonsTill(unlocked);
         });
     });
 
-    // 🔹 show button when scrolling down
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            backBtn.style.display = 'block';
-        } else {
-            backBtn.style.display = 'none';
-        }
+    // Continue click
+    continueBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            unlocked = parseInt(btn.dataset.next);
+            showLessonsTill(unlocked);
+        });
     });
 
-    // 🔹 scroll to overview
-    backBtn.addEventListener('click', () => {
-        overviewSection.scrollIntoView({ behavior: 'smooth' });
-    });
+    // Initial
+    showLessonsTill(0);
 </script>
 
 </body>
