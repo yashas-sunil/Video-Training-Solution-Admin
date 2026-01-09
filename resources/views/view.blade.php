@@ -20,6 +20,9 @@
 <iframe src="{{ $launchUrl }}" id="scorm-content"></iframe>
 
 <script>
+    const COURSE_ID  = "{{ $courseId }}";
+    const CHAPTER_ID = "{{ $chapterId }}";
+
     let progressData = {
         'cmi.core.lesson_location': "{{ $lastLocation ?? '' }}",
         'cmi.core.lesson_status': "{{ $lessonStatus ?? '' }}",
@@ -139,6 +142,7 @@
             },
             body: JSON.stringify({
                 course_id: "{{ $courseId }}",
+                 chapter_id: CHAPTER_ID,
                 session_time: sessionTime,
                 cmi_core_lesson_location: lessonLoc,
                 cmi_core_lesson_status: lessonStatus,
