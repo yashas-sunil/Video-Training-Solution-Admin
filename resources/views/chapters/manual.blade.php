@@ -292,6 +292,21 @@
             gap: 10px;
             align-items: center;
         }
+
+        #fileViewerWrapper{
+    width: 100%;
+    margin-left: 230px;     /* sidebar ke baad align */
+    background: #ffffff;
+    padding: 10px;
+    border-bottom: 2px solid #700002;
+}
+
+#fileViewerWrapper iframe{
+    width: 100%;
+    height: 70vh;
+    border: none;
+}
+
     </style>
 </head>
 
@@ -347,94 +362,83 @@
             {{-- ===================== --}}
             {{-- 🔹 RIGHT CONTENT --}}
             {{-- ===================== --}}
-            <div class="lesson-contents scroll-pane">
+     <div class="lesson-contents scroll-pane">
 
-                {{-- 🔹 OVERVIEW --}}
-                <div class="lesson-section" id="lesson-overview" data-index="overview">
-
-                    <div class="overview">
-                        <h2
-                            style="background: #ffffff;padding: 55px;color: #700002;margin-top: 0;font-size: 40px;font-family: 'Lato', sans-serif;">
-                            Overview</h2>
-
-                        @foreach ($overview as $label => $items)
-                            <div class="overview-item">
-                                <div class="label">{{ $label }}</div>
-                                <div class="content">
-                                    <div class="grid">
-                                       @foreach ($items as $content)
-
-    @php
-        $extension = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
-
-        if ($extension === 'pdf') {
-            $icon = 'images/pdf_icon.png';
-        } elseif (in_array($extension, ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
-            $icon = 'images/image_icon.png';
-        } else {
-            $icon = 'images/file_icon.png'; // optional fallback
-        }
-    @endphp
-
-    <div class="card">
-        <div class="icon_chapter">
-            <img src="{{ asset($icon) }}" style="width:40px;height:auto;">
-            <h3>{{ $content['original_name'] }}</h3>
-        </div>
-        <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
+    <!-- 🔥 INLINE PDF VIEWER -->
+    <div id="fileViewerWrapper" style="display:none; background:#ffffff; padding:10px;">
+        <button onclick="closeViewer()" class="btn secondary" style="margin-bottom:10px;">
+            ← Back
+        </button>
+        <iframe id="fileViewer" style="width:100%; height:70vh; border:none;"></iframe>
     </div>
 
-@endforeach
 
-                                    </div>
+    {{-- 🔹 OVERVIEW --}}
+    <div class="lesson-section" id="lesson-overview" data-index="overview">
+
+        <div class="overview">
+            <h2 style="background: #000000;padding: 55px;color: #ffffff;margin-top: 0;font-size: 40px;font-family: 'Lato', sans-serif;">
+                Overview</h2>
+
+            @foreach ($overview as $label => $items)
+                <div class="overview-item">
+                    <div class="label">{{ $label }}</div>
+                    <div class="content">
+                        <div class="grid">
+                            @foreach ($items as $content)
+                                <div class="card">
+                                    <h3>{{ $content['original_name'] }}</h3>
+
+                                    <a class="btn view-file" href="javascript:void(0)" data-url="{{ $content['url'] }}">View</a>
+
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="continue-wrap">
-                        <button class="btn continue-btn unlock-once" data-next="0">Start Lesson →</button>
-
+                            @endforeach
+                        </div>
                     </div>
                 </div>
+            @endforeach
+        </div>
+
+        <div class="continue-wrap">
+            <button class="btn continue-btn unlock-once" data-next="0">Start Lesson →</button>
+        </div>
+    </div>
 
 
-                {{-- 🔹 LESSONS --}}
-                <hr>
-                @foreach ($lessons as $i => $lesson)
-                    <div class="lesson-section" id="lesson-{{ $i }}" data-index="{{ $i }}">
+    {{-- 🔹 LESSONS --}}
+    @foreach ($lessons as $i => $lesson)
+        <div class="lesson-section" id="lesson-{{ $i }}" data-index="{{ $i }}">
 
-                        <h2 class="lesson-title"
-                            style="background: #ffffff;padding: 60px;color: #700002;font-size: 40px;font-family: 'Lato', sans-serif;margin: 0;">
-                            {{ $lesson['lesson_name'] }}</h2>
+            <h2 class="lesson-title" style="background: #727272; padding: 24px; color: #ffffff;">
+                {{ $lesson['lesson_name'] }}</h2>
 
-                        @foreach ($lesson['contents'] as $type => $items)
-                            <h3
-                                style=" padding-left: 60px;padding-right: 60px;min-width: 180px;font-weight: bold;font-size: 16px;color: #700002;">
-                                {{ $type }}</h3>
-                            <div class="grid">
-                                @foreach ($items as $content)
-                                    <div class="card">
-                                        <h4>{{ $content['original_name'] }}</h4>
-                                        <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endforeach
+            @foreach ($lesson['contents'] as $type => $items)
+                <h3 style=" padding-left: 60px; padding-right: 60px;">{{ $type }}</h3>
+                <div class="grid">
+                    @foreach ($items as $content)
+                        <div class="card">
+                            <h4>{{ $content['original_name'] }}</h4>
 
-                        @if (isset($lessons[$i + 1]))
-                            <div class="continue-wrap">
-                                <button class="btn continue-btn unlock-once" data-next="{{ $i + 1 }}">
-                                    Continue →
-                                </button>
+                            <a class="btn view-file" href="javascript:void(0)" data-url="{{ $content['url'] }}">View</a>
 
-                            </div>
-                        @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
 
-                    </div>
-                @endforeach
+            @if (isset($lessons[$i + 1]))
+                <div class="continue-wrap">
+                    <button class="btn continue-btn unlock-once" data-next="{{ $i + 1 }}">
+                        Continue →
+                    </button>
+                </div>
+            @endif
 
-            </div>
+        </div>
+    @endforeach
+
+</div>
+
         </div>
 
 
@@ -443,128 +447,148 @@
         {{-- 🔹 SCRIPT --}}
         {{-- ===================== --}}
 
-        <script>
-            const contentPane = document.querySelector(".lesson-contents");
-            const tabs = document.querySelectorAll(".lesson-tab");
-            const checks = document.querySelectorAll("[data-check]");
-            const continueBtns = document.querySelectorAll(".unlock-once");
+<script>
+const contentPane = document.querySelector(".lesson-contents");
+const tabs = document.querySelectorAll(".lesson-tab");
+const checks = document.querySelectorAll("[data-check]");
+const continueBtns = document.querySelectorAll(".unlock-once");
 
-            let unlockedIndex = -1;
+const viewer = document.getElementById("fileViewerWrapper");
+const iframe = document.getElementById("fileViewer");
 
-            /* ================= RENDER ================= */
-            function render() {
-                const sections = document.querySelectorAll(".lesson-section");
+let unlockedIndex = -1;
+let lastScrollTop = 0;
 
-                sections.forEach(sec => {
-                    sec.style.display = "none";
-                    const btn = sec.querySelector(".unlock-once");
-                    if (btn) btn.style.display = "none";
-                });
+/* ================= RENDER ================= */
+function render() {
+    const sections = document.querySelectorAll(".lesson-section");
 
-                const overview = document.getElementById("lesson-overview");
-                overview.style.display = "block";
+    sections.forEach(sec => {
+        sec.style.display = "none";
+        const btn = sec.querySelector(".unlock-once");
+        if (btn) btn.style.display = "none";
+    });
 
-                for (let i = 0; i <= unlockedIndex; i++) {
-                    const el = document.getElementById("lesson-" + i);
-                    if (el) el.style.display = "block";
-                }
+    document.getElementById("lesson-overview").style.display = "block";
 
-                checks.forEach(chk => {
-                    const i = parseInt(chk.dataset.check);
-                    chk.checked = i <= unlockedIndex;
-                });
+    for (let i = 0; i <= unlockedIndex; i++) {
+        const el = document.getElementById("lesson-" + i);
+        if (el) el.style.display = "block";
+    }
 
-                if (unlockedIndex === -1) {
-                    const startBtn = overview.querySelector(".unlock-once");
-                    if (startBtn) startBtn.style.display = "inline-flex";
-                } else {
-                    const last = document.getElementById("lesson-" + unlockedIndex);
-                    const btn = last?.querySelector(".unlock-once");
-                    if (btn) btn.style.display = "inline-flex";
-                }
-                updateProgress();
-            }
+    checks.forEach(chk => {
+        const i = parseInt(chk.dataset.check);
+        chk.checked = i <= unlockedIndex;
+    });
 
-            function updateProgress() {
-                const totalLessons = tabs.length - 1; // minus overview
-                const percent = totalLessons > 0 ? Math.round((unlockedIndex + 1) / totalLessons * 100) : 0;
+    if (unlockedIndex === -1) {
+        document.querySelector("#lesson-overview .unlock-once")?.style.display = "inline-flex";
+    } else {
+        document.querySelector("#lesson-" + unlockedIndex + " .unlock-once")?.style.display = "inline-flex";
+    }
 
-                const bar = document.querySelector(".progress-bar");
-                const text = document.querySelector(".progress-text");
+    updateProgress();
+}
 
-                if (bar) bar.style.width = percent + "%";
-                if (text) text.textContent = percent + "%";
-            }
+function updateProgress() {
+    const total = tabs.length - 1;
+    const percent = total > 0 ? Math.round((unlockedIndex + 1) / total * 100) : 0;
+    document.querySelector(".progress-bar").style.width = percent + "%";
+    document.querySelector(".progress-text").innerText = percent + "%";
+}
+
+/* ================= SCROLL ================= */
+function scrollToIndex(index) {
+    const target = document.querySelector(`.lesson-section[data-index="${index}"]`);
+    if (!target) return;
+
+    contentPane.scrollTo({
+        top: target.offsetTop - 20,
+        behavior: "smooth"
+    });
+}
+
+/* ================= TABS ================= */
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        const index = tab.dataset.index;
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        scrollToIndex(index);
+    });
+});
+
+/* ================= CHECK ================= */
+checks.forEach(chk => {
+    chk.addEventListener("click", e => {
+        e.stopPropagation();
+        const i = parseInt(chk.dataset.check);
+        unlockedIndex = chk.checked ? Math.max(unlockedIndex, i) : i - 1;
+        render();
+        scrollToIndex(unlockedIndex >= 0 ? unlockedIndex : "overview");
+    });
+});
+
+/* ================= CONTINUE ================= */
+continueBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        unlockedIndex = parseInt(btn.dataset.next);
+        render();
+        scrollToIndex(unlockedIndex);
+    });
+});
+
+/* ================= INLINE FILE VIEWER (STAGING SAFE) ================= */
+document.querySelectorAll(".view-file").forEach(btn => {
+    btn.addEventListener("click", function () {
+        lastScrollTop = contentPane.scrollTop;
+
+        const fileUrl = this.dataset.url;
+        const url = fileUrl.toLowerCase();
+
+        // Clear iframe
+        iframe.src = "";
+
+        // VIDEO (mp4 etc)
+        if (url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")) {
+            iframe.src = fileUrl;
+        }
+
+        // PDF
+        else if (url.endsWith(".pdf")) {
+            iframe.src = fileUrl + "#toolbar=0&navpanes=0&scrollbar=1";
+        }
+
+        // Image
+        else if (url.match(/\.(jpg|jpeg|png|webp)$/)) {
+            iframe.src = fileUrl;
+        }
+
+        // Other
+        else {
+            iframe.src = fileUrl;
+        }
+
+        viewer.style.display = "block";
+        contentPane.scrollTo({ top: 0, behavior: "smooth" });
+    });
+});
+
+/* ================= CLOSE VIEWER ================= */
+function closeViewer() {
+    iframe.src = "";
+    viewer.style.display = "none";
+    contentPane.scrollTo({ top: lastScrollTop, behavior: "smooth" });
+}
+
+/* ================= INIT ================= */
+render();
+</script>
 
 
-            /* ================= SCROLL (FIXED) ================= */
-            function scrollToIndex(index) {
-                const target = document.querySelector(
-                    `.lesson-section[data-index="${index}"]`
-                );
-
-                if (!target) return;
-
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            }
 
 
-            /* ================= LEFT TABS ================= */
-            tabs.forEach(tab => {
-                tab.addEventListener("click", e => {
-                    if (e.target.tagName === "INPUT") return;
 
-                    const index = tab.dataset.index;
-
-                    tabs.forEach(t => t.classList.remove("active"));
-                    tab.classList.add("active");
-
-                    scrollToIndex(index);
-                });
-            });
-
-            /* ================= CHECKBOXES ================= */
-            checks.forEach(chk => {
-                chk.addEventListener("click", e => {
-                    e.stopPropagation();
-
-                    const i = parseInt(chk.dataset.check);
-
-                    if (chk.checked) {
-                        unlockedIndex = Math.max(unlockedIndex, i);
-                    } else {
-                        unlockedIndex = i - 1;
-                    }
-
-                    render();
-                    scrollToIndex(unlockedIndex >= 0 ? unlockedIndex : "overview");
-                });
-            });
-
-            /* ================= CONTINUE ================= */
-            continueBtns.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const next = parseInt(btn.dataset.next);
-
-                    unlockedIndex = next;
-
-                    render();
-                    scrollToIndex(next);
-
-                    const tab = document.querySelector(`[data-index="${next}"]`);
-                    if (tab) {
-                        tabs.forEach(t => t.classList.remove("active"));
-                        tab.classList.add("active");
-                    }
-                });
-            });
-
-            /* ================= INIT ================= */
-            render();
-        </script>
 
 
 
