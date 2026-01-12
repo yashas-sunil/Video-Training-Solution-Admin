@@ -597,7 +597,7 @@ Route::get('/course/{course}/chapters', 'ScormController@getChapters')
     // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
 // chapter open
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
-    ->name('chapter.view');
+    ->name('chapter.view')->middleware('auth');
 
 
 Route::get('/test-token', function () {
