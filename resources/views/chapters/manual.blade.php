@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap" rel="stylesheet">
@@ -33,6 +33,7 @@
         }
 
         .btn {
+            height: fit-content;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -44,6 +45,11 @@
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #ffffff;
+            color: #700002;
         }
 
         .btn.secondary {
@@ -64,11 +70,13 @@
         }
 
         .card {
+            display: flex;
             background: #fff;
-            border: 1px solid #e6e6e6;
             border-radius: 10px;
             padding: 14px;
-            border: 2px solid #700002;
+            border: 1px solid #700002;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* overview layout */
@@ -83,6 +91,7 @@
             min-width: 180px;
             font-weight: bold;
             font-size: 16px;
+            color: #700002;
         }
 
         .label {
@@ -97,7 +106,6 @@
 
         .lessons-list {
             width: 210px;
-            border-right: 1px solid #ccc;
             padding: 10px;
             background: #700002;
             height: -webkit-fill-available;
@@ -117,12 +125,12 @@
             margin-bottom: 6px;
             padding: 8px;
             border-radius: 6px;
-            border: 3px solid #fffefe7d;
             background: #ffffff40;
+            border: none;
             color: #ffffff;
             cursor: pointer;
             font-weight: 600;
-            font-family: cursive;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
         }
 
@@ -132,20 +140,13 @@
         }
 
         /* Invert icon when its parent tab is hovered */
-.lesson-tab:hover .tab-icon {
-   filter:
-        brightness(0)
-        saturate(100%)
-        invert(9%)
-        sepia(100%)
-        saturate(9800%)
-        hue-rotate(352deg)
-        brightness(47%)
-        contrast(112%);
-}
+        .lesson-tab:hover .tab-icon {
+            filter:
+                brightness(0) saturate(100%) invert(9%) sepia(100%) saturate(9800%) hue-rotate(352deg) brightness(47%) contrast(112%);
+        }
 
 
-        
+
 
 
         .lesson-contents {
@@ -177,7 +178,6 @@
         }
 
         .lessons-list {
-            border-right: 1px solid #ddd;
             flex-shrink: 0;
         }
 
@@ -231,7 +231,7 @@
             background: #858282;
         }
 
-        
+
 
         /* Checked background */
         .lesson-tab input[type="checkbox"]:checked {
@@ -239,19 +239,19 @@
         }
 
         /* White tick */
-        .lesson-tab input[type="checkbox"]:checked::before{
-    content: "✓";
-    color: white;
-    font-size: 10px;
-    font-weight: 900;
-    line-height: 1;
-}
+        .lesson-tab input[type="checkbox"]:checked::before {
+            content: "✓";
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 1;
+        }
 
         .progress-container {
             position: relative;
             width: 100%;
             height: 6px;
-            background: #ffffff;
+            background: #b5b5b5;
             border-radius: 6px;
             margin-top: 20px;
             box-shadow: 5px 4px 7px 2px #00000040 inset;
@@ -260,7 +260,7 @@
         .progress-bar {
             height: 100%;
             width: 0%;
-            background-color: #700002;
+            background-color: #ffffff;
             /* green */
             border-radius: 6px;
             transition: width 0.3s ease;
@@ -282,9 +282,15 @@
         }
 
         .tab-icon {
-            width: 24px;
+            width: 30px;
             height: auto;
             object-fit: contain;
+        }
+
+        .icon_chapter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
     </style>
 </head>
@@ -305,8 +311,7 @@
             {{-- 🔹 LEFT SIDEBAR --}}
             {{-- ===================== --}}
             <div class="sidebar">
-                <div class="chapter-hero"
-                    style="display: flex;background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)),url('http://127.0.0.1:8000/images/chapter_bg.png');gap: 30px;flex-direction: column;">
+                <div class="chapter-hero" style="display: flex;background: #700002;gap: 30px;flex-direction: column;">
                     <h1>{{ $chapter->name }}</h1>
 
                     <!-- Progress Bar -->
@@ -329,7 +334,8 @@
 
                     @foreach ($lessons as $i => $lesson)
                         <button class="lesson-tab" data-index="{{ $i }}">
-                            <span class="tab-label"><img src="{{ asset('images/lesson-icon.png') }}" class="tab-icon">{{ $lesson['lesson_name'] }}</span>
+                            <span class="tab-label"><img src="{{ asset('images/lesson-icon.png') }}"
+                                    class="tab-icon">{{ $lesson['lesson_name'] }}</span>
                             <input type="checkbox" data-check="{{ $i }}">
                         </button>
                     @endforeach
@@ -347,7 +353,8 @@
                 <div class="lesson-section" id="lesson-overview" data-index="overview">
 
                     <div class="overview">
-                        <h2 style="background: #000000;padding: 55px;color: #ffffff;margin-top: 0;font-size: 40px;font-family: 'Lato', sans-serif;">
+                        <h2
+                            style="background: #ffffff;padding: 55px;color: #700002;margin-top: 0;font-size: 40px;font-family: 'Lato', sans-serif;">
                             Overview</h2>
 
                         @foreach ($overview as $label => $items)
@@ -355,12 +362,30 @@
                                 <div class="label">{{ $label }}</div>
                                 <div class="content">
                                     <div class="grid">
-                                        @foreach ($items as $content)
-                                            <div class="card">
-                                                <h3>{{ $content['original_name'] }}</h3>
-                                                <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
-                                            </div>
-                                        @endforeach
+                                       @foreach ($items as $content)
+
+    @php
+        $extension = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
+
+        if ($extension === 'pdf') {
+            $icon = 'images/pdf_icon.png';
+        } elseif (in_array($extension, ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
+            $icon = 'images/image_icon.png';
+        } else {
+            $icon = 'images/file_icon.png'; // optional fallback
+        }
+    @endphp
+
+    <div class="card">
+        <div class="icon_chapter">
+            <img src="{{ asset($icon) }}" style="width:40px;height:auto;">
+            <h3>{{ $content['original_name'] }}</h3>
+        </div>
+        <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
+    </div>
+
+@endforeach
+
                                     </div>
                                 </div>
                             </div>
@@ -375,14 +400,18 @@
 
 
                 {{-- 🔹 LESSONS --}}
+                <hr>
                 @foreach ($lessons as $i => $lesson)
                     <div class="lesson-section" id="lesson-{{ $i }}" data-index="{{ $i }}">
 
-                        <h2 class="lesson-title" style="background: #727272; padding: 24px; color: #ffffff;">
+                        <h2 class="lesson-title"
+                            style="background: #ffffff;padding: 60px;color: #700002;font-size: 40px;font-family: 'Lato', sans-serif;margin: 0;">
                             {{ $lesson['lesson_name'] }}</h2>
 
                         @foreach ($lesson['contents'] as $type => $items)
-                            <h3 style=" padding-left: 60px; padding-right: 60px;">{{ $type }}</h3>
+                            <h3
+                                style=" padding-left: 60px;padding-right: 60px;min-width: 180px;font-weight: bold;font-size: 16px;color: #700002;">
+                                {{ $type }}</h3>
                             <div class="grid">
                                 @foreach ($items as $content)
                                     <div class="card">
