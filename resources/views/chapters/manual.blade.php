@@ -297,277 +297,269 @@
 
 <body>
 
-    <div class="page">
+ <div class="page">
+    <div class="course-layout">
 
+        {{-- 🔹 LEFT SIDEBAR --}}
+        <div class="sidebar">
+            <div class="chapter-hero" style="display:flex;background:#700002;gap:30px;flex-direction:column;">
+                <h1>{{ $chapter->name }}</h1>
 
-        {{-- 🔹 OVERVIEW (no click, same as before) --}}
-        {{-- ===================== --}}
-        {{-- 🔹 TAB SIDEBAR --}}
-        {{-- ===================== --}}
-
-        <div class="course-layout">
-
-            {{-- ===================== --}}
-            {{-- 🔹 LEFT SIDEBAR --}}
-            {{-- ===================== --}}
-            <div class="sidebar">
-                <div class="chapter-hero" style="display: flex;background: #700002;gap: 30px;flex-direction: column;">
-                    <h1>{{ $chapter->name }}</h1>
-
-                    <!-- Progress Bar -->
-                    <div class="progress-container">
-                        <div class="progress-bar"></div>
-                        <span class="progress-text">0%</span>
-                    </div>
-                </div>
-
-
-                <div class="lessons-list scroll-pane">
-
-                    <button class="lesson-tab active" data-index="overview">
-                        <span class="tab-label">
-                            <img src="{{ asset('images/overview-icon.png') }}" class="tab-icon">
-                            Overview
-                        </span>
-                        <input type="checkbox" style="border:none;" checked disabled>
-                    </button>
-
-                    @foreach ($lessons as $i => $lesson)
-                        <button class="lesson-tab" data-index="{{ $i }}">
-                            <span class="tab-label"><img src="{{ asset('images/lesson-icon.png') }}"
-                                    class="tab-icon">{{ $lesson['lesson_name'] }}</span>
-                            <input type="checkbox" data-check="{{ $i }}">
-                        </button>
-                    @endforeach
-
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                    <span class="progress-text">0%</span>
                 </div>
             </div>
 
+            <div class="lessons-list scroll-pane">
+                <button class="lesson-tab active" data-index="overview">
+                    <span class="tab-label">
+                        <img src="{{ asset('images/overview-icon.png') }}" class="tab-icon">
+                        Overview
+                    </span>
+                    <input type="checkbox" checked disabled>
+                </button>
 
-            {{-- ===================== --}}
-            {{-- 🔹 RIGHT CONTENT --}}
-            {{-- ===================== --}}
-            <div class="lesson-contents scroll-pane">
-
-                {{-- 🔹 OVERVIEW --}}
-                <div class="lesson-section" id="lesson-overview" data-index="overview">
-
-                    <div class="overview">
-                        <h2
-                            style="background: #ffffff;padding: 55px;color: #700002;margin-top: 0;font-size: 40px;font-family: 'Lato', sans-serif;">
-                            Overview</h2>
-
-                        @foreach ($overview as $label => $items)
-                            <div class="overview-item">
-                                <div class="label">{{ $label }}</div>
-                                <div class="content">
-                                    <div class="grid">
-                                       @foreach ($items as $content)
-
-    @php
-        $extension = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
-
-        if ($extension === 'pdf') {
-            $icon = 'images/pdf_icon.png';
-        } elseif (in_array($extension, ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
-            $icon = 'images/image_icon.png';
-        } else {
-            $icon = 'images/file_icon.png'; // optional fallback
-        }
-    @endphp
-
-    <div class="card">
-        <div class="icon_chapter">
-            <img src="{{ asset($icon) }}" style="width:40px;height:auto;">
-            <h3>{{ $content['original_name'] }}</h3>
-        </div>
-        <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
-    </div>
-
-@endforeach
-
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="continue-wrap">
-                        <button class="btn continue-btn unlock-once" data-next="0">Start Lesson →</button>
-
-                    </div>
-                </div>
-
-
-                {{-- 🔹 LESSONS --}}
-                <hr>
                 @foreach ($lessons as $i => $lesson)
-                    <div class="lesson-section" id="lesson-{{ $i }}" data-index="{{ $i }}">
+                    <button class="lesson-tab" data-index="{{ $i }}">
+                        <span class="tab-label">
+                            <img src="{{ asset('images/lesson-icon.png') }}" class="tab-icon">
+                            {{ $lesson['lesson_name'] }}
+                        </span>
+                        <input type="checkbox" data-check="{{ $i }}">
+                    </button>
+                @endforeach
+            </div>
+        </div>
 
-                        <h2 class="lesson-title"
-                            style="background: #ffffff;padding: 60px;color: #700002;font-size: 40px;font-family: 'Lato', sans-serif;margin: 0;">
-                            {{ $lesson['lesson_name'] }}</h2>
+        {{-- 🔹 RIGHT CONTENT --}}
+        <div class="lesson-contents scroll-pane">
 
-                        @foreach ($lesson['contents'] as $type => $items)
-                            <h3
-                                style=" padding-left: 60px;padding-right: 60px;min-width: 180px;font-weight: bold;font-size: 16px;color: #700002;">
-                                {{ $type }}</h3>
+            {{-- 🔹 OVERVIEW --}}
+            <div class="lesson-section" id="lesson-overview" data-index="overview">
+                <div class="overview">
+                    <h2 style="background:#fff;padding:55px;color:#700002;font-size:40px;">Overview</h2>
+
+                    @foreach ($overview as $label => $items)
+                        <div class="overview-item">
+                            <div class="label">{{ $label }}</div>
+
                             <div class="grid">
                                 @foreach ($items as $content)
+                                    @php
+                                        $ext = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
+                                    @endphp
+
                                     <div class="card">
-                                        <h4>{{ $content['original_name'] }}</h4>
-                                        <a class="btn" href="{{ $content['url'] }}" target="_blank">View</a>
+
+                                        {{-- 🔥 SIRF IMAGE / PDF KE LIYE TITLE --}}
+                                        @if(!in_array($ext, ['mp4','webm','ogg']))
+                                            <h3>{{ $content['original_name'] }}</h3>
+                                        @endif
+
+                                        {{-- 🔥 VIDEO DIRECT SHOW (NO AUTOPLAY + NO TITLE) --}}
+                                        @if(in_array($ext, ['mp4','webm','ogg']))
+                                            <div class="inline-viewer">
+                                                <video 
+                                                    class="lesson-video" 
+                                                    controls 
+                                                    playsinline
+                                                    preload="none"
+                                                    controlsList="nodownload noremoteplayback"
+                                                    style="width:100%;max-height:300px;"
+                                                >
+                                                    <source src="{{ $content['url'] }}" type="video/mp4">
+                                                </video>
+                                            </div>
+                                        @else
+                                            {{-- 🔥 IMAGE / PDF --}}
+                                            <a class="btn open-inline" href="{{ $content['url'] }}">View</a>
+                                            <div class="inline-viewer" style="display:none;"></div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
-                        @endforeach
+                        </div>
+                    @endforeach
+                </div>
 
-                        @if (isset($lessons[$i + 1]))
-                            <div class="continue-wrap">
-                                <button class="btn continue-btn unlock-once" data-next="{{ $i + 1 }}">
-                                    Continue →
-                                </button>
-
-                            </div>
-                        @endif
-
-                    </div>
-                @endforeach
-
+                <div class="continue-wrap">
+                    <button class="btn unlock-once" data-next="0">Start Lesson →</button>
+                </div>
             </div>
+
+            {{-- 🔹 LESSONS --}}
+            @foreach ($lessons as $i => $lesson)
+                <div class="lesson-section" id="lesson-{{ $i }}" data-index="{{ $i }}">
+
+                    <h2 style="background:#fff;padding:60px;color:#700002;font-size:40px;">
+                        {{ $lesson['lesson_name'] }}
+                    </h2>
+
+                    @foreach ($lesson['contents'] as $type => $items)
+                        <h3 style="padding:0 60px;color:#700002;">{{ $type }}</h3>
+
+                        <div class="grid">
+                            @foreach ($items as $content)
+                                @php
+                                    $ext = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
+                                @endphp
+
+                                <div class="card">
+
+                                    {{-- 🔥 SIRF IMAGE / PDF KE LIYE TITLE --}}
+                                    @if(!in_array($ext, ['mp4','webm','ogg']))
+                                        <h4>{{ $content['original_name'] }}</h4>
+                                    @endif
+
+                                    {{-- 🔥 VIDEO DIRECT SHOW (NO AUTOPLAY + NO TITLE) --}}
+                                    @if(in_array($ext, ['mp4','webm','ogg']))
+                                        <div class="inline-viewer">
+                                            <video 
+                                                class="lesson-video" 
+                                                controls 
+                                                playsinline
+                                                preload="none"
+                                                controlsList="nodownload noremoteplayback"
+                                                style="width:100%;max-height:300px;"
+                                            >
+                                                <source src="{{ $content['url'] }}" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    @else
+                                        {{-- 🔥 IMAGE / PDF --}}
+                                        <a class="btn open-inline" href="{{ $content['url'] }}">View</a>
+                                        <div class="inline-viewer" style="display:none;"></div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
+
+                    @if (isset($lessons[$i + 1]))
+                        <div class="continue-wrap">
+                            <button class="btn unlock-once" data-next="{{ $i + 1 }}">Continue →</button>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
+    </div>
+</div>
 
 
+{{-- 🔹 FINAL SCRIPT --}}
+<script>
+    const tabs = document.querySelectorAll(".lesson-tab");
+    const checks = document.querySelectorAll("[data-check]");
+    const continueBtns = document.querySelectorAll(".unlock-once");
 
-        {{-- ===================== --}}
-        {{-- 🔹 SCRIPT --}}
-        {{-- ===================== --}}
+    let unlockedIndex = -1;
 
-        <script>
-            const contentPane = document.querySelector(".lesson-contents");
-            const tabs = document.querySelectorAll(".lesson-tab");
-            const checks = document.querySelectorAll("[data-check]");
-            const continueBtns = document.querySelectorAll(".unlock-once");
+    function render() {
+        const sections = document.querySelectorAll(".lesson-section");
 
-            let unlockedIndex = -1;
+        sections.forEach(sec => {
+            sec.style.display = "none";
+            const btn = sec.querySelector(".unlock-once");
+            if (btn) btn.style.display = "none";
+        });
 
-            /* ================= RENDER ================= */
-            function render() {
-                const sections = document.querySelectorAll(".lesson-section");
+        const overview = document.getElementById("lesson-overview");
+        overview.style.display = "block";
 
-                sections.forEach(sec => {
-                    sec.style.display = "none";
-                    const btn = sec.querySelector(".unlock-once");
-                    if (btn) btn.style.display = "none";
-                });
+        if (unlockedIndex === -1) {
+            const startBtn = overview.querySelector(".unlock-once");
+            if (startBtn) startBtn.style.display = "inline-flex";
+        }
 
-                const overview = document.getElementById("lesson-overview");
-                overview.style.display = "block";
+        for (let i = 0; i <= unlockedIndex; i++) {
+            const el = document.getElementById("lesson-" + i);
+            if (el) el.style.display = "block";
+        }
 
-                for (let i = 0; i <= unlockedIndex; i++) {
-                    const el = document.getElementById("lesson-" + i);
-                    if (el) el.style.display = "block";
-                }
-
-                checks.forEach(chk => {
-                    const i = parseInt(chk.dataset.check);
-                    chk.checked = i <= unlockedIndex;
-                });
-
-                if (unlockedIndex === -1) {
-                    const startBtn = overview.querySelector(".unlock-once");
-                    if (startBtn) startBtn.style.display = "inline-flex";
-                } else {
-                    const last = document.getElementById("lesson-" + unlockedIndex);
-                    const btn = last?.querySelector(".unlock-once");
-                    if (btn) btn.style.display = "inline-flex";
-                }
-                updateProgress();
+        if (unlockedIndex >= 0) {
+            const lastLesson = document.getElementById("lesson-" + unlockedIndex);
+            if (lastLesson) {
+                const btn = lastLesson.querySelector(".unlock-once");
+                if (btn) btn.style.display = "inline-flex";
             }
+        }
 
-            function updateProgress() {
-                const totalLessons = tabs.length - 1; // minus overview
-                const percent = totalLessons > 0 ? Math.round((unlockedIndex + 1) / totalLessons * 100) : 0;
+        checks.forEach(chk => {
+            const i = parseInt(chk.dataset.check);
+            chk.checked = i <= unlockedIndex;
+        });
 
-                const bar = document.querySelector(".progress-bar");
-                const text = document.querySelector(".progress-text");
+        updateProgress();
+    }
 
-                if (bar) bar.style.width = percent + "%";
-                if (text) text.textContent = percent + "%";
-            }
+    function updateProgress() {
+        const totalLessons = tabs.length - 1;
+        const percent = totalLessons > 0
+            ? Math.round((unlockedIndex + 1) / totalLessons * 100)
+            : 0;
 
+        document.querySelector(".progress-bar").style.width = percent + "%";
+        document.querySelector(".progress-text").textContent = percent + "%";
+    }
 
-            /* ================= SCROLL (FIXED) ================= */
-            function scrollToIndex(index) {
-                const target = document.querySelector(
-                    `.lesson-section[data-index="${index}"]`
-                );
-
-                if (!target) return;
-
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            }
-
-
-            /* ================= LEFT TABS ================= */
-            tabs.forEach(tab => {
-                tab.addEventListener("click", e => {
-                    if (e.target.tagName === "INPUT") return;
-
-                    const index = tab.dataset.index;
-
-                    tabs.forEach(t => t.classList.remove("active"));
-                    tab.classList.add("active");
-
-                    scrollToIndex(index);
-                });
-            });
-
-            /* ================= CHECKBOXES ================= */
-            checks.forEach(chk => {
-                chk.addEventListener("click", e => {
-                    e.stopPropagation();
-
-                    const i = parseInt(chk.dataset.check);
-
-                    if (chk.checked) {
-                        unlockedIndex = Math.max(unlockedIndex, i);
-                    } else {
-                        unlockedIndex = i - 1;
-                    }
-
-                    render();
-                    scrollToIndex(unlockedIndex >= 0 ? unlockedIndex : "overview");
-                });
-            });
-
-            /* ================= CONTINUE ================= */
-            continueBtns.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const next = parseInt(btn.dataset.next);
-
-                    unlockedIndex = next;
-
-                    render();
-                    scrollToIndex(next);
-
-                    const tab = document.querySelector(`[data-index="${next}"]`);
-                    if (tab) {
-                        tabs.forEach(t => t.classList.remove("active"));
-                        tab.classList.add("active");
-                    }
-                });
-            });
-
-            /* ================= INIT ================= */
+    /* ================= CONTINUE BUTTON ================= */
+    continueBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const next = parseInt(btn.dataset.next);
+            unlockedIndex = next;
             render();
-        </script>
+        });
+    });
 
+    /* 🔥 IMAGE / PDF INLINE OPEN (VIDEO KO HIDE NAHI KAREGA) */
+    document.querySelectorAll(".open-inline").forEach(link => {
+        link.addEventListener("click", function(e) {
+            e.preventDefault();
 
+            const url = this.getAttribute("href");
+            const viewer = this.nextElementSibling;
+            const ext = url.split('.').pop().toLowerCase();
 
+            // 🔥 sirf isi card ka viewer toggle karo (baaki ko mat chhedo)
+            if (viewer.style.display === "block") {
+                viewer.style.display = "none";
+                viewer.innerHTML = "";
+                return;
+            }
+
+            if (ext === "pdf") {
+                viewer.innerHTML = `
+                    <iframe src="${url}"
+                        style="width:100%;height:400px;border:1px solid #700002;border-radius:8px;">
+                    </iframe>
+                `;
+            } else {
+                viewer.innerHTML = `
+                    <img src="${url}"
+                        style="max-width:100%;max-height:400px;border-radius:8px;">
+                `;
+            }
+
+            viewer.style.display = "block";
+            viewer.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    });
+
+    /* 🔥 VIDEO FIX (NO AUTOPLAY + EK TIME PE EK VIDEO) */
+    document.querySelectorAll(".lesson-video").forEach(video => {
+        video.autoplay = false;
+
+        video.addEventListener("play", () => {
+            document.querySelectorAll("video").forEach(v => {
+                if (v !== video) v.pause();
+            });
+        });
+    });
+
+    render();
+</script>
 
 
 
