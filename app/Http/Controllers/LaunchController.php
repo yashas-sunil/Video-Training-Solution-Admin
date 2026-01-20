@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\ScormPackage;
 use App\Assignedcourse;
+use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -20,22 +21,36 @@ public function launch(Request $request)
         !$request->email ||
         !$request->timestamp
     ) {
-        abort(403, 'Invalid launch request');
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid launch request'
+        ], 403);
     }
 
     try {
-        if (Carbon::createFromTimestamp($request->timestamp)
-            ->addMinutes(10)
-            ->isPast()) {
-            abort(403, 'Launch link expired');
+        if (
+            \Carbon\Carbon::createFromTimestamp($request->timestamp)
+                ->addMinutes(10)
+                ->isPast()
+        ) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Launch link expired'
+            ], 403);
         }
     } catch (\Exception $e) {
-        abort(403, 'Invalid timestamp');
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid timestamp'
+        ], 403);
     }
 
     $token = $request->bearerToken();
     if (!$token) {
-        abort(403, 'Authorization token missing');
+        return response()->json([
+            'status' => false,
+            'message' => 'Authorization token missing'
+        ], 403);
     }
 
     $user = User::where('student_uid', $request->student_id)
@@ -45,7 +60,10 @@ public function launch(Request $request)
         ->first();
 
     if (!$user) {
-        abort(403, 'Invalid student or token');
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid student or token'
+        ], 403);
     }
 
     $courseName = str_replace('-', ' ', $request->course_id);
@@ -56,7 +74,10 @@ public function launch(Request $request)
     )->first();
 
     if (!$scormCourse) {
-        abort(404, 'SCORM course not found');
+        return response()->json([
+            'status' => false,
+            'message' => 'SCORM course not found'
+        ], 404);
     }
 
     $assignedCourse = AssignedCourse::where('user_id', $user->id)
@@ -65,12 +86,35 @@ public function launch(Request $request)
         ->first();
 
     if (!$assignedCourse) {
-        abort(403, 'Course not assigned or expired');
+        return response()->json([
+            'status' => false,
+            'message' => 'Course not assigned or expired'
+        ], 403);
+    }
+
+    $chapter = Chapter::where('course_id', $scormCourse->id)
+        ->orderBy('id', 'asc')   
+        ->first();
+
+    if (!$chapter) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No chapter found for this course'
+        ], 404);
     }
 
     Auth::login($user);
 
-    return redirect('/view/' . $scormCourse->id);
+    // Example: http://127.0.0.1:8000/view/chapter/38
+$viewUrl = url('/auto-login/chapter/' . $chapter->id . '?uid=' . $user->id . '&token=' . $token);
+
+    return response()->json([
+        'status'    => true,
+        'message'   => 'Launch successful',
+        // 'course_id' => $scormCourse->id,
+        // 'chapter_id'=> $chapter->id,
+        'view_url'  => $viewUrl
+    ]);
 }
 
 
