@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use ZipArchive;
 use App\CourseView;
+use App\Models\User;
 use App\Models\Lesson;
 use App\CourseProgress;
 use App\Models\Chapter;
-use App\Models\ChapterManualContent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
-use Illuminate\Support\Facades\DB; 
 use App\Services\ScormCloudService;
+use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Facades\Log;
+use App\Models\ChapterManualContent;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use App\ScormPackage as AppScormPackage;
@@ -710,5 +712,27 @@ public function getChapters($courseId)
     return view('chapters.list', compact('chapters', 'courseId'));
 }
 
+public function autoLoginChapter(Request $request, $chapterId)
+{
+    $uid   = $request->uid;
+    $token = $request->token;
+
+    if (!$uid || !$token) {
+        abort(403, 'Unauthorized access');
+    }
+
+    // user verify
+    $user = User::where('id', $uid)
+        ->where('api_token', $token)
+        ->first();
+
+    if (!$user) {
+        abort(403, 'Invalid user or token');
+    }
+
+    Auth::login($user);
+
+    return redirect()->route('chapter.view', ['chapter' => $chapterId]);
+}
 
 }
