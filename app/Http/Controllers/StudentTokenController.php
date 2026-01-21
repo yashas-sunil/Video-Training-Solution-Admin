@@ -17,7 +17,7 @@ class StudentTokenController extends Controller
         'phone'      => 'required'
     ]);
 
-    $user = User::where('id', $request->student_id)->first();
+    $user = User::where('student_uid', $request->student_id)->first();
 
     if (!$user) {
         return response()->json([
