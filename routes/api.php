@@ -18,5 +18,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
     Route::post('get-chapterBy-subject', 'SubjectController@getChapterBySubjectId');
-Route::post('/v1/student/register','StudentRegisterController@register');
-Route::post('/save-user-answers', 'FiltertQuestionController@store')->name('course.progress.save');
+    Route::post('/v1/student/register','StudentRegisterController@register');
+    Route::post('/save-user-answers', 'FiltertQuestionController@store')->name('course.progress.save');
+    Route::post('/launch', 'LaunchController@launch');
+    Route::post('/v1/student/token', 'StudentTokenController@generate');
+
