@@ -106,13 +106,13 @@ public function launch(Request $request)
     Auth::login($user);
 
     // Example: http://127.0.0.1:8000/view/chapter/38
-$viewUrl = url('/auto-login/chapter/' . $chapter->id . '?uid=' . $user->id . '&token=' . $token);
+    $viewUrl = url('/auto-login/course/' . $scormCourse->id . '?uid=' . $user->id . '&token=' . $token);
 
     return response()->json([
         'status'    => true,
         'message'   => 'Launch successful',
-        // 'course_id' => $scormCourse->id,
-        // 'chapter_id'=> $chapter->id,
+         'course_id' => $scormCourse->id,
+        'chapter_id'=> $chapter->id,
         'view_url'  => $viewUrl
     ]);
 }
