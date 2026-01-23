@@ -599,7 +599,8 @@ Route::get('/course/{course}/chapters', 'ScormController@getChapters')
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
     ->name('chapter.view');
 
-Route::get('/auto-login/chapter/{chapter}', 'ScormController@autoLoginChapter');
+Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
+
 
 Route::get('/test-token', function () {
 

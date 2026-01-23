@@ -712,7 +712,7 @@ public function getChapters($courseId)
     return view('chapters.list', compact('chapters', 'courseId'));
 }
 
-public function autoLoginChapter(Request $request, $chapterId)
+public function autoLoginChapter(Request $request, $courseId)
 {
     $uid   = $request->uid;
     $token = $request->token;
@@ -732,7 +732,8 @@ public function autoLoginChapter(Request $request, $chapterId)
 
     Auth::login($user);
 
-    return redirect()->route('chapter.view', ['chapter' => $chapterId]);
+    // direct chapters page par redirect
+    return redirect('/course/' . $courseId . '/chapters');
 }
 
 }
