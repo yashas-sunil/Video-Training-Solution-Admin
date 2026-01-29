@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Question;
+use App\QuestionBank;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreQuestionBankRequest;
 
 class QuestionBankController extends Controller
 {
@@ -69,51 +73,102 @@ class QuestionBankController extends Controller
        
     }
 
-    public function store(StoreQuestionBankRequest $request)
-    {
-        try {
-            ini_set('max_execution_time', '3000'); 
-            if(!isset($request->championship)) //if championship directly store request data to validated
-            { 
-                $validated= $request->validated();
-            }
-            else
-            {
-                $validated=$request->all();
-            }
+   public function store(StoreQuestionBankRequest $request)
+{
+    Log::info('QB STEP 1: QuestionBankController@store HIT');
+    Log::info('QB STEP 1.1: Raw Request Data', $request->all());
+    Log::info('QB STEP 1.2: Request Files', $request->files->all());
 
-            $result=$this->questionBank->uploadQuestionBank($validated,$header='',$folder='');
-         
-            $success='';
-            if(isset($result['success_message']) && isset($request->championship)) //if no error occurs, dosen't matter if championship created or not will be notified via mail
-            {
-                $success.="Please wait your question Bank is uploading and championship is being created. Please check your email for question bank upload and championship creation status";
-                return $success;
-            }
+    try {
+        ini_set('max_execution_time', '3000');
+        Log::info('QB STEP 2: max_execution_time set');
 
-            if(isset($result['error_message']) && isset($request->championship)) //if any error occurs show error (eg. subjective pdf not uploaded)
-            {
-                $success.=$result['error_message'];
-                return $success;
-            }
+        // ===== VALIDATION PART =====
+        if (!isset($request->championship)) {
+            Log::info('QB STEP 3: championship NOT set → running validated()');
 
-            if(isset($result['success_message']))
-            {
-               $success.= $result['success_message'];
-            }
+            $validated = $request->validated();
 
-            if(isset($result['error_message']))
-            {
-                $success.=$result['error_message'];
-            }
-            return redirect()->route('question-bank.index')->with('success',$success);
-    //  print_r($result);
-        } catch (\Throwable $th) {
-            // dd($th);
-            return redirect()->back()->with('error',$th->getMessage());
+            Log::info('QB STEP 3.1: validation PASSED', $validated);
+        } else {
+            Log::info('QB STEP 3: championship SET → using full request');
+            $validated = $request->all();
         }
-       
+
+        // ===== BEFORE UPLOAD =====
+        Log::info('QB STEP 4: Before uploadQuestionBank()', [
+            'validated_keys' => array_keys($validated),
+            'has_file' => isset($validated['file']) || isset($validated['fileupload']),
+        ]);
+
+        $result = $this->questionBank->uploadQuestionBank(
+            $validated,
+            $header = '',
+            $folder = ''
+        );
+
+        Log::info('QB STEP 5: uploadQuestionBank() RETURNED', $result);
+
+        $success = '';
+
+        // ===== CHAMPIONSHIP FLOW =====
+        if (isset($result['success_message']) && isset($request->championship)) {
+            Log::info('QB STEP 6: championship success flow');
+
+            $success .= "Please wait your question Bank is uploading and championship is being created. Please check your email for question bank upload and championship creation status";
+            return $success;
+        }
+
+        if (isset($result['error_message']) && isset($request->championship)) {
+            Log::error('QB STEP 6.1: championship error flow', [
+                'error' => $result['error_message']
+            ]);
+
+            $success .= $result['error_message'];
+            return $success;
+        }
+
+        // ===== NORMAL FLOW =====
+        if (isset($result['success_message'])) {
+            Log::info('QB STEP 7: success_message found', [
+                'message' => $result['success_message']
+            ]);
+
+            $success .= $result['success_message'];
+        }
+
+        if (isset($result['error_message'])) {
+            Log::error('QB STEP 7.1: error_message found', [
+                'message' => $result['error_message']
+            ]);
+
+            $success .= $result['error_message'];
+        }
+
+        Log::info('QB STEP 8: BEFORE FINAL REDIRECT', [
+            'final_message' => $success
+        ]);
+
+        return redirect()
+            ->route('question.bank')
+            ->with('success', $success);
+
+    } catch (\Throwable $th) {
+        // dd($th);
+
+        Log::error('QB STEP 9: EXCEPTION CAUGHT', [
+            'message' => $th->getMessage(),
+            'file' => $th->getFile(),
+            'line' => $th->getLine(),
+            'trace' => $th->getTraceAsString(),
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('error', $th->getMessage());
     }
+}
+
     /**
      * Display the specified resource.
      *
