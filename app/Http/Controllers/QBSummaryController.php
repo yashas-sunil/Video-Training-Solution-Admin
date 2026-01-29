@@ -152,7 +152,7 @@ class QBSummaryController extends Controller
 
         return redirect()->route('question.bank')->with('success',"Question Bank & Summary Upload Successfully.");
         } catch (\Throwable $th) {
-            dd($th);
+            // dd($th);
         }
     }
 }

@@ -144,7 +144,7 @@ class QuestionBank extends Model
                     try{
                     $will =    QuestionBankUpload::dispatch($readexcel, $qbid, $input_array, $storage, $storage_folder_Path, $storage_dummy_folder_Path, $type, $storage_dummy_folder_name, $insert_qb, $updated_by, $mailemail, $history_id,$championship_data);       
                     } catch (\Exception $e) {
-                        dd($e);
+                        // dd($e);
                         Log::info("Qb Upload Dispatch Issue" . $e->getMessage());
                     }           
                     //  $will=    QuestionBankUpload::dispatch($readexcel,$qbid,$input_array,$storage,$storage_folder_Path,$storage_dummy_folder_Path,$type,$storage_dummy_folder_name,$insert_qb,$updated_by,$mailemail,$history_id);
