@@ -37,6 +37,21 @@ Route::get('/register', function () {
     return redirect()->route('login');
 });
 
+Route::get('/secure-pdf/{file}', function ($file) {
+
+    $path = public_path('uploads/manual_uploads/58/chapter_level/glossary/' . $file);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline',
+        'Accept-Ranges' => 'bytes',
+    ]);
+});
+
 
 
 Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
@@ -666,8 +681,9 @@ Route::resource('assigned-courses', 'AssignedCourseController');
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
 Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
 
-Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create');
- Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store');
+Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
+ Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
+Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
 
 
 

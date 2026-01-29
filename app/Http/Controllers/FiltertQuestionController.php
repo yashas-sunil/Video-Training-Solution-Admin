@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Models\Quiz\Question;
+use App\Models\Quiz\UserAnswers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -292,6 +293,60 @@ public function modePage($id)
 {
     return view('coursemode', ['courseId' => $id]);
 }
+
+public function store(Request $request)
+{
+    $userId = auth()->id();
+
+    foreach ($request->data as $item) {
+
+        $question = Question::findOrFail($item['question_id']);
+
+        $correctAnswerId = $question->correct_answers_id;
+        $isCorrect = ($item['answers_id'] == $correctAnswerId);
+
+        UserAnswers::create([
+
+            'user_id' => $userId,
+            'question_id' => $item['question_id'],
+            'answers_id' => $item['answers_id'],
+            'correct_answers_id' => $correctAnswerId,
+
+            'is_correct' => $isCorrect,
+            'marks' => $isCorrect ? 1 : 0,
+            'negative_marks' => $isCorrect ? 0 : 0,
+            'message' => $isCorrect ? 'Correct Answer' : 'Wrong Answer',
+
+            'time_taken' => $item['time_taken'] ?? 0,
+            'user_question_status' => $item['user_question_status'],
+            'is_cumulative_question' => $item['is_cumulative_question'] ?? false,
+
+            'chapters_questions_id' => null,
+            'submitted_quiz_id' => null,
+            'submitted_objective_id' => null,
+            'submitted_block_id' => null,
+            'submitted_championship_id' => null,
+            'submitted_tournament_id' => null,
+            'user_test_id' => null,
+            'user_question_id' => null,
+            'option_id' => null,
+
+            'esec' => null,
+            'rsec' => null,
+            'mil' => null,
+            'status' => 1,
+
+            'created_by' => $userId,
+            'updated_by' => $userId,
+        ]);
+    }
+
+    return response()->json([
+        'status' => true,
+        'message' => 'User answers saved successfully'
+    ]);
+}
+
 
 
 }
