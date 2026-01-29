@@ -394,13 +394,13 @@
                 </div>
             </div>
             <div class="Exam-setup">
-                <button class="tab-btn " onclick="openTab('examTab')"><img src="{{ asset('images/user-test.png') }}"
+                <button class="tab-btn active" onclick="openTab('examTab')"><img src="{{ asset('images/user-test.png') }}"
                         alt="User-test"style="width: 20px;height: 20px;margin-right: 5px;"> Eduedge Created
                     Questions</button>
-                <button class="tab-btn active" onclick="openTab('questionTab')"><img
+                {{-- <button class="tab-btn active" onclick="openTab('questionTab')"><img
                         src="{{ asset('images/create-test.png') }}"
                         alt="create-test"style="width: 20px;height: 20px;margin-right: 5px;">Create User
-                    Questions</button>
+                    Questions</button> --}}
             </div>
 
 
@@ -413,7 +413,7 @@
         <div class="container" style="margin-top: 0px;">
 
             <!-- ================= TAB 1 : EXAM ================= -->
-            <div id="examTab" class="tab-content" style="display:none;">
+            <div id="examTab" class="tab-content active">
                 <!-- ORIGINAL EXAM FILTER & BOX HERE -->
                 {{-- <h2>🎯 Question Filter</h2> --}}
 
@@ -422,7 +422,7 @@
                     <div class="row">
                         <div class="col">
                             <label>Subject</label>
-                            <select id="subject_id">
+                            <select id="subject_id" required>
                                 <option value="">Select</option>
                                 @foreach ($subjects as $s)
                                     <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -432,7 +432,7 @@
 
                         <div class="col">
                             <label>Chapter</label>
-                            <select id="chapter_id">
+                            <select id="chapter_id" required>
                                 <option value="">Select</option>
                             </select>
                         </div>
@@ -448,7 +448,7 @@
                     <div class="row">
                         <div class="col">
                             <label>Difficult Level</label>
-                            <select id="difficult_level_id">
+                            <select id="difficult_level_id" required>
                                 <option value="">Select</option>
                                 @foreach ($levels as $lvl)
                                     <option value="{{ $lvl->id }}">{{ $lvl->name }}</option>
@@ -478,9 +478,9 @@
             </div>
 
             <!-- ================= TAB 2 : QUESTIONS (DUMMY) ================= -->
-            <div id="questionTab" class="tab-content active">
+            <div id="questionTab" class="tab-content">
 
-                <div class="filter-card">
+                {{-- <div class="filter-card">
 
                     <!-- header row -->
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -513,7 +513,7 @@
                     </ </div>
 
 
-                </div>
+                </div> --}}
                 <script>
                     let allQ = [];
                     let qIndex = 0;
