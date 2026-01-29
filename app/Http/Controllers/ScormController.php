@@ -562,7 +562,7 @@ if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
                 return [
                     'id' => $content->id,
                     'label' => $content->content_type,
-                    'url' => asset($content->file_path),
+                   'url' => url($content->file_path),
                     'original_name' => $content->original_name ?? basename($content->file_path),
                     'size' => $content->file_size,
                 ];
@@ -586,7 +586,8 @@ if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
                         return $items->map(function ($content) {
                             return [
                                 'id' => $content->id,
-                                'url' => asset($content->file_path),
+                                'url' => url($content->file_path),
+
                                 'original_name' => $content->original_name ?? basename($content->file_path),
                                 'size' => $content->file_size,
                             ];

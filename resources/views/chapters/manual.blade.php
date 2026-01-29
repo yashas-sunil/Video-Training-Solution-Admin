@@ -9,6 +9,17 @@
     <title>{{ $chapter->name }} - Manual Content</title>
 
  <style>
+
+    #toolbarContainer,
+    #secondaryToolbar,
+    #sidebarContainer {
+        display: none !important;
+    }
+
+    #viewerContainer {
+        top: 0 !important;
+    }
+
     body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -522,23 +533,57 @@ continueBtns.forEach(btn=>{
     });
 });
 
+//  OPEN INLINE FILE HANDLER (PDF + IMAGE)
 document.querySelectorAll(".open-inline").forEach(btn=>{
     btn.addEventListener("click",function(){
-        const url=this.dataset.url;
-        const viewer=this.nextElementSibling;
-        const ext=url.split('.').pop().toLowerCase();
+        const url = this.dataset.url;      // FULL URL from controller
+        const viewer = this.nextElementSibling;
+        const ext = url.split('.').pop().toLowerCase();
 
+        // toggle close
         if(viewer.classList.contains("show")){
             viewer.classList.remove("show");
             viewer.innerHTML="";
             return;
         }
 
-        // 🔥 ONLY DOWNLOAD ICON HIDE — BAQI SAB SAME
-        if(ext==="pdf"){
-            viewer.innerHTML = `<iframe src="${url}#toolbar=0" style="width:100%; height:70vh; border:none;"></iframe>`;
-        }else{
-            viewer.innerHTML = `<img src="${url}">`;
+        if(ext === "pdf"){
+
+            console.log(`${url}`);
+            
+            viewer.innerHTML = `
+            <iframe 
+                src="/pdfjs/web/viewer.html?file={{ urlencode(`$(url)`) }}#toolbar=0&navpanes=0&scrollbar=0"
+                style="width:100%; height:70vh; border:none;">
+                </iframe>
+            `;
+
+            // 🔒 Hide PDF buttons dynamically for Firefox + Chrome
+            const iframe = viewer.querySelector('iframe');
+            iframe.addEventListener('load', function(){
+                try {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    function hidePdfButtons() {
+                        const ids = ["downloadButton","print","secondaryToolbar"];
+                        ids.forEach(id=>{
+                            const el = doc.getElementById(id);
+                            if(el) el.style.display="none";
+                        });
+                    }
+                    hidePdfButtons();
+                    // Observer for dynamic buttons (PDF.js adds later)
+                    const observer = new MutationObserver(hidePdfButtons);
+                    observer.observe(doc.body, {childList:true, subtree:true});
+                } catch(e){
+                    console.warn("PDF toolbar hide failed:", e);
+                }
+            });
+
+        } else {
+            // IMAGE
+            viewer.innerHTML = `
+              <img src="${url}" style="width:100%; height:70vh; object-fit:contain;">
+            `;
         }
 
         viewer.classList.add("show");
@@ -557,6 +602,8 @@ document.querySelectorAll(".lesson-video").forEach(video=>{
 
 render();
 </script>
+
+
 
 
 

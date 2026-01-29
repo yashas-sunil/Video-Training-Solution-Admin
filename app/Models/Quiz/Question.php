@@ -24,6 +24,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 // use Illuminate\Support\Facades\Redirect;
 // use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -283,4 +284,125 @@ class Question extends Model
     {
         return $this->hasMany(UserAnswers::class, 'question_id');
     }
+
+      public function search_max_question_number()
+    {
+        return $result = Question::max('question_number');
+    }
+    public function search_max_question_id()
+    {
+        return $result = Question::max('id');
+    }
+    public function bulkQuestionUpload($insert_data)
+    {
+
+        return $result = Question::insert($insert_data);
+    }
+    public function getQuestionId($qb_id)
+    {
+
+        return Question::where('question_banks_id', $qb_id)->select('id')->get()->toArray();
+    }
+    
+     public function fetchQuestionsByQuestionBankId($questionBank)
+    {
+        $questionList = Question::with(
+            'course',
+            'level',
+            'subject',
+            'topicQuestion',
+            'chapter',
+            'summary',
+            'concept',
+            'solution.solutionImages',
+            'difficultLevel',
+            'author',
+            'reviewer',
+            'answerType',
+            'questionType',
+            'createdBy',
+            'updatedBy'
+        )
+            ->where('question_banks_id', $questionBank->id)->get();
+
+        // dd($questionList);
+        $answer = new Answer();
+
+        if (!empty($questionList)) {
+            $question = array();
+            $i = 1;
+            foreach ($questionList as $results) {
+
+                $temp = array();
+                $temp['srno'] = $i;
+                $temp['id'] = $results->id;
+                $temp['question_number'] = $results->question_number;
+                $temp['course_name'] = $results->course->name;
+                $temp['level_name'] = $results->level->name;
+                $temp['subject_name'] = $results->subject->name;
+                $temp['chapter_name'] = $results->chapter->name;
+                $temp['question'] =   !empty($results->question) ? $results->question : '-';
+                $temp['summary_name'] =   !empty($results->summary->name) ? $results->summary->name : '-';
+                $content_array = [];
+                foreach ($results->topicQuestion as $content_val) {
+                    foreach ($content_val->content as $content_name) {
+                        $content_array[] = $content_name->name;
+                    }
+                }
+
+                $temp['content_name'] = $content_array ?? null;
+                $temp['importance'] = $results->importance;
+                $temp['source'] = $results->source;
+                $temp['solution_name'] =   !empty($results->solution->name) ? $results->solution->name : '-';
+                $temp['solution_id'] =  !empty($results->solution->id) ? $results->solution->id : 0;
+                $temp['solution_image'] =   !empty($results->solution->name) ? $results->solution->name : '-';
+                $concept_array = [];
+                $concept_note_array = [];
+                foreach ($results->concept as $concept_val) {
+                    $concept_array[] = $concept_val->audio->flash_card_name;
+                    $concept_note_array[] = $concept_val->audio->audio_content;
+                }
+
+                $temp['concept_name'] = $concept_array ?? null;
+                $temp['concept_note'] = $concept_note_array ?? null;
+                $temp['question_type'] =   $results->questionType->name;
+                // $temp['solution_image'] =   !empty($results->solution->name) ? $results->solution->name : '-';
+
+
+
+                $temp['question_banks_id'] = $results->question_banks_id;
+                $temp['difficult_level'] = $results->difficultLevel->value;
+                // $temp['questions'] = $answer->storagePath($results->question,$questionBank->id);
+                // $src = asset('/storage/question/' . $questionBank->id . '/' . $results->id);
+                // $temp['question']=   !empty($results->question)?
+                // "<a href='".$src."' class='questionimg'
+                // data-toggle='tooltip' title='".$results->question."'
+                // >". $results->question."</a>":'-';
+
+                // $temp['language'] = $results->language->name;
+                $temp['tags'] = $results->tags;
+                // $temp['location'] = $results->location->name;
+                $temp['reviewer'] = $results->reviewer->name;
+                $temp['author'] = $results->author->name;
+
+                $topic_array = [];
+                foreach ($results->topicQuestion as $topic_val) {
+                    foreach ($topic_val->topic as $topic_name) {
+                        $topic_array[] = $topic_name->name;
+                    }
+                }
+                $temp['topic_name'] = $topic_array;
+                // $temp['sub_topic_name'] = $results->subTopic->name;
+
+                $temp['status'] = $results->status;
+                $temp['created_at'] = $results->created_at;
+                $temp['created_by'] = $results->createdBy->name;
+                $question[] = (object)$temp;
+                $i++;
+            }
+
+            return $question;
+        }
+    }
+        
 }

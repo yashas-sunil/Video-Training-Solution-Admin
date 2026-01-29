@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Models;
-use App\ScormPackage as AppScormPackage;
+use App\Summary;
+use App\Question;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Model;
+use App\ScormPackage as AppScormPackage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Chapter extends Model
@@ -90,5 +92,45 @@ class Chapter extends Model
                 
                 return false;
             }
+    }
+      public static function findMaxChapterQuestionId($chapterId)
+    {
+        return Question::where('chapter_id', $chapterId)
+            ->whereNull('deleted_at')
+            ->max('question_number') ?? 0;
+    }
+      public function chapterByName($subject,$chapter) 
+    {
+        $chapterValue = Chapter::whereHas('subject',function($q) use ($subject){
+                            $q->where('name', $subject);
+                            $q->where('status', Subject::ACTIVE);
+                        })
+                        ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower (str_replace(' ', '', $chapter))])
+                        ->where('status', Chapter::ACTIVE)
+                        ->first();
+
+        if(!empty($chapterValue->id)) 
+        {
+            return $chapterValue->id;
+        } 
+        else 
+        {
+        	return 0;
+        }
+    }
+      public function summaryByChapterId($chapter_id) 
+    {
+        $summary_id = Summary::where('chapters_id', $chapter_id)
+                              ->where('status', Summary::ACTIVE)
+                              ->value('id');
+
+        if(isset($summary_id))
+        {
+            return $summary_id;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }

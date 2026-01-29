@@ -14,7 +14,7 @@ class StoreQuestionBankRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +28,7 @@ class StoreQuestionBankRequest extends FormRequest
         if($request->category==1)
         {
         return [
-            'name'=>'required|unique:question_banks',
+            'name'=>'required',
             'fileupload'=>'required|max:90000',
             // 'languages_id'=>'required|integer',
             'category'=>'required|integer',
