@@ -1248,7 +1248,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                 $counter++;
             }
         } catch (\Exception $e) {
-            dd($e);
+            // dd($e);
             Log::info("Qb Upload Issue" . $e->getMessage());
         }
 
@@ -1303,7 +1303,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                     $readexcel['obj_PhpOffice']->getActiveSheet()->getColumnDimension($columns_loop["2"])->setAutoSize(true);
                 }
             } catch (\Throwable $th) {
-                dd($th);
+                // dd($th);
                 Log::info("Columns Error" . $th->getMessage());
             }
 
@@ -1414,7 +1414,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
         Log::info('QB DEBUG: ALL BULK INSERTS COMMITTED SUCCESSFULLY');
 
     } catch (\Throwable $e) {
-        dd($e);
+        // dd($e);
 
         DB::rollBack();
 

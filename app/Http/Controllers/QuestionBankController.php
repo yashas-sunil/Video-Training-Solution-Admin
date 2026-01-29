@@ -154,7 +154,7 @@ class QuestionBankController extends Controller
             ->with('success', $success);
 
     } catch (\Throwable $th) {
-        dd($th);
+        // dd($th);
 
         Log::error('QB STEP 9: EXCEPTION CAUGHT', [
             'message' => $th->getMessage(),
