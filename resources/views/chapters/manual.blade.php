@@ -317,6 +317,11 @@
 .video-name {
     display: none !important;
 }
+
+/* ✅ sidebar button pe click always work (checkbox click steal na kare) */
+.lessons-list button input {
+    pointer-events: none;
+}
 </style>
 
 
@@ -462,13 +467,40 @@ $ext = strtolower(pathinfo($content['url'], PATHINFO_EXTENSION));
 </div>
 </div>
 
-
 <script>
 const tabs = document.querySelectorAll(".lesson-tab");
 const checks = document.querySelectorAll("[data-check]");
 const continueBtns = document.querySelectorAll(".unlock-once");
 
 let unlockedIndex = -1;
+
+function setActiveTab(targetIndex){
+    tabs.forEach(t => t.classList.remove("active"));
+    const btn = document.querySelector(`.lesson-tab[data-index="${targetIndex}"]`);
+    if(btn) btn.classList.add("active");
+}
+
+function scrollToSection(targetIndex){
+    let sectionId =
+        targetIndex === "overview"
+            ? "lesson-overview"
+            : "lesson-" + targetIndex;
+
+    const section = document.getElementById(sectionId);
+    if(!section) return;
+
+    const y =
+        section.getBoundingClientRect().top +
+        window.pageYOffset -
+        20;
+
+    window.scrollTo({
+        top: y,
+        behavior: "smooth"
+    });
+
+    setActiveTab(targetIndex);
+}
 
 function render(){
     const sections = document.querySelectorAll(".lesson-section");
@@ -509,16 +541,50 @@ function render(){
 
 function updateProgress(){
     const total=tabs.length-1;
-    const percent=total>0?Math.round((unlockedIndex+1)/total*100):0;
+    const percent=total>0
+        ? Math.round((unlockedIndex+1)/total*100)
+        : 0;
+
     document.querySelector(".progress-bar").style.width=percent+"%";
     document.querySelector(".progress-text").textContent=percent+"%";
 }
 
 continueBtns.forEach(btn=>{
-    btn.addEventListener("click",()=>{
+    btn.addEventListener("click",(e)=>{
+        e.preventDefault();
+
         const next=parseInt(btn.dataset.next);
         unlockedIndex=next;
+
         render();
+
+        setTimeout(()=>{
+            scrollToSection(next);
+        },150);
+    });
+});
+
+tabs.forEach(tab=>{
+    tab.addEventListener("click",(e)=>{
+        e.preventDefault();
+
+        const idx=tab.dataset.index;
+
+        if(idx==="overview"){
+            render();
+            setTimeout(()=>{
+                scrollToSection("overview");
+            },100);
+            return;
+        }
+
+        const lessonIndex=parseInt(idx);
+        if(lessonIndex>unlockedIndex) return;
+
+        render();
+        setTimeout(()=>{
+            scrollToSection(idx);
+        },100);
     });
 });
 
@@ -534,9 +600,10 @@ document.querySelectorAll(".open-inline").forEach(btn=>{
             return;
         }
 
-        // 🔥 ONLY DOWNLOAD ICON HIDE — BAQI SAB SAME
         if(ext==="pdf"){
-            viewer.innerHTML = `<iframe src="${url}#toolbar=0" style="width:100%; height:70vh; border:none;"></iframe>`;
+            viewer.innerHTML =
+                `<iframe src="${url}#toolbar=0"
+                style="width:100%; height:70vh; border:none;"></iframe>`;
         }else{
             viewer.innerHTML = `<img src="${url}">`;
         }
@@ -556,12 +623,8 @@ document.querySelectorAll(".lesson-video").forEach(video=>{
 });
 
 render();
+setActiveTab("overview");
 </script>
-
-
-
-
-
 </body>
 
 </html>
