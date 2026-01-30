@@ -159,6 +159,7 @@
             .Exam-setup {
                 flex-wrap: wrap;
             }
+
             .Exam_setup-text p {
                 display: none;
             }
@@ -327,6 +328,17 @@
         .user-info-mobile {
             display: none;
         }
+
+        .error {
+            border: 2px solid #e74c3c !important;
+            background: #fff5f5;
+        }
+
+        .error-text {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 4px;
+        }
     </style>
 
 </head>
@@ -394,7 +406,8 @@
                 </div>
             </div>
             <div class="Exam-setup">
-                <button class="tab-btn active" onclick="openTab('examTab')"><img src="{{ asset('images/user-test.png') }}"
+                <button class="tab-btn active" onclick="openTab('examTab')"><img
+                        src="{{ asset('images/user-test.png') }}"
                         alt="User-test"style="width: 20px;height: 20px;margin-right: 5px;"> Eduedge Created
                     Questions</button>
                 {{-- <button class="tab-btn active" onclick="openTab('questionTab')"><img
@@ -421,20 +434,22 @@
                 <div class="filter-card">
                     <div class="row">
                         <div class="col">
-                            <label>Subject</label>
-                            <select id="subject_id" required>
+                            <label>Subject <span class="required"> *</span></label>
+                            <select id="subject_id">
                                 <option value="">Select</option>
                                 @foreach ($subjects as $s)
                                     <option value="{{ $s->id }}">{{ $s->name }}</option>
                                 @endforeach
                             </select>
+                            <div class="error-text" id="subject_error"></div>
                         </div>
 
                         <div class="col">
-                            <label>Chapter</label>
-                            <select id="chapter_id" required>
+                            <label>Chapter <span class="required"> *</span></label>
+                            <select id="chapter_id">
                                 <option value="">Select</option>
                             </select>
+                            <div class="error-text" id="chapter_error"></div>
                         </div>
 
                         <div class="col">
@@ -447,14 +462,16 @@
 
                     <div class="row">
                         <div class="col">
-                            <label>Difficult Level</label>
-                            <select id="difficult_level_id" required>
+                            <label>Difficult Level <span class="required"> *</span></label>
+                            <select id="difficult_level_id">
                                 <option value="">Select</option>
                                 @foreach ($levels as $lvl)
                                     <option value="{{ $lvl->id }}">{{ $lvl->name }}</option>
                                 @endforeach
                             </select>
+                            <div class="error-text" id="level_error"></div>
                         </div>
+
 
                         <div class="col">
                             <label>Used Status</label>
@@ -519,29 +536,39 @@
                     let qIndex = 0;
                     let userAnswers = {};
 
-                    /* ------------------------------
-                       SUBJECT → CHAPTER
-                    --------------------------------*/
-                    $("#subject_id").change(function() {
+
+                    $("#subject_id").on("change", function() {
                         let id = $(this).val();
-                        $("#chapter_id").html('<option>Loading...</option>');
+
+                        $("#chapter_id").html('<option value="">Loading...</option>');
                         $("#subchapter_id").html('<option value="">Select</option>');
+
+                        if (id === "") {
+                            $("#chapter_id").html('<option value="">Select</option>');
+                            return;
+                        }
 
                         $.get("/get-chapterBy-subject", {
                             subjects_id: id
                         }, function(res) {
                             let html = '<option value="">Select</option>';
-                            res.forEach(c => html += `<option value="${c.id}">${c.name}</option>`);
+                            res.forEach(c => {
+                                html += `<option value="${c.id}">${c.name}</option>`;
+                            });
                             $("#chapter_id").html(html);
                         });
                     });
 
-                    /* ------------------------------
-                       CHAPTER → SUBCHAPTER
-                    --------------------------------*/
-                    $("#chapter_id").change(function() {
+
+                    $("#chapter_id").on("change", function() {
                         let id = $(this).val();
-                        $("#subchapter_id").html('<option>Loading...</option>');
+
+                        $("#subchapter_id").html('<option value="">Loading...</option>');
+
+                        if (id === "") {
+                            $("#subchapter_id").html('<option value="">Select</option>');
+                            return;
+                        }
 
                         $.get("/get-subchapters", {
                             chapter_id: id
@@ -554,10 +581,37 @@
                         });
                     });
 
-                    /* ===============================
-                       FILTER BUTTON → ONLY REDIRECT
-                    ================================*/
-                    $("#filterBtn").click(function() {
+
+                    $("#filterBtn").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $(".error-text").text("");
+                        $("select").removeClass("error");
+
+                        let isValid = true;
+
+                        if ($("#subject_id").val() === "") {
+                            $("#subject_id").addClass("error");
+                            $("#subject_error").text("Subject is required");
+                            isValid = false;
+                        }
+
+                        if ($("#chapter_id").val() === "") {
+                            $("#chapter_id").addClass("error");
+                            $("#chapter_error").text("Chapter is required");
+                            isValid = false;
+                        }
+
+                        if ($("#difficult_level_id").val() === "") {
+                            $("#difficult_level_id").addClass("error");
+                            $("#level_error").text("Difficulty level is required");
+                            isValid = false;
+                        }
+
+                        if (!isValid) {
+                            return false;
+                        }
 
                         let params = $.param({
                             subject_id: $("#subject_id").val(),
@@ -572,8 +626,15 @@
                     });
 
 
-                    $("#startExamFromQuestionTab").click(function() {
+                    $("select").on("change", function() {
+                        if ($(this).val() !== "") {
+                            $(this).removeClass("error");
+                            $(this).next(".error-text").text("");
+                        }
+                    });
 
+
+                    $("#startExamFromQuestionTab").on("click", function() {
                         let params = $.param({
                             subject_id: 5,
                             chapter_id: 8,
@@ -586,26 +647,15 @@
                         window.location.href = "/exam-page?" + params;
                     });
 
-                    /* ===============================
-                       EXAM PAGE : AUTO LOAD QUESTIONS
-                    ================================*/
+                    $("#backTabBtn").on("click", function() {
+                        window.history.back();
+                    });
+
                     function getParam(name) {
                         return new URLSearchParams(window.location.search).get(name);
                     }
                 </script>
 
-
-                <script>
-                    function openTab(tabId) {
-                        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                        document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
-                        event.target.classList.add('active');
-                        document.getElementById(tabId).style.display = 'block';
-                    }
-                    $("#backTabBtn").click(function() {
-                        window.history.back();
-                    });
-                </script>
             </div>
 </body>
 
