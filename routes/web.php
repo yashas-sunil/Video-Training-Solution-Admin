@@ -57,7 +57,7 @@ Route::get('/secure-pdf/{file}', function ($file) {
 Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
-    Route::resource('courses', 'CourseController');
+    Route::resource('courses', 'CourseController')->middleware('auth');
     Route::post('courses/change-order', 'CourseController@changeOrder')->name('courses.change-order');
 
     Route::resource('third-party-agents', 'ThirdPartyAgentController');
@@ -607,12 +607,12 @@ Route::get('/launch', 'LaunchController@launch');
 Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create');
 Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
 Route::get('/course/{course}/chapters', 'ScormController@getChapters')
-    ->name('course.chapters');
+    ->name('course.chapters')->middleware('auth');
 
     // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
 // chapter open
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
-    ->name('chapter.view');
+    ->name('chapter.view')->middleware('auth');
 
 Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
 
@@ -684,6 +684,10 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+// Route::get('question/bank', 'QuestionBankController@show')->name('question.bank.show');
+// Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions');
+
+
 
 
 
