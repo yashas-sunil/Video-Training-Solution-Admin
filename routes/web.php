@@ -687,7 +687,23 @@ Route::get('question/bank', 'QuestionBankController@index')->name('question.bank
 // Route::get('question/bank', 'QuestionBankController@show')->name('question.bank.show');
 // Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions');
 
+Route::get('/test-open', function () {
+    return response()->file(
+        storage_path(
+            'app/private/manual_uploads/66/lesson_17/detailed_trainer_slides/69804ef8ace1c_1770016504_CFA_Foundation_Module_7_Chapter_20_Lesson_1.pdf'
+        )
+    );
+});
 
+Route::get('/f/{path}', function ($path) {
+    abort_unless(auth()->check(), 403);
+
+    $fullPath = storage_path('app/private/' . $path);
+
+    abort_unless(file_exists($fullPath), 404);
+
+    return response()->file($fullPath);
+})->where('path', '.*')->name('secure.file');
 
 
 
