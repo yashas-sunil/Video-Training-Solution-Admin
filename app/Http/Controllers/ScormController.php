@@ -308,60 +308,53 @@ class ScormController extends Controller
     /**
      * Helper method to save manual files
      */
-    private function saveManualFile($file, $chapter, $lesson, $contentKey, $contentLabel)
-    {
-        try {
-            $originalName = $file->getClientOriginalName();
-            $mimeType = $file->getClientMimeType();
-            $fileSize = $file->getSize();
+   private function saveManualFile($file, $chapter, $lesson, $contentKey, $contentLabel)
+{
+    try {
+        $originalName = $file->getClientOriginalName();
+        $mimeType = $file->getClientMimeType();
+        $fileSize = $file->getSize();
 
-            if ($lesson) {
-                $pathSegment = "lesson_{$lesson->id}/{$contentKey}";
-            } else {
-                $pathSegment = "chapter_level/{$contentKey}";
-            }
-
-            $destinationPath = public_path("uploads/manual_uploads/{$chapter->id}/{$pathSegment}");
-
-            // Create directory if it doesn't exist
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-
-            // Generate unique filename
-            $filename = uniqid() . '_' . time() . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $originalName);
-            
-            // Move file
-            $file->move($destinationPath, $filename);
-
-            // Path relative to public folder
-            $path = "uploads/manual_uploads/{$chapter->id}/{$pathSegment}/{$filename}";
-
-            // Save to database
-            $savedContent = ChapterManualContent::create([
-                'chapter_id' => $chapter->id,
-                'lesson_id' => $lesson ? $lesson->id : null,
-                'content_type' => $contentLabel,
-                'file_path' => $path,
-                'original_name' => $originalName,
-                'mime_type' => $mimeType,
-                'file_size' => $fileSize,
-            ]);
-
-            return true;
-
-        } catch (\Exception $e) {
-            Log::error('Failed to save file', [
-                'error' => $e->getMessage(),
-                'file' => $originalName ?? 'unknown',
-                'chapter_id' => $chapter->id,
-                'lesson_id' => $lesson ? $lesson->id : null,
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
+        if ($lesson) {
+            $pathSegment = "lesson_{$lesson->id}/{$contentKey}";
+        } else {
+            $pathSegment = "chapter_level/{$contentKey}";
         }
+
+        $storagePath = "private/manual_uploads/{$chapter->id}/{$pathSegment}";
+
+        // Generate unique filename
+        $filename = uniqid() . '_' . time() . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $originalName);
+
+        $file->storeAs($storagePath, $filename);
+
+        $path = "manual_uploads/{$chapter->id}/{$pathSegment}/{$filename}";
+
+        // Save to database
+        ChapterManualContent::create([
+            'chapter_id' => $chapter->id,
+            'lesson_id' => $lesson ? $lesson->id : null,
+            'content_type' => $contentLabel,
+            'file_path' => $path, // IMPORTANT
+            'original_name' => $originalName,
+            'mime_type' => $mimeType,
+            'file_size' => $fileSize,
+        ]);
+
+        return true;
+
+    } catch (\Exception $e) {
+        Log::error('Failed to save file', [
+            'error' => $e->getMessage(),
+            'file' => $originalName ?? 'unknown',
+            'chapter_id' => $chapter->id,
+            'lesson_id' => $lesson ? $lesson->id : null,
+            'line' => $e->getLine(),
+        ]);
+        throw $e;
     }
+}
+
 
 
 
@@ -532,130 +525,129 @@ class ScormController extends Controller
         ]);
     }
 
-    public function viewChapter($id)
-    {
-       $chapter = Chapter::with('manualContents')->findOrFail($id);
+   public function viewChapter($id)
+{
+    $chapter = Chapter::with('manualContents')->findOrFail($id);
 
-if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
+    if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
 
-    // Types for overview and lessons
-    $overviewTypes = [
-        'Glossary',
-        'Infographics',
-        'Textbook',
-        'Map',
-    ];
+        $overviewTypes = [
+            'Glossary',
+            'Infographics',
+            'Textbook',
+            'Map',
+        ];
 
-    $lessonTypes = [
-        'Detailed Trainer Slides',
-        'Summary Slides',
-        'Videos',
-    ];
+        $lessonTypes = [
+            'Detailed Trainer Slides',
+            'Summary Slides',
+            'Videos',
+        ];
 
-    // Overview contents (no lesson_id)
-    $overview = $chapter->manualContents
-        ->whereNull('lesson_id')
-        ->whereIn('content_type', $overviewTypes)
-        ->groupBy('content_type')
-        ->map(function ($items) {
-            return $items->map(function ($content) {
-                return [
-                    'id' => $content->id,
-                    'label' => $content->content_type,
-                   'url' => url($content->file_path),
-                    'original_name' => $content->original_name ?? basename($content->file_path),
-                    'size' => $content->file_size,
-                ];
+        // Overview contents
+        $overview = $chapter->manualContents
+            ->whereNull('lesson_id')
+            ->whereIn('content_type', $overviewTypes)
+            ->groupBy('content_type')
+            ->map(function ($items) {
+                return $items->map(function ($content) {
+                    return [
+                        'id' => $content->id,
+                        'label' => $content->content_type,
+                        'url' => route('secure.file', $content->file_path),
+                        'original_name' => $content->original_name ?? basename($content->file_path),
+                        'size' => $content->file_size,
+                    ];
+                });
             });
-        });
 
-    // Lessons contents (with lesson_id)
-    $lessons = $chapter->manualContents
-        ->whereNotNull('lesson_id')
-        ->whereIn('content_type', $lessonTypes)
-        ->groupBy('lesson_id')
-        ->map(function ($lessonItems) {
-            $lesson = \App\Models\Lesson::find($lessonItems->first()->lesson_id);
+        // Lessons contents
+        $lessons = $chapter->manualContents
+            ->whereNotNull('lesson_id')
+            ->whereIn('content_type', $lessonTypes)
+            ->groupBy('lesson_id')
+            ->map(function ($lessonItems) {
 
-            return [
-                'lesson_id'   => $lesson->id,
-                'lesson_name' => $lesson->lesson_name,
-                'contents' => $lessonItems
-                    ->groupBy('content_type')
-                    ->map(function ($items) {
-                        return $items->map(function ($content) {
-                            return [
-                                'id' => $content->id,
-                                'url' => url($content->file_path),
+                $lesson = \App\Models\Lesson::find($lessonItems->first()->lesson_id);
 
-                                'original_name' => $content->original_name ?? basename($content->file_path),
-                                'size' => $content->file_size,
-                            ];
-                        });
-                    }),
-            ];
-        })
-        ->values();
+                return [
+                    'lesson_id'   => $lesson->id,
+                    'lesson_name' => $lesson->lesson_name,
+                    'contents' => $lessonItems
+                        ->groupBy('content_type')
+                        ->map(function ($items) {
+                            return $items->map(function ($content) {
+                                return [
+                                    'id' => $content->id,
+                                    'url' => route('secure.file', $content->file_path),
+                                    'original_name' => $content->original_name ?? basename($content->file_path),
+                                    'size' => $content->file_size,
+                                ];
+                            });
+                        }),
+                ];
+            })
+            ->values();
 
-    // Return to view
-    return view('chapters.manual', [
-        'chapter' => $chapter,
-        'overview' => $overview,
-        'lessons' => $lessons,
+        return view('chapters.manual', [
+            'chapter' => $chapter,
+            'overview' => $overview,
+            'lessons' => $lessons,
+        ]);
+    }
+
+    // ---------- SCORM PART (UNCHANGED) ----------
+    $userId = auth()->id();
+
+    $watchTime = ($chapter->watch_time ?? 0) * 60;
+
+    $courseView = CourseView::where('user_id', $userId)
+        ->where('course_id', $chapter->course_id)
+        ->first();
+
+    if (!$courseView) {
+        $courseView = CourseView::create([
+            'user_id' => $userId,
+            'course_id' => $chapter->course_id,
+            'view_limit' => 1,
+        ]);
+    }
+
+    $totalSessionTime = AppCourseProgress::where('user_id', $userId)
+        ->where('course_id', $chapter->course_id)
+        ->sum('session_time');
+
+    $currentAttemptTime = max(
+        0,
+        $totalSessionTime - (($courseView->view_limit - 1) * $watchTime)
+    );
+
+    if ($watchTime > 0 && $currentAttemptTime >= $watchTime) {
+        $courseView->increment('view_limit');
+        $courseView->update(['last_reset_time' => now()]);
+    }
+
+    $launchUrl = asset(
+        'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
+    );
+
+    $progress = AppCourseProgress::where('user_id', $userId)
+        ->where('course_id', $chapter->course_id)
+        ->first();
+
+    return view('view', [
+        'launchUrl'    => $launchUrl,
+        'title'        => $chapter->name,
+        'courseId'     => $chapter->course_id,
+        'chapterId'    => $chapter->id,
+        'resumeTime'   => $progress->resume_from_time ?? 0,
+        'lastLocation' => $progress->cmi_core_lesson_location ?? '',
+        'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
+        'score'        => $progress->cmi_core_score_raw ?? '',
+        'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
     ]);
 }
 
-        $userId = auth()->id();
-
-        // watch time agar chapter level pe hai
-        $watchTime = ($chapter->watch_time ?? 0) * 60;
-
-        $courseView = CourseView::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->first();
-
-        if (!$courseView) {
-            $courseView = CourseView::create([
-                'user_id' => $userId,
-                'course_id' => $chapter->course_id,
-                'view_limit' => 1,
-            ]);
-        }
-
-        $totalSessionTime = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->sum('session_time');
-
-        $currentAttemptTime = max(
-            0,
-            $totalSessionTime - (($courseView->view_limit - 1) * $watchTime)
-        );
-
-        if ($watchTime > 0 && $currentAttemptTime >= $watchTime) {
-            $courseView->increment('view_limit');
-            $courseView->update(['last_reset_time' => now()]);
-        }
-
-        $launchUrl = asset(
-            'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
-        );
-
-        $progress = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->first();
-
-        return view('view', [
-            'launchUrl'    => $launchUrl,
-            'title'        => $chapter->name,
-            'courseId'     => $chapter->course_id,
-            'chapterId'  => $chapter->id,   
-            'resumeTime'   => $progress->resume_from_time ?? 0,
-            'lastLocation' => $progress->cmi_core_lesson_location ?? '',
-            'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
-            'score'        => $progress->cmi_core_score_raw ?? '',
-            'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
-        ]);
-    }
     
 public function getChapters($courseId)
 {
