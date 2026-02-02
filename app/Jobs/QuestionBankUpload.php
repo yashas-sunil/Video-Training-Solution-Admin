@@ -63,7 +63,7 @@ use App\TopicQuestion as AppTopicQuestion;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use PhpOffice\PhpSpreadsheet\Reader\Xml\Style\Alignment;
 
-class QuestionBankUpload implements ShouldQueue
+class   QuestionBankUpload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -827,115 +827,115 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                         Log::info("Option Column error: " . $e->getMessage());
                     }
 
-                    // try {
-                    //     $message = $sheet_data_loop['O'];
-                    //     if (!empty($sheet_data_loop['O'])) {
-                    //         $insert_data[$index]['question'] = $sheet_data_loop['O'];
-                    //         $question_image_count_array = [];
-                    //         preg_match_all('/<<(.*?)>>/', $message, $matches);
-                    //         $question_image = $matches[1] ?? [];
-                    //         $question_image_count = count($question_image);
-                    //         $question_image_index = 0;
-                    //         $question_flag = false;
-                    //         $ques_image = null;
-                    //         foreach ($question_image as $file_key => $file) {
-                    //             $question_image_dummy_path = 'questionbank/upload/' . $storage_dummy_folder_name . '/' . $file;
-                    //             $file_exists = Storage::disk('public')->exists($question_image_dummy_path);
-                    //             $fileextension = explode(".", $file);
-                    //             if ($file_exists == true && isset($fileextension[1])) {
-                    //                 $imagePath = storage_path('app/public') . '/' . $question_image_dummy_path;
+                    try {
+                        $message = $sheet_data_loop['O'];
+                        if (!empty($sheet_data_loop['O'])) {
+                            $insert_data[$index]['question'] = $sheet_data_loop['O'];
+                            $question_image_count_array = [];
+                            preg_match_all('/<<(.*?)>>/', $message, $matches);
+                            $question_image = $matches[1] ?? [];
+                            $question_image_count = count($question_image);
+                            $question_image_index = 0;
+                            $question_flag = false;
+                            $ques_image = null;
+                            foreach ($question_image as $file_key => $file) {
+                                $question_image_dummy_path = 'questionbank/upload/' . $storage_dummy_folder_name . '/' . $file;
+                                $file_exists = Storage::disk('public')->exists($question_image_dummy_path);
+                                $fileextension = explode(".", $file);
+                                if ($file_exists == true && isset($fileextension[1])) {
+                                    $imagePath = storage_path('app/public') . '/' . $question_image_dummy_path;
 
-                    //                 $resizedImage = Image::make($imagePath)->resize(300, 300)->encode($fileextension[1]);
+                                    $resizedImage = Image::make($imagePath)->resize(300, 300)->encode($fileextension[1]);
 
-                    //                 $question_image_storge_path = 'questionbank/' . $qbid . '/' . $question_id . '/' . $question_id . '_' . $question_image_index . '.' . $fileextension[1];
+                                    $question_image_storge_path = 'questionbank/' . $qbid . '/' . $question_id . '/' . $question_id . '_' . $question_image_index . '.' . $fileextension[1];
 
-                    //                 Storage::disk('public')->put($question_image_storge_path, $resizedImage);
+                                    Storage::disk('public')->put($question_image_storge_path, $resizedImage);
 
-                    //                 $filename = basename($file);
-                    //                 $insert_data[$index]['question'] = str_replace('<' . $filename . '>', 'img src="' . $question_image_storge_path . '"', $insert_data[$index]['question']);
-                    //                 $ques_image = $ques_image ? $ques_image . ',' . $question_image_storge_path : $question_image_storge_path;
-                    //             } else {
-                    //                 $question_flag = true;
-                    //             }
-                    //             $question_image_index++;
-                    //         }
+                                    $filename = basename($file);
+                                    $insert_data[$index]['question'] = str_replace('<' . $filename . '>', 'img src="' . $question_image_storge_path . '"', $insert_data[$index]['question']);
+                                    $ques_image = $ques_image ? $ques_image . ',' . $question_image_storge_path : $question_image_storge_path;
+                                } else {
+                                    $question_flag = true;
+                                }
+                                $question_image_index++;
+                            }
 
-                    //         if ($question_flag == true) {
-                    //             $message = "Images Not Found";
-                    //             $check_if_error_in_document = "Yes";
-                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('O' . $counter)->applyFromArray($readexcel['style_array_error']);
-                    //             $questionColumnError = "Yes";
-                    //         }
-                    //         $insert_data[$index]['image'] = $ques_image;
-                    //     } else {
-                    //         $message = "Mandatory";
-                    //         $check_if_error_in_document = "Yes";
-                    //         $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('O' . $counter)->applyFromArray($readexcel['style_array_error']);
-                    //         $questionColumnError = "Yes";
-                    //     }
-                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('O' . $counter, $message);
-                    // } catch (\Exception $e) {
-                    //     Log::info("Column O error: " . $e->getMessage());
-                    // }
+                            if ($question_flag == true) {
+                                $message = "Images Not Found";
+                                $check_if_error_in_document = "Yes";
+                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('O' . $counter)->applyFromArray($readexcel['style_array_error']);
+                                $questionColumnError = "Yes";
+                            }
+                            $insert_data[$index]['image'] = $ques_image;
+                        } else {
+                            $message = "Mandatory";
+                            $check_if_error_in_document = "Yes";
+                            $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('O' . $counter)->applyFromArray($readexcel['style_array_error']);
+                            $questionColumnError = "Yes";
+                        }
+                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('O' . $counter, $message);
+                    } catch (\Exception $e) {
+                        Log::info("Column O error: " . $e->getMessage());
+                    }
 
-                    // try {
-                    //     $message = $sheet_data_loop['V'];
-                    //     if (!empty($sheet_data_loop['V'])) {
-                    //         //Insert Solution Data
-                    //         $solution_insert_data[$index]['id'] = $solutionId;
-                    //         $solution_insert_data[$index]['questions_id'] = $question_id;
-                    //         $solution_insert_data[$index]['name'] = $sheet_data_loop['V'];
-                    //         $solution_insert_data[$index]['status'] = AppSolution::ACTIVE;
-                    //         $solution_insert_data[$index]['created_at'] = Carbon::now();
-                    //         $solution_insert_data[$index]['updated_at'] = Carbon::now();
+                    try {
+                        $message = $sheet_data_loop['V'];
+                        if (!empty($sheet_data_loop['V'])) {
+                            //Insert Solution Data
+                            $solution_insert_data[$index]['id'] = $solutionId;
+                            $solution_insert_data[$index]['question_id'] = $question_id;
+                            $solution_insert_data[$index]['name'] = $sheet_data_loop['V'];
+                            $solution_insert_data[$index]['status'] = AppSolution::ACTIVE;
+                            $solution_insert_data[$index]['created_at'] = Carbon::now();
+                            $solution_insert_data[$index]['updated_at'] = Carbon::now();
 
-                    //         preg_match_all('/<<(.*?)>>/', $message, $matches);
-                    //         $solution_image = $matches[1] ?? [];
-                    //         $solution_image_count = count($solution_image);
-                    //         $solution_image_index = 0;
-                    //         $solution_flag = false;
+                            preg_match_all('/<<(.*?)>>/', $message, $matches);
+                            $solution_image = $matches[1] ?? [];
+                            $solution_image_count = count($solution_image);
+                            $solution_image_index = 0;
+                            $solution_flag = false;
 
-                    //         foreach ($solution_image as $file_key => $file) {
-                    //             $solution_image_dummy_path = 'questionbank/upload/' . $storage_dummy_folder_name . '/' . $file;
-                    //             $file_exists = Storage::disk('public')->exists($solution_image_dummy_path);
-                    //             $fileextension = explode(".", $file);
-                    //             if ($file_exists == true && isset($fileextension[1])) {
-                    //                 $imagePath = storage_path('app/public') . '/' . $solution_image_dummy_path;
+                            foreach ($solution_image as $file_key => $file) {
+                                $solution_image_dummy_path = 'questionbank/upload/' . $storage_dummy_folder_name . '/' . $file;
+                                $file_exists = Storage::disk('public')->exists($solution_image_dummy_path);
+                                $fileextension = explode(".", $file);
+                                if ($file_exists == true && isset($fileextension[1])) {
+                                    $imagePath = storage_path('app/public') . '/' . $solution_image_dummy_path;
 
-                    //                 $resizedImage = Image::make($imagePath)->resize(300, 300)->encode($fileextension[1]);
+                                    $resizedImage = Image::make($imagePath)->resize(300, 300)->encode($fileextension[1]);
 
-                    //                 $solution_image_storge_path = 'questionbank/' . $qbid . '/' . $solutionId . '/' . $solutionId . '_' . $solution_image_index . '.' . $fileextension[1];
+                                    $solution_image_storge_path = 'questionbank/' . $qbid . '/' . $solutionId . '/' . $solutionId . '_' . $solution_image_index . '.' . $fileextension[1];
 
-                    //                 Storage::disk('public')->put($solution_image_storge_path, $resizedImage);
+                                    Storage::disk('public')->put($solution_image_storge_path, $resizedImage);
 
-                    //                 $filename = basename($file);
-                    //                 $solution_insert_data[$index]['name'] = str_replace('<' . $filename . '>', 'img  src="' . $solution_image_storge_path . '"', $solution_insert_data[$index]['name']);
+                                    $filename = basename($file);
+                                    $solution_insert_data[$index]['name'] = str_replace('<' . $filename . '>', 'img  src="' . $solution_image_storge_path . '"', $solution_insert_data[$index]['name']);
 
-                    //                 $solutionImageId = $searchMaxSolutionImageId++;
-                    //                 $solution_option[$solution_index]['id'] = $solutionImageId;
-                    //                 $solution_option[$solution_index]['solution_id'] = $solutionId;
-                    //                 $solution_option[$solution_index]['name'] = trim($sheet_data_loop['V']);
-                    //                 $solution_option[$solution_index]['path'] =  $solution_image_storge_path;
-                    //                 $solution_option[$solution_index]['created_at'] = Carbon::now();
-                    //                 $solution_option[$solution_index]['updated_at'] = Carbon::now();
-                    //             } else {
-                    //                 $solution_flag = true;
-                    //             }
-                    //             $solution_index++;
-                    //             $solution_image_index++;
-                    //         }
+                                    $solutionImageId = $searchMaxSolutionImageId++;
+                                    $solution_option[$solution_index]['id'] = $solutionImageId;
+                                    $solution_option[$solution_index]['solution_id'] = $solutionId;
+                                    $solution_option[$solution_index]['name'] = trim($sheet_data_loop['V']);
+                                    $solution_option[$solution_index]['path'] =  $solution_image_storge_path;
+                                    $solution_option[$solution_index]['created_at'] = Carbon::now();
+                                    $solution_option[$solution_index]['updated_at'] = Carbon::now();
+                                } else {
+                                    $solution_flag = true;
+                                }
+                                $solution_index++;
+                                $solution_image_index++;
+                            }
 
-                    //         if ($solution_flag == true) {
-                    //             $message = "Images Not Found";
-                    //             $check_if_error_in_document = "Yes";
-                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('V' . $counter)->applyFromArray($readexcel['style_array_error']);
-                    //             $solutionImageColumnError = "Yes";
-                    //         }
-                    //     }
-                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('V' . $counter, $message);
-                    // } catch (\Exception $e) {
-                    //     Log::info("Column V error" . $e->getMessage());
-                    // }
+                            if ($solution_flag == true) {
+                                $message = "Images Not Found";
+                                $check_if_error_in_document = "Yes";
+                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('V' . $counter)->applyFromArray($readexcel['style_array_error']);
+                                $solutionImageColumnError = "Yes";
+                            }
+                        }
+                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('V' . $counter, $message);
+                    } catch (\Exception $e) {
+                        Log::info("Column V error" . $e->getMessage());
+                    }
 
                     try {
                         $message = $sheet_data_loop['W'];
@@ -1248,7 +1248,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                 $counter++;
             }
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             Log::info("Qb Upload Issue" . $e->getMessage());
         }
 
@@ -1303,7 +1303,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                     $readexcel['obj_PhpOffice']->getActiveSheet()->getColumnDimension($columns_loop["2"])->setAutoSize(true);
                 }
             } catch (\Throwable $th) {
-                // dd($th);
+                dd($th);
                 Log::info("Columns Error" . $th->getMessage());
             }
 
@@ -1414,7 +1414,7 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
         Log::info('QB DEBUG: ALL BULK INSERTS COMMITTED SUCCESSFULLY');
 
     } catch (\Throwable $e) {
-        // dd($e);
+        dd($e);
 
         DB::rollBack();
 
