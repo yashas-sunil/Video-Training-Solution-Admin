@@ -10,6 +10,7 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Summary as AppSummary;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreQuestionBankRequest;
 use App\Http\Controllers\QuestionBankController;
@@ -101,36 +102,36 @@ class QBSummaryController extends Controller
                         ->where('status', Course::ACTIVE)
                         ->first();
 
-        if(empty($course)){
-            return redirect()->route('question.bank')->with('error',"Course not found in filename.");
-        }
+        // if(empty($course)){
+        //     return redirect()->route('question.bank')->with('error',"Course not found in filename.");
+        // }
 
         //Level Check
         $level = Level::where('id', $summary_req['level'])
                         ->where('status', Level::ACTIVE)
                         ->first();
 
-        if(empty($level)){
-            return redirect()->route('question.bank')->with('error',"Level not found in filename.");
-        }
+        // if(empty($level)){
+        //     return redirect()->route('question.bank')->with('error',"Level not found in filename.");
+        // }
 
          //Subject Check
          $subject = Subject::where('id', $summary_req['subject'])
                         ->where('status', Subject::ACTIVE)
                         ->first();
 
-        if(empty($subject)){
-            return redirect()->route('question.bank')->with('error',"Subject not found in filename.");
-        }
+        // if(empty($subject)){
+        //     return redirect()->route('question.bank')->with('error',"Subject not found in filename.");
+        // }
 
         //Chapter Check
         $chapter = Chapter::where('id', $summary_req['chapter'])
                         ->where('status', Chapter::ACTIVE)
                         ->first();
 
-        if(empty($chapter)){
-            return redirect()->route('question.bank')->with('error',"Chapter not found in filename.");
-        }
+        // if(empty($chapter)){
+        //     return redirect()->route('question.bank')->with('error',"Chapter not found in filename.");
+        // }
 
         $summary = Summary::where('course_id', $summary_req['course'])
                         ->where('level_id', $summary_req['level'])
