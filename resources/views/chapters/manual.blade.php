@@ -322,15 +322,157 @@
 .lessons-list button input {
     pointer-events: none;
 }
+/* ==================================================
+   📱 MOBILE ONLY – PROFESSIONAL FIX
+   Desktop layout remains 100% untouched
+================================================== */
+@media (max-width: 768px) {
+
+    /* ---------------------------------
+       Base safety
+    ---------------------------------- */
+    body {
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ---------------------------------
+       Sidebar (off-canvas)
+    ---------------------------------- */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;              /* hidden */
+        width: 240px;
+        height: 100vh;
+        background: #700002;
+        z-index: 1200;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 18px rgba(0,0,0,0.25);
+    }
+
+    .sidebar.mobile-open {
+        left: 0;
+    }
+
+    /* ---------------------------------
+       Backdrop (professional overlay)
+    ---------------------------------- */
+    .mobile-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 1100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* ---------------------------------
+       Content area
+    ---------------------------------- */
+    .lesson-contents {
+        margin-left: 0 !important;
+        width: 100%;
+        padding-top: 72px; /* space for toggle button */
+    }
+
+    .lesson-section {
+        margin-left: 0 !important;
+    }
+
+    /* ---------------------------------
+       Grid spacing (clean mobile look)
+    ---------------------------------- */
+    .grid {
+        padding: 16px;
+        gap: 24px;
+    }
+
+    /* ---------------------------------
+       Headings scale
+    ---------------------------------- */
+    h2 {
+        padding: 20px 16px;
+        font-size: 22px;
+        line-height: 1.3;
+    }
+
+    h3 {
+        padding: 0 16px;
+        font-size: 16px;
+    }
+
+    /* ---------------------------------
+       Cards (no overlap, clean)
+    ---------------------------------- */
+    .card {
+        gap: 12px;
+    }
+
+    .card .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ---------------------------------
+       Media viewers
+    ---------------------------------- */
+    .inline-viewer iframe,
+    .inline-viewer img,
+    .inline-viewer video {
+        width: 100%;
+        height: 45vh;
+        max-height: 45vh;
+        border-radius: 8px;
+        object-fit: contain;
+    }
+
+    /* ---------------------------------
+       Mobile sidebar toggle (☰)
+    ---------------------------------- */
+    .mobile-sidebar-toggle {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 1300;
+
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+
+        background: #700002;
+        color: #ffffff;
+        border: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 20px;
+        cursor: pointer;
+
+        box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+    }
+
+    .mobile-sidebar-toggle:active {
+        transform: scale(0.96);
+    }
+}
 </style>
 
 
 </head>
 
 <body>
-
  <div class="page">
 <div class="course-layout">
+<button class="mobile-sidebar-toggle" onclick="toggleSidebar()">☰</button>
 
 {{-- 🔹 LEFT SIDEBAR --}}
 <div class="sidebar">
@@ -567,7 +709,9 @@ continueBtns.forEach(btn=>{
 tabs.forEach(tab=>{
     tab.addEventListener("click",(e)=>{
         e.preventDefault();
-
+        if (window.innerWidth <= 768) {
+            document.querySelector('.sidebar')?.classList.remove('mobile-open');
+        }
         const idx=tab.dataset.index;
 
         if(idx==="overview"){
@@ -624,6 +768,25 @@ document.querySelectorAll(".lesson-video").forEach(video=>{
 
 render();
 setActiveTab("overview");
+
+function toggleSidebar() {
+    document.querySelector('.sidebar')?.classList.toggle('mobile-open');
+}
+
+document.addEventListener("click", function (e) {
+    if (window.innerWidth > 768) return;
+
+    const sidebar = document.querySelector(".sidebar");
+    const toggleBtn = document.querySelector(".mobile-sidebar-toggle");
+
+    if (!sidebar || !sidebar.classList.contains("mobile-open")) return;
+
+    if (sidebar.contains(e.target)) return;
+
+    if (toggleBtn && toggleBtn.contains(e.target)) return;
+
+    sidebar.classList.remove("mobile-open");
+});
 </script>
 </body>
 
