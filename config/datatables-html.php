@@ -8,10 +8,10 @@ return [
         'class' => 'table table-hover dataTable table-striped w-full',
         'id'    => 'dataTableBuilder',
         'style'    => 'width: 100%;',
-        'data-length-menu' => '[[ 75, 100, 150,-1 ], [ 75, 100, 150, "All" ]]',
-        'data-buttons' => '[{"text": "EXPORT CSV", "extend": "csvHtml5", "className": "btn btn-sm btn-default"}, {"text": "EXPORT PDF", "extend": "pdfHtml5", "className": "btn btn-sm btn-default mr-4"}]',
+        'data-length-menu' => '[[ 10, 25, 75,100,-1 ], [ 10, 25, 75, 100,"All" ]]',
+        // 'data-buttons' => '[{"text": "EXPORT CSV", "extend": "csvHtml5", "className": "btn btn-sm btn-default"}, {"text": "EXPORT PDF", "extend": "pdfHtml5", "className": "btn btn-sm btn-default mr-4"}]',
 //        'data-dom' => 't<"row"<"col-sm-12 col-md-5"<"d-flex flex-row align-items-center"<"pt-4 px-3"l>i>><"col-sm-12 col-md-7"<"px-3 pt-3"p>>>'
-        'data-dom' => "<'card-body dataTables_wrapper dt-bootstrap4'<'row'<'col-sm-12 col-md-6 d-flex'Bl><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        // 'data-dom' => "<'card-body dataTables_wrapper dt-bootstrap4'<'row'<'col-sm-12 col-md-6 d-flex'Bl><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
     ],
 
     /*
