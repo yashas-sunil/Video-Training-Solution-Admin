@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use App\ScormPackage as AppScormPackage;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 use App\CourseProgress as AppCourseProgress;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ScormController extends Controller
 {
@@ -554,7 +555,7 @@ class ScormController extends Controller
                     return [
                         'id' => $content->id,
                         'label' => $content->content_type,
-                        'url' => route('secure.file', $content->file_path),
+                        'url' => route('pdf.stream', $content->file_path),
                         'original_name' => $content->original_name ?? basename($content->file_path),
                         'size' => $content->file_size,
                     ];
@@ -728,5 +729,23 @@ public function autoLoginChapter(Request $request, $courseId)
     // direct chapters page par redirect
     return redirect('/course/' . $courseId . '/chapters');
 }
+
+ public function stream($path)
+    {
+        abort_unless(auth()->check(), 403);
+
+        $fullPath = storage_path('app/private/' . $path);
+
+        abort_unless(file_exists($fullPath), 404);
+
+        return response()->stream(function () use ($fullPath) {
+            readfile($fullPath);
+        }, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.basename($fullPath).'"',
+            'Accept-Ranges'       => 'bytes',
+            'Cache-Control'       => 'private, no-store, no-cache',
+        ]);
+    }
 
 }

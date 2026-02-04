@@ -13,6 +13,8 @@ use App\Http\Middleware\BackOfficeManagerMiddleware;
 use App\Http\Middleware\FinanceManagerMiddleware;
 use App\Http\Middleware\ActivityLog;
 use App\Http\Middleware\JuniorAdminMiddleware;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /*
 |--------------------------------------------------------------------------
@@ -684,8 +686,10 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
-// Route::get('question/bank', 'QuestionBankController@show')->name('question.bank.show');
-// Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions');
+Route::get('question-bank.show', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
+
+ Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
 
 Route::get('/test-open', function () {
     return response()->file(
@@ -706,5 +710,31 @@ Route::get('/f/{path}', function ($path) {
 })->where('path', '.*')->name('secure.file');
 
 
+Route::get('/pdf-stream/{path}', function ($path) {
+
+    if (!Auth::check()) {
+        return redirect()->route('pdf.login.required', [
+            'redirect' => url()->current()
+        ]);
+    }
 
 
+    $fullPath = storage_path('app/private/' . $path);
+    abort_unless(file_exists($fullPath), 404);
+
+    return new BinaryFileResponse(
+        $fullPath,
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'Accept-Ranges' => 'bytes',
+        ],
+        true,
+        'inline'
+    );
+
+})->where('path', '.*')->name('pdf.stream');
+
+Route::get('/pdf-login-required', function () {
+    return view('auth.pdf-login-required');
+})->name('pdf.login.required');
