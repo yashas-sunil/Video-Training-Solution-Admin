@@ -744,11 +744,26 @@ document.querySelectorAll(".open-inline").forEach(btn=>{
             return;
         }
 
-        if(ext==="pdf"){
-            viewer.innerHTML =
-                `<iframe src="${url}#toolbar=0"
-                style="width:100%; height:70vh; border:none;"></iframe>`;
-        }else{
+       if(ext === "pdf") {
+            //  const path = url.replace(`${window.location.origin}/f/`, "");
+
+    //   const pdfPath = url.replace(window.location.origin, "");
+
+    if (isMobile()) {
+        // 📱 Mobile → new tab (BEST UX)
+        window.open(url, "_blank");
+        return;
+    } else {
+        // 💻 Desktop → inline iframe
+        viewer.innerHTML = `
+               <iframe
+            src="/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}"
+            style="width:100%; height:70vh; border:none;"
+        ></iframe>
+    `;
+    }
+}
+else{
             viewer.innerHTML = `<img src="${url}">`;
         }
 
@@ -787,6 +802,9 @@ document.addEventListener("click", function (e) {
 
     sidebar.classList.remove("mobile-open");
 });
+function isMobile() {
+    return window.innerWidth <= 768;
+}
 </script>
 </body>
 
