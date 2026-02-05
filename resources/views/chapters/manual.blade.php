@@ -322,6 +322,12 @@
 .lessons-list button input {
     pointer-events: none;
 }
+
+@media (max-width: 768px) {
+    iframe {
+        height: 100vh !important;
+    }
+}
 /* ==================================================
    📱 MOBILE ONLY – PROFESSIONAL FIX
    Desktop layout remains 100% untouched
@@ -749,11 +755,11 @@ document.querySelectorAll(".open-inline").forEach(btn=>{
 
     //   const pdfPath = url.replace(window.location.origin, "");
 
-    if (isMobile()) {
-        // 📱 Mobile → new tab (BEST UX)
-        window.open(url, "_blank");
-        return;
-    } else {
+    // if (isMobile()) {
+    //     // 📱 Mobile → new tab (BEST UX)
+    //     window.open(url, "_blank");
+    //     return;
+    // } else {
         // 💻 Desktop → inline iframe
         viewer.innerHTML = `
                <iframe
@@ -761,7 +767,7 @@ document.querySelectorAll(".open-inline").forEach(btn=>{
             style="width:100%; height:70vh; border:none;"
         ></iframe>
     `;
-    }
+    //}
 }
 else{
             viewer.innerHTML = `<img src="${url}">`;
