@@ -318,7 +318,7 @@
     display: none !important;
 }
 
-/* ✅ sidebar button pe click always work (checkbox click steal na kare) */
+/*  sidebar button pe click always work (checkbox click steal na kare) */
 .lessons-list button input {
     pointer-events: none;
 }
@@ -469,6 +469,14 @@
     .mobile-sidebar-toggle:active {
         transform: scale(0.96);
     }
+}
+.sidebar {
+    z-index: 1500; /* Firefox click fix */
+}
+
+.lesson-contents {
+    position: relative;
+    z-index: 1;
 }
 </style>
 
@@ -628,28 +636,43 @@ function setActiveTab(targetIndex){
     if(btn) btn.classList.add("active");
 }
 
-function scrollToSection(targetIndex){
+function scrollToSection(targetIndex) {
     let sectionId =
         targetIndex === "overview"
             ? "lesson-overview"
             : "lesson-" + targetIndex;
 
     const section = document.getElementById(sectionId);
-    if(!section) return;
+    if (!section) return;
 
-    const y =
-        section.getBoundingClientRect().top +
-        window.pageYOffset -
-        20;
+    const container = document.querySelector(".lesson-contents");
 
-    window.scrollTo({
-        top: y,
-        behavior: "smooth"
-    });
+    //  Decide at runtime which element is scrollable
+    const isContainerScrollable =
+        container &&
+        container.scrollHeight > container.clientHeight;
+
+    if (isContainerScrollable) {
+        //  Works for Firefox + Chrome (when container scrolls)
+        container.scrollTo({
+            top: section.offsetTop - 20,
+            behavior: "smooth"
+        });
+    } else {
+        //  Works when window scrolls (Chrome / Edge fallback)
+        const y =
+            section.getBoundingClientRect().top +
+            window.pageYOffset -
+            20;
+
+        window.scrollTo({
+            top: y,
+            behavior: "smooth"
+        });
+    }
 
     setActiveTab(targetIndex);
 }
-
 function render(){
     const sections = document.querySelectorAll(".lesson-section");
     sections.forEach(sec=>{
