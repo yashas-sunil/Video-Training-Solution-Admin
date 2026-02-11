@@ -80,7 +80,8 @@ class Chapter extends Model
 
     public function manualContents()
     {
-        return $this->hasMany(ChapterManualContent::class);
+        return $this->hasMany(ChapterManualContent::class)
+        ->orderBy('id', 'asc');
     }
     public function getHasPackageAttribute()
     {
