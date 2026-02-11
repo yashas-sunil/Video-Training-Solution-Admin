@@ -526,7 +526,7 @@ class ScormController extends Controller
         ]);
     }
 
-   public function viewChapter($id)
+ public function viewChapter($id)
 {
     $chapter = Chapter::with('manualContents')->findOrFail($id);
 
@@ -545,10 +545,11 @@ class ScormController extends Controller
             'Videos',
         ];
 
-        // Overview contents
+        //  Overview contents (SORTED BY ID)
         $overview = $chapter->manualContents
             ->whereNull('lesson_id')
             ->whereIn('content_type', $overviewTypes)
+            ->sortBy('id')   
             ->groupBy('content_type')
             ->map(function ($items) {
                 return $items->map(function ($content) {
@@ -562,10 +563,11 @@ class ScormController extends Controller
                 });
             });
 
-        // Lessons contents
+        //  Lessons contents (SORTED BY ID)
         $lessons = $chapter->manualContents
             ->whereNotNull('lesson_id')
             ->whereIn('content_type', $lessonTypes)
+            ->sortBy('id')   
             ->groupBy('lesson_id')
             ->map(function ($lessonItems) {
 
@@ -575,6 +577,7 @@ class ScormController extends Controller
                     'lesson_id'   => $lesson->id,
                     'lesson_name' => $lesson->lesson_name,
                     'contents' => $lessonItems
+                        ->sortBy('id')   //  Added Sorting inside lesson
                         ->groupBy('content_type')
                         ->map(function ($items) {
                             return $items->map(function ($content) {
@@ -648,6 +651,7 @@ class ScormController extends Controller
         'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
     ]);
 }
+
 
     
 public function getChapters($courseId)
