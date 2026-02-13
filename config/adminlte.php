@@ -360,6 +360,12 @@ return [
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'question/bank'
                 ],
+
+                 [
+                    'text'        => 'Batch',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'batches'
+                ],
                 //  [
                 //     'text'        => 'Qbsummary',
                 //     'icon'        => 'fas fa-caret-right',
