@@ -28,7 +28,7 @@
                 <tr>
                     <th style="width:70px;">Id</th>
                     <th>Batch Name</th>
-                    <th>Course</th>
+                    <th>Courses</th>
                     <th>Start Date</th>
                     <th>Expire Date</th>
                     <th>Total Students</th>
@@ -45,8 +45,17 @@
                             <strong>{{ $batch->batch_name }}</strong>
                         </td>
 
+                        {{-- 🔥 MULTIPLE COURSES DISPLAY --}}
                         <td>
-                            {{ $batch->scorm_packages->title ?? '-' }}
+                            @if($batch->courses->count() > 0)
+                                @foreach($batch->courses as $course)
+                                    <span class="badge badge-secondary">
+                                        {{ $course->title }}
+                                    </span>
+                                @endforeach
+                            @else
+                                -
+                            @endif
                         </td>
 
                         <td>
@@ -59,7 +68,7 @@
 
                         <td>
                             <span class="badge badge-primary">
-                                {{ $batch->students()->count() }}
+                                {{ $batch->students->count() }}
                             </span>
                         </td>
 

@@ -9,12 +9,15 @@ use Illuminate\Http\Request;
 
 class BatchController extends Controller
 {
-        public function index()
-    {
-        $batches = Batch::with('scorm_packages')->latest()->get();
-        // dd($batches);
-        return view('batches.index', compact('batches'));
-    }
+       public function index()
+{
+    $batches = Batch::with(['courses', 'students'])
+        ->latest()
+        ->get();
+
+    return view('batches.index', compact('batches'));
+}
+
 
     public function create()
     {
@@ -27,21 +30,24 @@ class BatchController extends Controller
 {
     $request->validate([
         'name' => 'required',
-        'course_id' => 'required',
+        'course_ids' => 'required|array',
         'start_date' => 'required|date',
         'expiry_date' => 'required|date|after:start_date',
     ]);
-// dd($request->all());    
-    Batch::create([
+
+    $batch = Batch::create([
         'batch_name' => $request->name,
-        'scorm_packages_id' => $request->course_id,
         'start_date' => $request->start_date,
         'expire_date' => $request->expiry_date,
     ]);
 
+    // attach multiple courses
+    $batch->courses()->attach($request->course_ids);
+
     return redirect()->route('batches.index')
-                     ->with('success', 'Batch Created Successfully');
+        ->with('success', 'Batch created successfully');
 }
+
 
 
    public function assignStudents($id)
