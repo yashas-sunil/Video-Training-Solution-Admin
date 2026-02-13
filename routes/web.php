@@ -686,7 +686,7 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
-Route::get('question-bank.show', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('question-bank/{id}', 'QuestionBankController@show')->name('question-bank.show');
 Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
 
  Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
@@ -738,3 +738,14 @@ Route::get('/pdf-stream/{path}', function ($path) {
 Route::get('/pdf-login-required', function () {
     return view('auth.pdf-login-required');
 })->name('pdf.login.required');
+
+// BATCH RESOURCE ROUTES
+Route::resource('batches', 'BatchController');
+
+// Assign Students Page (GET)
+Route::get('batches/{id}/assign', 'BatchController@assignStudents')
+    ->name('batches.assign');
+
+// Store Assigned Students (POST)
+Route::post('batches/{id}/assign', 'BatchController@storeStudents')
+    ->name('batches.storeStudents');
