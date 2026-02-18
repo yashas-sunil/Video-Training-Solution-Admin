@@ -478,6 +478,14 @@
     position: relative;
     z-index: 1;
 }
+/* ✅ Sidebar lessons list scroll enable */
+.sidebar { height: 100vh; }
+
+.sidebar .lessons-list.scroll-pane{
+  overflow-y: auto;
+  height: calc(100vh - 160px); /* hero/progress space वजा */
+}
+
 </style>
 
 
@@ -647,19 +655,16 @@ function scrollToSection(targetIndex) {
 
     const container = document.querySelector(".lesson-contents");
 
-    //  Decide at runtime which element is scrollable
     const isContainerScrollable =
         container &&
         container.scrollHeight > container.clientHeight;
 
     if (isContainerScrollable) {
-        //  Works for Firefox + Chrome (when container scrolls)
         container.scrollTo({
             top: section.offsetTop - 20,
             behavior: "smooth"
         });
     } else {
-        //  Works when window scrolls (Chrome / Edge fallback)
         const y =
             section.getBoundingClientRect().top +
             window.pageYOffset -
@@ -673,6 +678,7 @@ function scrollToSection(targetIndex) {
 
     setActiveTab(targetIndex);
 }
+
 function render(){
     const sections = document.querySelectorAll(".lesson-section");
     sections.forEach(sec=>{
@@ -752,7 +758,14 @@ tabs.forEach(tab=>{
         }
 
         const lessonIndex=parseInt(idx);
-        if(lessonIndex>unlockedIndex) return;
+
+        // ✅ ONLY CHANGE: pehle yaha return ho raha tha
+        // if(lessonIndex>unlockedIndex) return;
+
+        // ✅ Ab: jis lesson pe click kiya, usko unlock karke open karo
+        if(lessonIndex > unlockedIndex){
+            unlockedIndex = lessonIndex;
+        }
 
         render();
         setTimeout(()=>{
@@ -773,26 +786,14 @@ document.querySelectorAll(".open-inline").forEach(btn=>{
             return;
         }
 
-       if(ext === "pdf") {
-            //  const path = url.replace(`${window.location.origin}/f/`, "");
-
-    //   const pdfPath = url.replace(window.location.origin, "");
-
-    // if (isMobile()) {
-    //     // 📱 Mobile → new tab (BEST UX)
-    //     window.open(url, "_blank");
-    //     return;
-    // } else {
-        // 💻 Desktop → inline iframe
-        viewer.innerHTML = `
+        if(ext === "pdf") {
+            viewer.innerHTML = `
                <iframe
-            src="/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}"
-            style="width:100%; height:70vh; border:none;"
-        ></iframe>
-    `;
-    //}
-}
-else{
+                    src="/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}"
+                    style="width:100%; height:70vh; border:none;"
+               ></iframe>
+            `;
+        } else {
             viewer.innerHTML = `<img src="${url}">`;
         }
 
@@ -831,10 +832,12 @@ document.addEventListener("click", function (e) {
 
     sidebar.classList.remove("mobile-open");
 });
+
 function isMobile() {
     return window.innerWidth <= 768;
 }
 </script>
+
 </body>
 
 </html>
