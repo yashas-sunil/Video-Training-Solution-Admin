@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $chapter->name }} - Manual Content</title>
 
- <style>
+<style>
     body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -470,6 +470,7 @@
         transform: scale(0.96);
     }
 }
+
 .sidebar {
     z-index: 1500; /* Firefox click fix */
 }
@@ -478,15 +479,29 @@
     position: relative;
     z-index: 1;
 }
-/* ✅ Sidebar lessons list scroll enable */
-.sidebar { height: 100vh; }
 
-.sidebar .lessons-list.scroll-pane{
-  overflow-y: auto;
-  height: calc(100vh - 160px); /* hero/progress space वजा */
+/* ✅ Sidebar lessons list scroll enable */
+.sidebar{
+  top: 0;
+  left: 0;
+  height: 100vh;
+  min-height: 0;       /* important for flex scroll */
 }
 
+.sidebar .lessons-list.scroll-pane{
+  flex: 1;             /* remaining height take */
+  overflow-y: auto;    /* enable scroll */
+  height: auto;        /* remove fill-available behavior */
+  min-height: 0;       /* important for flex scroll */
+}
+
+/* ✅ FIX: scroll-pane min-block-size was blocking scroll in some browsers */
+.scroll-pane{
+  min-block-size: 0;
+  min-height: 0;
+}
 </style>
+
 
 
 </head>
