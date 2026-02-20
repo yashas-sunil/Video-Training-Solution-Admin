@@ -87,7 +87,6 @@
             font-weight: 400;
             margin-right: 10px;
             height: fit-content;
-
         }
 
         /* ===== QUESTION ===== */
@@ -117,39 +116,6 @@
             flex-direction: column;
             gap: 10px;
         }
-
-        .progress-wrapper {
-            position: relative;
-            width: 144px;
-            height: 144px;
-        }
-
-        .progress-svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-circle {
-            transition: stroke-dashoffset 1s ease;
-        }
-
-        .progress-circle.passed {
-            stroke: #22c55e;
-        }
-
-        .progress-circle.failed {
-            stroke: #ef4444;
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-        }
-
 
         /* ===== OPTIONS ===== */
         .options-box {
@@ -217,7 +183,6 @@
             flex-wrap: nowrap;
         }
 
-
         .next-btn {
             padding: 10px 28px;
             border: none;
@@ -263,23 +228,6 @@
             justify-content: space-between;
         }
 
-
-
-
-        .sub-navbar {
-            width: 100%;
-            background: #f8f9fa;
-            margin-top: 135px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding: 0;
-            box-sizing: border-box;
-            border-radius: 20px 20px 0px 0px;
-        }
-
-
-
         .back_btn {
             background: #ffffff;
             color: #000000;
@@ -290,7 +238,6 @@
             border: 2px solid #e3eefb;
             cursor: pointer;
             box-shadow: 3px 4px 11px 0px #00000040;
-
         }
 
         .back-btn {
@@ -304,7 +251,6 @@
             box-shadow: 3px 4px 11px 0px #00000040;
             display: flex;
             align-items: center;
-
         }
 
         .back-btn:hover {
@@ -324,19 +270,9 @@
             align-items: center;
             margin-top: 10px;
         }
+
         .check-btn:hover {
             background: linear-gradient(180deg, #155DFC 0%, #1145b5e0 100%);
-        }
-
-        .back_btn img {
-            height: 15px;
-            width: auto;
-
-        }
-
-        .back_btn:hover {
-            opacity: 1;
-            border: 2px solid #9ac9ff;
         }
 
         .tabs {
@@ -361,8 +297,6 @@
             box-sizing: border-box;
             z-index: 1;
         }
-
-
 
         .navbar .logo img {
             height: 55px;
@@ -408,104 +342,11 @@
             display: none;
         }
 
-        .result-circle-wrap {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            margin: 15px auto;
-        }
-
-        .result-circle-wrap svg {
-            display: block;
-            transform: rotate(-90deg);
-        }
-
-        .result-circle-text {
-            transform: translate(13%, -324%);
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            pointer-events: none;
-            width: fit-content;
-            margin: auto;
-        }
-
         .result-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin: 20px 0;
-        }
-
-        .stat-card {
-            padding: 14px 16px;
-            border-radius: 10px;
-            border: 2px solid;
-            background: #fff;
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .stat-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 8px;
-        }
-
-        /* Correct */
-        .correct-card {
-            border-color: #86efac;
-            background: #f0fdf4;
-        }
-
-        .correct-icon {
-            background: #22c55e;
-            color: #fff;
-        }
-
-        /* Wrong */
-        .wrong-card {
-            border-color: #fca5a5;
-            background: #fff1f2;
-        }
-
-        .wrong-icon {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        /* Total */
-        .total-card {
-            border-color: #c4b5fd;
-            background: #faf5ff;
-        }
-
-        .total-icon {
-            background: #8b5cf6;
-            color: #fff;
-        }
-
-        .final-score {
-            text-align: center;
-            font-size: 18px;
-            margin-top: 10px;
         }
 
         .correct-answer {
@@ -518,13 +359,58 @@
             border: 1px solid #ff4d4d;
         }
 
+        /* ✅ NEW: Study feedback text */
+        .study-feedback {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
 
+        .study-feedback.correct {
+            background: #e6fff1;
+            border: 1px solid #00c950;
+            color: #056d2c;
+        }
 
+        .study-feedback.wrong {
+            background: #ffeaea;
+            border: 1px solid #ff4d4d;
+            color: #a10f0f;
+        }
 
+        /* ✅ NEW: Solution box (works for both test review + study checked) */
+        .solution-box {
+            background: #fff;
+            border: 1px solid #e6eaf3;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .solution-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .solution-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
 
         @media (max-width: 425px) {
-
-
             .main-container {
                 padding: 10px !important;
             }
@@ -558,17 +444,6 @@
                 gap: 8px !important;
             }
 
-            .user-welcome {
-                gap: 4px !important;
-                padding: 6px 10px !important;
-            }
-
-            .user-info a {
-                margin-left: 0px !important;
-                padding: 3px 10px !important;
-                font-size: 12px !important;
-            }
-
             .user-info-mobile a {
                 color: white !important;
                 text-decoration: none !important;
@@ -581,22 +456,11 @@
             .top-back {
                 flex-direction: column-reverse !important;
                 align-items: flex-end !important;
-
-            }
-
-            .stat-header {
-                font-size: 10px;
-            }
-
-            .stat-value {
-                font-size: 18px;
             }
 
             .result-stats {
                 gap: 0;
-
             }
-
         }
     </style>
 </head>
@@ -604,13 +468,10 @@
 <body>
     <div class="main-container">
         <div class="navbar">
-            <!-- Left: Company Logo -->
             <div class="logo">
-                {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
                 <img src="{{ asset('images/logo-2.png') }}" alt="Company Logo">
             </div>
 
-            <!-- Right: User Info -->
             <div class="user-info">
                 <div class="user-welcome">
                     <div style="font-size: 14px;">Welcome back !</div>
@@ -624,7 +485,6 @@
                 </form>
             </div>
 
-            <!-- Right: User Info-mobile -->
             <div class="user-info-mobile">
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -640,7 +500,6 @@
             </div>
         </div>
 
-        <!-- TOP BACK BUTTON -->
         <div class="top-back">
             <div class="test_progress">
                 <div class="test_text">
@@ -659,19 +518,18 @@
                             style="height:100%; background:#700002; width:50%; transition:width 0.5s;border-radius:10px;">
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="tabs">
                 <button id="topBackBtn" class="back_btn"
-                    style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img
-                        src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
+                    style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;">
+                    <img src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
                     <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back</p>
                 </button>
             </div>
         </div>
-        <div class="exam-wrapper">
 
+        <div class="exam-wrapper">
             <div class="exam-box" id="examBox">
                 <p style="text-align:center;color:#999;">Loading questions...</p>
             </div>
@@ -679,13 +537,14 @@
             <div class="nav-btns" style="display:none">
                 <button id="backBtn" class="back-btn"><img src="{{ asset('images/arrow.png') }}" alt="arrow"
                         style="margin-right: 10px;width: 15px;height: 15px;">Previous</button>
+
                 <button id="nextBtn" class="back-btn">Next<img src="{{ asset('images/arrow.png') }}" alt="arrow"
                         style="margin-left: 10px; rotate: 180deg;width: 15px;height: 15px;"></button>
             </div>
+
             <div class="check_ans-btns" style="display:none">
                 <button id="check_ans_btn" class="check-btn"><img src="{{ asset('images/review.png') }}" alt="arrow"
                         style="margin-right: 10px;width: 15px;height: 15px;">Review Answers</button>
-
             </div>
 
         </div>
@@ -693,226 +552,358 @@
         <script>
             $(function() {
 
-                        let allQ = [];
-                        let qIndex = 0;
-                        let answers = {};
-                        let reviewMode = false;
-                        let resultHTML = "";
+                let allQ = [];
+                let qIndex = 0;
+                let answers = {};
+                let reviewMode = false;
+                let resultHTML = "";
+                let answersSaved = false;
 
-                        const qp = n => new URLSearchParams(window.location.search).get(n);
+                const qp = n => new URLSearchParams(window.location.search).get(n);
+                const mode = (qp('mode') || 'test').toLowerCase(); // test | study
 
-                        let data = {
-                            subject_id: qp('subject_id'),
-                            chapter_id: qp('chapter_id'),
-                            subchapter_id: qp('subchapter_id'),
-                            difficult_level_id: qp('difficult_level_id'),
-                            used_status: qp('used_status'),
-                            limit: qp('limit')
-                        };
+                let checkedMap = {}; // study: { [questionId]: true/false }
 
-                        $.get("/qbundle/filter", data, function(res) {
-                            allQ = res.data || [];
-                            if (allQ.length === 0) {
-                                $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-                                return;
-                            }
-                            showQuestion(0);
-                            $(".nav-btns").show();
-                        });
+                let data = {
+                    subject_id: qp('subject_id'),
+                    chapter_id: qp('chapter_id'),
+                    difficult_level_id: qp('difficult_level_id'),
+                    used_status: qp('used_status'),
+                    limit: qp('limit'),
+                    mode: mode
+                };
 
-                        function updateTestProgress() {
-                            let current = qIndex + 1;
-                            let total = allQ.length;
+                $.get("/qbundle/filter", data, function(res) {
+                    allQ = res.data || [];
+                    if (allQ.length === 0) {
+                        $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+                        return;
+                    }
+                    showQuestion(0);
+                    $(".nav-btns").show();
+                });
 
-                            let percent = Math.round((current / total) * 100);
+                function updateTestProgress() {
+                    let current = qIndex + 1;
+                    let total = allQ.length;
+                    let percent = Math.round((current / total) * 100);
 
-                            $("#questionCounter").text(`Question ${current} / ${total}`);
-                            $("#questionPercent").text(`${percent}%`);
+                    $("#questionCounter").text(`Question ${current} / ${total}`);
+                    $("#questionPercent").text(`${percent}%`);
+                    $(".progress-fill").css("width", percent + "%");
+                }
 
-                            $(".progress-fill").css("width", percent + "%");
+                function getRightAnswerId(q) {
+                    return q.answers.find(a => a.correctans == 1)?.id;
+                }
+
+                function getSolutionText(q) {
+                    // backend should send: solution_text
+                    return (q.solution_text || '').toString().trim();
+                }
+
+                function showSolutionBox(q) {
+                    const sol = getSolutionText(q);
+                    if (!sol) return;
+
+                    const box = $("#solutionBox");
+                    const text = $("#solutionText");
+
+                    if (!box.length || !text.length) return;
+
+                    text.text(sol);
+                    box.show();
+                }
+
+                function showQuestion(i) {
+                    updateTestProgress();
+
+                    let q = allQ[i];
+                    let rightAns = getRightAnswerId(q);
+                    const isChecked = !!checkedMap[q.id];
+
+                    let html = `
+                        <div class="sub-exambox-q">
+                            <div class="question-title">
+                                <div class="Q-no">Q${i + 1}</div> ${q.question}
+                            </div>
+                            <div class="options-box">
+                    `;
+
+                    q.answers.forEach((a, idx) => {
+                        let checked = (answers[q.id] == a.id) ? 'checked' : '';
+                        let cls = '';
+
+                        if (reviewMode || (mode === 'study' && isChecked)) {
+                            if (a.id == rightAns) cls = ' correct-answer';
+                            if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
                         }
 
-                        
+                        const disableInput = (reviewMode || (mode === 'study' && isChecked)) ? 'disabled' : '';
 
-
-                            function showQuestion(i) {
-                                updateTestProgress();
-                                let q = allQ[i];
-                                let rightAns = q.answers.find(a => a.correctans == 1)?.id;
-
-                                let html = `
-        <div class="sub-exambox-q">
-            <div class="question-title">
-                <div class="Q-no">Q${i + 1}</div> ${q.question}
-            </div>
-            <div class="options-box">
-        `;
-
-                                q.answers.forEach((a, idx) => {
-
-                                    let checked = answers[q.id] == a.id ? 'checked' : '';
-                                    let cls = '';
-
-                                    if (reviewMode) {
-                                        if (a.id == rightAns) cls = ' correct-answer';
-                                        if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
-                                    }
-
-                                    html += `
-            <label class="option-item ${cls}">
-                <input type="radio" name="opt"
-                    value="${a.id}"
-                    data-qid="${q.id}"
-                    ${checked}
-                    ${reviewMode ? 'disabled' : ''}>
-                <span class="option-alpha">${String.fromCharCode(65 + idx)}</span>
-                <span class="option-text">${a.answer}</span>
-            </label>
-            `;
-                                });
-
-                                html += `</div></div>`;
-                                $("#examBox").html(html);
-                            }
-
-                            $(document).on("change", "input[name=opt]", function() {
-                                if (!reviewMode) {
-                                    answers[$(this).data("qid")] = $(this).val();
-                                }
-                            });
-
-                            $("#backBtn").click(() => {
-                                if (qIndex > 0) {
-                                    qIndex--;
-                                    showQuestion(qIndex);
-                                }
-                            });
-
-                            $("#nextBtn").click(() => {
-
-                                // 🔁 REVIEW MODE
-                                if (reviewMode) {
-                                    if (qIndex < allQ.length - 1) {
-                                        qIndex++;
-                                        showQuestion(qIndex);
-                                    } else {
-                                        // ⬅️ Back to SAME result page
-                                        reviewMode = false;
-                                        $("#examBox").html(resultHTML);
-                                        $(".nav-btns").hide();
-                                        $(".check_ans-btns").show();
-                                    }
-                                    return;
-                                }
-
-                                // 📝 NORMAL EXAM MODE
-                                if (qIndex < allQ.length - 1) {
-                                    qIndex++;
-                                    showQuestion(qIndex);
-                                    return;
-                                }
-
-                                // ✅ RESULT CALCULATION (UNCHANGED)
-                                let correct = 0;
-                                let wrong = 0;
-
-                                allQ.forEach(q => {
-                                    let right = q.answers.find(a => a.correctans == 1);
-                                    if (answers[q.id] == right?.id) {
-                                        correct++;
-                                    } else {
-                                        wrong++;
-                                    }
-                                });
-
-                                let percentage = Math.round((correct / allQ.length) * 100);
-                                let radius = 64;
-                                let circumference = 2 * Math.PI * radius;
-                                let offset = -(circumference * (1 - percentage / 100));
-                                let passed = percentage >= 40;
-
-                                $(".check_ans-btns").show();
-                                $(".nav-btns").hide();
-
-                                // 🔒 STORE RESULT PAGE EXACTLY AS IT IS
-                                resultHTML = `
-<div class="sub-exambox">
-
-    <div class="question-title2">
-        <img src="{{ asset('images/test_completed.png') }}" alt="Company Logo">
-        Exam Completed
-    </div>
-
-    <div class="result-full" style=" padding: 15px; justify-items: center;">
-        <div class="result-circle-wrap">
-            <svg width="140" height="140" viewBox="0 0 140 140">
-                <circle cx="70" cy="70" r="${radius}" stroke="#e4e6eb" stroke-width="10" fill="transparent"/>
-                <circle
-                    cx="70" cy="70" r="${radius}"
-                    stroke-width="10"
-                    stroke="#00c950"
-                    fill="transparent"
-                    stroke-dasharray="${circumference}"
-                    stroke-dashoffset="${offset}"
-                    stroke-linecap="round"
-                    class="result-progress ${passed ? 'result-pass' : 'result-fail'}"
-                />
-            </svg>
-            <div class="result-circle-text">${percentage}%</div>
-        </div>
-
-        <div class="result-stats">
-
-            <div class="stat-card correct-card">
-                <div class="stat-header">
-                    <span class="stat-icon correct-icon">✓</span>
-                    <span class="stat-title">Correct</span>
-                </div>
-                <div class="stat-value">${correct}</div>
-            </div>
-
-            <div class="stat-card wrong-card">
-                <div class="stat-header">
-                    <span class="stat-icon wrong-icon">✕</span>
-                    <span class="stat-title">Wrong</span>
-                </div>
-                <div class="stat-value">${wrong}</div>
-            </div>
-
-            <div class="stat-card total-card">
-                <div class="stat-header">
-                    <span class="stat-icon total-icon">≡</span>
-                    <span class="stat-title">Total</span>
-                </div>
-                <div class="stat-value">${allQ.length}</div>
-            </div>
-
-        </div>
-    </div>
-</div>
-`;
-
-                                $("#examBox").html(resultHTML);
-                            });
-
-                            // ✅ START REVIEW
-                            $("#check_ans_btn").click(() => {
-                                reviewMode = true;
-                                qIndex = 0;
-                                $(".check_ans-btns").hide();
-                                $(".nav-btns").show();
-                                showQuestion(qIndex);
-                            });
-
-                        });
-
-                    $("#topBackBtn").click(function() {
-                        history.back();
+                        html += `
+                            <label class="option-item ${cls}">
+                                <input type="radio" name="opt"
+                                    value="${a.id}"
+                                    data-qid="${q.id}"
+                                    ${checked}
+                                    ${disableInput}>
+                                <span class="option-alpha">${String.fromCharCode(65 + idx)}</span>
+                                <span class="option-text">${a.answer}</span>
+                            </label>
+                        `;
                     });
+
+                    // ✅ STUDY UI
+                    if (mode === 'study' && !reviewMode) {
+                        html += `
+                            <div id="studyFeedback" class="study-feedback"></div>
+
+                            <button id="checkNowBtn" class="check-btn" type="button" style="margin-top:10px;">
+                                <img src="{{ asset('images/review.png') }}" alt="arrow"
+                                    style="margin-right: 10px;width: 15px;height: 15px;">
+                                Check Answer
+                            </button>
+                        `;
+                    }
+
+                    // ✅ NEW: Solution box (shown in Study after check, and in Review mode always)
+                    html += `
+                            <div id="solutionBox" class="solution-box">
+                                <div class="solution-title">
+                                    ✅ Why correct? (Solution)
+                                </div>
+                                <div id="solutionText" class="solution-text"></div>
+                            </div>
+                        </div></div>
+                    `;
+
+                    $("#examBox").html(html);
+
+                    // ✅ If review mode -> show solution immediately
+                    if (reviewMode) {
+                        showSolutionBox(q);
+                    }
+
+                    // ✅ Study: if already checked -> show feedback + solution again
+                    if (mode === 'study' && isChecked) {
+                        renderStudyFeedback(q);
+                        showSolutionBox(q);
+                    }
+                }
+
+                $(document).on("change", "input[name=opt]", function() {
+                    if (!reviewMode) {
+                        answers[$(this).data("qid")] = $(this).val();
+                    }
+                });
+
+                $("#backBtn").click(() => {
+                    if (qIndex > 0) {
+                        qIndex--;
+                        showQuestion(qIndex);
+                    }
+                });
+
+                // ✅ Study: Check Answer
+                $(document).on("click", "#checkNowBtn", function() {
+                    const q = allQ[qIndex];
+                    const selected = answers[q.id];
+
+                    if (!selected) {
+                        alert("Please select an option first.");
+                        return;
+                    }
+
+                    checkedMap[q.id] = true;
+
+                    // re-render to highlight + disable + show feedback
+                    showQuestion(qIndex);
+                });
+
+                function renderStudyFeedback(q) {
+                    const rightId = getRightAnswerId(q);
+                    const selected = answers[q.id];
+
+                    const isCorrect = (selected && rightId && String(selected) === String(rightId));
+                    const fb = $("#studyFeedback");
+
+                    if (!fb.length) return;
+
+                    fb.removeClass("correct wrong").addClass(isCorrect ? "correct" : "wrong");
+
+                    let correctText = q.answers.find(a => String(a.id) === String(rightId))?.answer || "Correct option";
+                    fb.html(isCorrect
+                        ? `✅ Correct!`
+                        : `❌ Wrong! Correct Answer: <b>${correctText}</b>`
+                    );
+
+                    fb.show();
+                }
+
+                $("#nextBtn").click(() => {
+
+                    // 🔁 Review mode navigation
+                    if (reviewMode) {
+                        if (qIndex < allQ.length - 1) {
+                            qIndex++;
+                            showQuestion(qIndex);
+                        } else {
+                            reviewMode = false;
+                            $("#examBox").html(resultHTML);
+                            $(".nav-btns").hide();
+                            $(".check_ans-btns").show();
+                        }
+                        return;
+                    }
+
+                    // ✅ Study: must check before next
+                    if (mode === 'study') {
+                        const q = allQ[qIndex];
+                        const selected = answers[q.id];
+
+                        if (!selected) {
+                            alert("Please select an option first.");
+                            return;
+                        }
+
+                        // auto-check if not checked
+                        if (!checkedMap[q.id]) {
+                            checkedMap[q.id] = true;
+                            showQuestion(qIndex);
+                            return;
+                        }
+
+                        if (qIndex < allQ.length - 1) {
+                            qIndex++;
+                            showQuestion(qIndex);
+                            return;
+                        }
+
+                        finalizeResult();
+                        return;
+                    }
+
+                    // ✅ Test: normal next
+                    if (qIndex < allQ.length - 1) {
+                        qIndex++;
+                        showQuestion(qIndex);
+                        return;
+                    }
+
+                    finalizeResult();
+                });
+
+                function finalizeResult() {
+                    let correct = 0;
+                    let wrong = 0;
+
+                    allQ.forEach(q => {
+                        let right = q.answers.find(a => a.correctans == 1);
+                        if (answers[q.id] == right?.id) {
+                            correct++;
+                        } else {
+                            wrong++;
+                        }
+                    });
+
+                    if (!answersSaved) {
+                        saveUserAnswers();
+                        answersSaved = true;
+                    }
+
+                    let percentage = Math.round((correct / allQ.length) * 100);
+                    let radius = 64;
+                    let circumference = 2 * Math.PI * radius;
+                    let offset = -(circumference * (1 - percentage / 100));
+
+                    $(".check_ans-btns").show();
+                    $(".nav-btns").hide();
+
+                    resultHTML = `
+                        <div class="sub-exambox">
+                            <div class="question-title2">
+                                <img src="{{ asset('images/test_completed.png') }}">
+                                Exam Completed
+                            </div>
+
+                            <div class="result-full" style="padding:15px;">
+                                <div class="result-circle-wrap">
+                                    <svg width="140" height="140">
+                                        <circle cx="70" cy="70" r="${radius}" stroke="#e4e6eb" stroke-width="10" fill="transparent"/>
+                                        <circle cx="70" cy="70" r="${radius}"
+                                            stroke="#00c950"
+                                            stroke-width="10"
+                                            fill="transparent"
+                                            stroke-dasharray="${circumference}"
+                                            stroke-dashoffset="${offset}"
+                                            stroke-linecap="round"/>
+                                    </svg>
+                                    <div class="result-circle-text">${percentage}%</div>
+                                </div>
+
+                                <div class="result-stats">
+                                    <div>Correct: ${correct}</div>
+                                    <div>Wrong: ${wrong}</div>
+                                    <div>Total: ${allQ.length}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    $("#examBox").html(resultHTML);
+                }
+
+                // ✅ Review Answers button (existing)
+                $("#check_ans_btn").click(() => {
+                    reviewMode = true;
+                    qIndex = 0;
+                    $(".check_ans-btns").hide();
+                    $(".nav-btns").show();
+                    showQuestion(qIndex);
+                });
+
+                $("#topBackBtn").click(function() {
+                    history.back();
+                });
+
+                function saveUserAnswers() {
+                    let payload = {
+                        data: []
+                    };
+
+                    allQ.forEach(q => {
+                        payload.data.push({
+                            question_id: q.id,
+                            answers_id: answers[q.id] ?? null,
+                            time_taken: 0,
+                            user_question_status: answers[q.id] ? 1 : 0,
+                            is_cumulative_question: false,
+                            mode: mode
+                        });
+                    });
+
+                    $.ajax({
+                        url: "/api/save-user-answers",
+                        type: "POST",
+                        data: JSON.stringify(payload),
+                        contentType: "application/json",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res) {
+                            console.log("✅ Answers saved");
+                        },
+                        error: function(err) {
+                            console.error("❌ Save failed", err);
+                        }
+                    });
+                }
+
+            });
         </script>
 
     </div>
-
 </body>
 
 </html>
