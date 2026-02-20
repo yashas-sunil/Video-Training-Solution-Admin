@@ -612,6 +612,17 @@ Route::get('/course/{course}/chapters', 'ScormController@getChapters')
     ->name('course.chapters')->middleware('auth');
 
     // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
+    Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
+    ->name('chapter.manual.edit');
+
+Route::post('/chapters/{chapter}/manual/update', 'ScormController@updateChapterManual')
+    ->name('chapter.manual.update');
+
+Route::post('/manual-content/{content}/delete', 'ScormController@deleteManualContent')
+    ->name('chapter.manual.content.delete');
+
+Route::post('/lessons/{lesson}/delete', 'ScormController@deleteLesson')
+    ->name('chapter.manual.lesson.delete');
 // chapter open
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
     ->name('chapter.view')->middleware('auth');

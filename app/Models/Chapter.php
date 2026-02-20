@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Models;
-use App\Summary;
-use App\Question;
 use App\Models\Course;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Lesson;
+use App\Question;
 use App\ScormPackage as AppScormPackage;
+use App\Summary;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Chapter extends Model
@@ -134,4 +135,8 @@ class Chapter extends Model
             return 0;
         }
     }
+    public function lessons()
+{
+    return $this->hasMany(Lesson::class, 'chapter_id');
+}
 }
