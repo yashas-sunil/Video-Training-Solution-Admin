@@ -381,6 +381,35 @@
             color: #a10f0f;
         }
 
+        /* ✅ NEW: Solution box (works for both test review + study checked) */
+        .solution-box {
+            background: #fff;
+            border: 1px solid #e6eaf3;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .solution-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .solution-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
         @media (max-width: 425px) {
             .main-container {
                 padding: 10px !important;
@@ -509,12 +538,10 @@
                 <button id="backBtn" class="back-btn"><img src="{{ asset('images/arrow.png') }}" alt="arrow"
                         style="margin-right: 10px;width: 15px;height: 15px;">Previous</button>
 
-                <!-- ✅ STUDY MODE: Next will work after check -->
                 <button id="nextBtn" class="back-btn">Next<img src="{{ asset('images/arrow.png') }}" alt="arrow"
                         style="margin-left: 10px; rotate: 180deg;width: 15px;height: 15px;"></button>
             </div>
 
-            <!-- ✅ EXISTING: review button -->
             <div class="check_ans-btns" style="display:none">
                 <button id="check_ans_btn" class="check-btn"><img src="{{ asset('images/review.png') }}" alt="arrow"
                         style="margin-right: 10px;width: 15px;height: 15px;">Review Answers</button>
@@ -532,22 +559,18 @@
                 let resultHTML = "";
                 let answersSaved = false;
 
-                // ✅ NEW: mode
                 const qp = n => new URLSearchParams(window.location.search).get(n);
                 const mode = (qp('mode') || 'test').toLowerCase(); // test | study
 
-                // ✅ NEW (study): per question checked?
-                let checkedMap = {}; // { [questionId]: true/false }
+                let checkedMap = {}; // study: { [questionId]: true/false }
 
-                // ✅ CHANGED: subchapter_id removed, mode added
                 let data = {
                     subject_id: qp('subject_id'),
                     chapter_id: qp('chapter_id'),
-                    // subchapter_id: qp('subchapter_id'), // removed
                     difficult_level_id: qp('difficult_level_id'),
                     used_status: qp('used_status'),
                     limit: qp('limit'),
-                    mode: mode // optional, backend ignore kare to bhi ok
+                    mode: mode
                 };
 
                 $.get("/qbundle/filter", data, function(res) {
@@ -574,13 +597,29 @@
                     return q.answers.find(a => a.correctans == 1)?.id;
                 }
 
+                function getSolutionText(q) {
+                    // backend should send: solution_text
+                    return (q.solution_text || '').toString().trim();
+                }
+
+                function showSolutionBox(q) {
+                    const sol = getSolutionText(q);
+                    if (!sol) return;
+
+                    const box = $("#solutionBox");
+                    const text = $("#solutionText");
+
+                    if (!box.length || !text.length) return;
+
+                    text.text(sol);
+                    box.show();
+                }
+
                 function showQuestion(i) {
                     updateTestProgress();
 
                     let q = allQ[i];
                     let rightAns = getRightAnswerId(q);
-
-                    // ✅ in study: already checked?
                     const isChecked = !!checkedMap[q.id];
 
                     let html = `
@@ -595,13 +634,11 @@
                         let checked = (answers[q.id] == a.id) ? 'checked' : '';
                         let cls = '';
 
-                        // reviewMode (test review) OR study checked
                         if (reviewMode || (mode === 'study' && isChecked)) {
                             if (a.id == rightAns) cls = ' correct-answer';
                             if (answers[q.id] == a.id && a.id != rightAns) cls = ' wrong-answer';
                         }
 
-                        // ✅ disable in review OR in study after checked
                         const disableInput = (reviewMode || (mode === 'study' && isChecked)) ? 'disabled' : '';
 
                         html += `
@@ -617,7 +654,7 @@
                         `;
                     });
 
-                    // ✅ NEW: Study feedback area + Check Answer button only in study
+                    // ✅ STUDY UI
                     if (mode === 'study' && !reviewMode) {
                         html += `
                             <div id="studyFeedback" class="study-feedback"></div>
@@ -630,17 +667,31 @@
                         `;
                     }
 
-                    html += `</div></div>`;
+                    // ✅ NEW: Solution box (shown in Study after check, and in Review mode always)
+                    html += `
+                            <div id="solutionBox" class="solution-box">
+                                <div class="solution-title">
+                                    ✅ Why correct? (Solution)
+                                </div>
+                                <div id="solutionText" class="solution-text"></div>
+                            </div>
+                        </div></div>
+                    `;
 
                     $("#examBox").html(html);
 
-                    // ✅ In study: if checked already, show feedback text again
+                    // ✅ If review mode -> show solution immediately
+                    if (reviewMode) {
+                        showSolutionBox(q);
+                    }
+
+                    // ✅ Study: if already checked -> show feedback + solution again
                     if (mode === 'study' && isChecked) {
                         renderStudyFeedback(q);
+                        showSolutionBox(q);
                     }
                 }
 
-                // ✅ selection save
                 $(document).on("change", "input[name=opt]", function() {
                     if (!reviewMode) {
                         answers[$(this).data("qid")] = $(this).val();
@@ -654,7 +705,7 @@
                     }
                 });
 
-                // ✅ STUDY: check button click
+                // ✅ Study: Check Answer
                 $(document).on("click", "#checkNowBtn", function() {
                     const q = allQ[qIndex];
                     const selected = answers[q.id];
@@ -666,7 +717,7 @@
 
                     checkedMap[q.id] = true;
 
-                    // highlight + disable
+                    // re-render to highlight + disable + show feedback
                     showQuestion(qIndex);
                 });
 
@@ -690,10 +741,9 @@
                     fb.show();
                 }
 
-                // ✅ Next button logic: depends on mode
                 $("#nextBtn").click(() => {
 
-                    // 🔁 REVIEW MODE (existing)
+                    // 🔁 Review mode navigation
                     if (reviewMode) {
                         if (qIndex < allQ.length - 1) {
                             qIndex++;
@@ -707,7 +757,7 @@
                         return;
                     }
 
-                    // ✅ STUDY MODE: prevent next until checked
+                    // ✅ Study: must check before next
                     if (mode === 'study') {
                         const q = allQ[qIndex];
                         const selected = answers[q.id];
@@ -717,33 +767,30 @@
                             return;
                         }
 
-                        // If not checked yet -> auto check now and stop (so user sees feedback)
+                        // auto-check if not checked
                         if (!checkedMap[q.id]) {
                             checkedMap[q.id] = true;
                             showQuestion(qIndex);
                             return;
                         }
 
-                        // already checked -> move next / finish
                         if (qIndex < allQ.length - 1) {
                             qIndex++;
                             showQuestion(qIndex);
                             return;
                         }
 
-                        // finish -> same result page as test (you can keep)
                         finalizeResult();
                         return;
                     }
 
-                    // 📝 TEST MODE (existing)
+                    // ✅ Test: normal next
                     if (qIndex < allQ.length - 1) {
                         qIndex++;
                         showQuestion(qIndex);
                         return;
                     }
 
-                    // ✅ RESULT CALCULATION
                     finalizeResult();
                 });
 
@@ -807,6 +854,7 @@
                     $("#examBox").html(resultHTML);
                 }
 
+                // ✅ Review Answers button (existing)
                 $("#check_ans_btn").click(() => {
                     reviewMode = true;
                     qIndex = 0;
@@ -831,7 +879,7 @@
                             time_taken: 0,
                             user_question_status: answers[q.id] ? 1 : 0,
                             is_cumulative_question: false,
-                            mode: mode // optional field (backend ignore kare to ok)
+                            mode: mode
                         });
                     });
 
