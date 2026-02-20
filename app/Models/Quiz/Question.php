@@ -409,5 +409,6 @@ class Question extends Model
 {
     return $this->hasOne(Solution::class, 'question_id', 'id');
 }
+
         
 }
