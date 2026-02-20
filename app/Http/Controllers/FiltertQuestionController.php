@@ -89,7 +89,9 @@ class FiltertQuestionController extends Controller
             return response()->json($chapters);
         }
         $id = $request->input('subjects_id');
+       // dd($id);
         $chapters = Chapter::where('subject_id', $id)->where('status', Subject::ACTIVE)->get();
+      //  dd($chapters);
         return response()->json($chapters);
     }
 
@@ -162,7 +164,6 @@ class FiltertQuestionController extends Controller
 
 public function filterQBundle(Request $request)
 {
-    
     try {
 
         $request->validate([
@@ -174,7 +175,6 @@ public function filterQBundle(Request $request)
             'limit' => 'nullable|integer|min:1|max:500',
         ]);
 
-
         $limit = $request->limit ?? 50;
 
         $query = Question::with([
@@ -184,7 +184,9 @@ public function filterQBundle(Request $request)
             'subchapter:id,name',
             'answerType:id,name',
             'difficultLevel:id,name',
-            'userAttempts:id,question_id'
+            'userAttempts:id,question_id',
+
+            'solution:id,question_id,name',
         ]);
 
         $query->where('subject_id', $request->subject_id);
@@ -211,16 +213,13 @@ public function filterQBundle(Request $request)
 
         $questions = $query->paginate($limit);
 
-        Log::info(" PAGINATION RESULT", [
-            'count' => count($questions->items()),
-            'total' => $questions->total()
-        ]);
-
         $data = collect($questions->items())->map(function ($q) {
-
             return [
                 "id" => $q->id,
                 "question" => $q->question,
+
+                // ✅ NEW: solution text
+                "solution_text" => optional($q->solution)->name,
 
                 "difficult_levels_id" => $q->difficult_levels_id,
 
@@ -230,7 +229,6 @@ public function filterQBundle(Request $request)
                 ],
 
                 "answers" => $q->answers->map(function ($a) {
-                    Log::info("   ➡ PROCESSING ANSWER", ['id' => $a->id]);
                     return [
                         "id" => $a->id,
                         "answer" => $a->answer,
@@ -261,7 +259,7 @@ public function filterQBundle(Request $request)
                 "used" => $q->userAttempts->count() > 0,
             ];
         });
-    //   dd($data);
+
         return response()->json([
             'status' => true,
             'data' => $data,
@@ -273,13 +271,6 @@ public function filterQBundle(Request $request)
         ]);
 
     } catch (\Exception $e) {
-
-        Log::error(" API FAILED", [
-            'message' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile(),
-        ]);
-
         return response()->json([
             'status' => false,
             'message' => $e->getMessage(),
