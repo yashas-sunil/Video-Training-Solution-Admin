@@ -2,29 +2,30 @@
 
 namespace App\Models\Quiz;
 
-use DB;
-use File;
-use Storage;
-use Madzipper;
-use Validator;
 use App\Answer;
 use App\AnswerType;
-use App\Subchapter;
 use App\DifficultLevel;
+use App\Jobs\QuestionAnswerUpload;
 use App\Models\Chapter;
 use App\Models\Subject;
-use App\Jobs\QuestionAnswerUpload;
+use App\Solution;
+use App\Subchapter;
+use DB;
+use File;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
+use Madzipper;
 use Modules\Master\Entities\Languages;
-use Illuminate\Database\Eloquent\Model;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Style;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Style;
+use Storage;
+use Validator;
 // use Illuminate\Support\Facades\Redirect;
 // use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -404,5 +405,9 @@ class Question extends Model
             return $question;
         }
     }
+public function solution()
+{
+    return $this->hasOne(Solution::class, 'question_id', 'id');
+}
         
 }
