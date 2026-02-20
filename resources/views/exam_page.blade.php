@@ -583,6 +583,12 @@
                     $(".nav-btns").show();
                 });
 
+                // ✅ NEW: scroll to top (so next question shows at top without manual scroll)
+                function scrollToQuestionTop() {
+                    // immediate top for perfect UX
+                    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                }
+
                 function updateTestProgress() {
                     let current = qIndex + 1;
                     let total = allQ.length;
@@ -598,7 +604,6 @@
                 }
 
                 function getSolutionText(q) {
-                    // backend should send: solution_text
                     return (q.solution_text || '').toString().trim();
                 }
 
@@ -654,7 +659,6 @@
                         `;
                     });
 
-                    // ✅ STUDY UI
                     if (mode === 'study' && !reviewMode) {
                         html += `
                             <div id="studyFeedback" class="study-feedback"></div>
@@ -667,7 +671,6 @@
                         `;
                     }
 
-                    // ✅ NEW: Solution box (shown in Study after check, and in Review mode always)
                     html += `
                             <div id="solutionBox" class="solution-box">
                                 <div class="solution-title">
@@ -680,12 +683,13 @@
 
                     $("#examBox").html(html);
 
-                    // ✅ If review mode -> show solution immediately
+                    // ✅ NEW: after rendering question, auto scroll to top
+                    scrollToQuestionTop();
+
                     if (reviewMode) {
                         showSolutionBox(q);
                     }
 
-                    // ✅ Study: if already checked -> show feedback + solution again
                     if (mode === 'study' && isChecked) {
                         renderStudyFeedback(q);
                         showSolutionBox(q);
@@ -705,7 +709,6 @@
                     }
                 });
 
-                // ✅ Study: Check Answer
                 $(document).on("click", "#checkNowBtn", function() {
                     const q = allQ[qIndex];
                     const selected = answers[q.id];
@@ -716,8 +719,6 @@
                     }
 
                     checkedMap[q.id] = true;
-
-                    // re-render to highlight + disable + show feedback
                     showQuestion(qIndex);
                 });
 
@@ -743,7 +744,6 @@
 
                 $("#nextBtn").click(() => {
 
-                    // 🔁 Review mode navigation
                     if (reviewMode) {
                         if (qIndex < allQ.length - 1) {
                             qIndex++;
@@ -753,11 +753,11 @@
                             $("#examBox").html(resultHTML);
                             $(".nav-btns").hide();
                             $(".check_ans-btns").show();
+                            scrollToQuestionTop();
                         }
                         return;
                     }
 
-                    // ✅ Study: must check before next
                     if (mode === 'study') {
                         const q = allQ[qIndex];
                         const selected = answers[q.id];
@@ -767,7 +767,6 @@
                             return;
                         }
 
-                        // auto-check if not checked
                         if (!checkedMap[q.id]) {
                             checkedMap[q.id] = true;
                             showQuestion(qIndex);
@@ -784,7 +783,6 @@
                         return;
                     }
 
-                    // ✅ Test: normal next
                     if (qIndex < allQ.length - 1) {
                         qIndex++;
                         showQuestion(qIndex);
@@ -852,9 +850,9 @@
                     `;
 
                     $("#examBox").html(resultHTML);
+                    scrollToQuestionTop();
                 }
 
-                // ✅ Review Answers button (existing)
                 $("#check_ans_btn").click(() => {
                     reviewMode = true;
                     qIndex = 0;
