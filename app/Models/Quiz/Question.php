@@ -405,7 +405,7 @@ class Question extends Model
             return $question;
         }
     }
-public function solution()
+      public function solution()
 {
     return $this->hasOne(Solution::class, 'question_id', 'id');
 }
