@@ -25,8 +25,6 @@
             box-sizing: border-box;
         }
 
-
-
         /* FILTER CARD */
         .filter-card {
             background: white;
@@ -79,7 +77,6 @@
             background: linear-gradient(180deg, #0e3da2 0%, rgba(12, 56, 150, 0.81) 100%);
         }
 
-
         /* NAV BUTTONS */
         .nav-btns {
             max-width: 700px;
@@ -89,7 +86,6 @@
             gap: 12px;
         }
 
-
         .next-btn {
             padding: 9px 20px;
             font-size: 16px;
@@ -98,8 +94,6 @@
             color: white;
             cursor: pointer;
         }
-
-
 
         .next-btn {
             background: #27ae60;
@@ -165,23 +159,13 @@
             }
         }
 
-        /* ===== sub-navbar TABS ===== */
-        /* CENTERED sub-navbar TABS */
-
-
-
-
         .tabs {
             display: flex;
             align-items: center;
             gap: 15px;
             box-sizing: border-box;
-
         }
 
-
-
-        /* Back button left */
         .sub-navbar {
             width: 100%;
             background: #f8f9fa;
@@ -201,8 +185,6 @@
             padding: 0px 22px;
         }
 
-
-
         .back-btn {
             background: #ffffff;
             color: #000000;
@@ -213,7 +195,6 @@
             border: 2px solid #e3eefb;
             cursor: pointer;
             box-shadow: 3px 4px 11px 0px #00000040;
-
         }
 
         .Exam-setup {
@@ -222,7 +203,6 @@
             border-radius: 20px 20px 0px 0px;
             padding: 10px;
             padding-left: 25px;
-
             display: flex;
             gap: 20px;
         }
@@ -230,16 +210,12 @@
         .back-btn img {
             height: 15px;
             width: auto;
-
         }
 
         .back-btn:hover {
             opacity: 1;
             border: 2px solid #9ac9ff;
         }
-
-
-        .sub-navbar:hover {}
 
         .tab-btn {
             padding: 10px 20px;
@@ -282,8 +258,6 @@
             box-sizing: border-box;
             z-index: 1;
         }
-
-
 
         .navbar .logo img {
             height: 55px;
@@ -339,6 +313,15 @@
             font-size: 13px;
             margin-top: 4px;
         }
+
+        /* ✅ tabs show/hide */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 
 </head>
@@ -346,13 +329,10 @@
 <body>
     <div class="main-container">
         <div class="navbar">
-            <!-- Left: Company Logo -->
             <div class="logo">
-                {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
                 <img src="{{ asset('images/logo-2.png') }}" alt="Company Logo">
             </div>
 
-            <!-- Right: User Info -->
             <div class="user-info">
                 <div class="user-welcome">
                     <div style="font-size: 14px;">Welcome back !</div>
@@ -366,7 +346,6 @@
                 </form>
             </div>
 
-            <!-- Right: User Info-mobile -->
             <div class="user-info-mobile">
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -381,18 +360,15 @@
                 </form>
             </div>
         </div>
-        <!-- sub-navbar WITH TABS -->
 
         <div class="sub-navbar">
             <div class="examstup_tabs">
                 <div class="tabs">
-                    <button id="backTabBtn"
-                        class="back-btn"style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;"><img
-                            src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
+                    <button id="backTabBtn" class="back-btn"
+                        style=" display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 4px 16px;">
+                        <img src="{{ asset('images/backbtn.png') }}" alt="BackBtn">
                         <p style="color: #000000;font-family: sans-serif;font-size: 14px;;">Back to Dashboard</p>
                     </button>
-
-
                 </div>
 
                 <div class="Exam_setup-header"
@@ -405,32 +381,26 @@
                     </div>
                 </div>
             </div>
+
             <div class="Exam-setup">
-                <button class="tab-btn active" onclick="openTab('examTab')"><img
-                        src="{{ asset('images/user-test.png') }}"
-                        alt="User-test"style="width: 20px;height: 20px;margin-right: 5px;"> Eduedge Created
-                    Questions</button>
-                {{-- <button class="tab-btn active" onclick="openTab('questionTab')"><img
-                        src="{{ asset('images/create-test.png') }}"
-                        alt="create-test"style="width: 20px;height: 20px;margin-right: 5px;">Create User
-                    Questions</button> --}}
+                <button class="tab-btn active" onclick="openTab('examTab')">
+                    <img src="{{ asset('images/user-test.png') }}" alt="User-test"
+                        style="width: 20px;height: 20px;margin-right: 5px;">
+                    Eduedge Created Questions
+                </button>
+
+                <button class="tab-btn" onclick="openTab('questionTab')">
+                    <img src="{{ asset('images/create-test.png') }}" alt="create-test"
+                        style="width: 20px;height: 20px;margin-right: 5px;">
+                    Create User Questions
+                </button>
             </div>
-
-
-            <!-- Back Button -->
-            {{-- <div style="text-align:center; margin-top:10px;">
-        <button id="backTabBtn" class="back-btn">⬅ Back</button>
-    </div> --}}
         </div>
 
         <div class="container" style="margin-top: 0px;">
 
             <!-- ================= TAB 1 : EXAM ================= -->
             <div id="examTab" class="tab-content active">
-                <!-- ORIGINAL EXAM FILTER & BOX HERE -->
-                {{-- <h2>🎯 Question Filter</h2> --}}
-
-
                 <div class="filter-card">
                     <div class="row">
                         <div class="col">
@@ -452,11 +422,15 @@
                             <div class="error-text" id="chapter_error"></div>
                         </div>
 
+                        <!-- ✅ CHANGED: Subchapter dropdown removed, Mode dropdown added -->
                         <div class="col">
-                            <label>Subchapter</label>
-                            <select id="subchapter_id">
+                            <label>Mode <span class="required"> *</span></label>
+                            <select id="exam_mode">
                                 <option value="">Select</option>
+                                <option value="test">Test</option>
+                                <option value="study">Study</option>
                             </select>
+                            <div class="error-text" id="mode_error"></div>
                         </div>
                     </div>
 
@@ -471,7 +445,6 @@
                             </select>
                             <div class="error-text" id="level_error"></div>
                         </div>
-
 
                         <div class="col">
                             <label>Used Status</label>
@@ -488,175 +461,169 @@
                         </div>
                     </div>
 
-                    <button id="filterBtn"><img src="{{ asset('images/start-test.png') }}"
-                            alt="start-test"style="width: 20px;height: 20px;margin-right: 5px;">Start Exam</button>
+                    <button id="filterBtn">
+                        <img src="{{ asset('images/start-test.png') }}" alt="start-test"
+                            style="width: 20px;height: 20px;margin-right: 5px;">
+                        Start Exam
+                    </button>
                 </div>
-
             </div>
 
             <!-- ================= TAB 2 : QUESTIONS (DUMMY) ================= -->
             <div id="questionTab" class="tab-content">
-
-                {{-- <div class="filter-card">
-
-                    <!-- header row -->
+                <div class="filter-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h3 style="margin:0;">📝 Questions</h3>
 
-                        <button id="startExamFromQuestionTab"
-                            style="
-                    background:#2d89ff;
-                    color:#fff;
-                    border:none;
-                    padding:10px 22px;
-                    border-radius:8px;
-                    font-size:15px;
-                    cursor:pointer;
-                ">
+                        <button id="startExamFromQuestionTab" style="
+                            background:#2d89ff;
+                            color:#fff;
+                            border:none;
+                            padding:10px 22px;
+                            border-radius:8px;
+                            font-size:15px;
+                            cursor:pointer;
+                        ">
                             🔍 Start Exam
                         </button>
                     </div>
 
                     <hr style="margin:15px 0;">
 
-                    <!-- questions list -->
                     <ul style="margin:0; padding-left:20px;">
                         <li>Question 1</li>
                         <li>Question 2</li>
                         <li>Question 3</li>
                         <li>Question 4</li>
                     </ul>
-
-                    </ </div>
-
-
-                </div> --}}
-                <script>
-                    let allQ = [];
-                    let qIndex = 0;
-                    let userAnswers = {};
-
-
-                    $("#subject_id").on("change", function() {
-                        let id = $(this).val();
-
-                        $("#chapter_id").html('<option value="">Loading...</option>');
-                        $("#subchapter_id").html('<option value="">Select</option>');
-
-                        if (id === "") {
-                            $("#chapter_id").html('<option value="">Select</option>');
-                            return;
-                        }
-
-                        $.get("/get-chapterBy-subject", {
-                            subjects_id: id
-                        }, function(res) {
-                            let html = '<option value="">Select</option>';
-                            res.forEach(c => {
-                                html += `<option value="${c.id}">${c.name}</option>`;
-                            });
-                            $("#chapter_id").html(html);
-                        });
-                    });
-
-
-                    $("#chapter_id").on("change", function() {
-                        let id = $(this).val();
-
-                        $("#subchapter_id").html('<option value="">Loading...</option>');
-
-                        if (id === "") {
-                            $("#subchapter_id").html('<option value="">Select</option>');
-                            return;
-                        }
-
-                        $.get("/get-subchapters", {
-                            chapter_id: id
-                        }, function(res) {
-                            let html = '<option value="">Select</option>';
-                            (res.data || res).forEach(sc => {
-                                html += `<option value="${sc.id}">${sc.name}</option>`;
-                            });
-                            $("#subchapter_id").html(html);
-                        });
-                    });
-
-
-                    $("#filterBtn").on("click", function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        $(".error-text").text("");
-                        $("select").removeClass("error");
-
-                        let isValid = true;
-
-                        if ($("#subject_id").val() === "") {
-                            $("#subject_id").addClass("error");
-                            $("#subject_error").text("Subject is required");
-                            isValid = false;
-                        }
-
-                        if ($("#chapter_id").val() === "") {
-                            $("#chapter_id").addClass("error");
-                            $("#chapter_error").text("Chapter is required");
-                            isValid = false;
-                        }
-
-                        if ($("#difficult_level_id").val() === "") {
-                            $("#difficult_level_id").addClass("error");
-                            $("#level_error").text("Difficulty level is required");
-                            isValid = false;
-                        }
-
-                        if (!isValid) {
-                            return false;
-                        }
-
-                        let params = $.param({
-                            subject_id: $("#subject_id").val(),
-                            chapter_id: $("#chapter_id").val(),
-                            subchapter_id: $("#subchapter_id").val(),
-                            difficult_level_id: $("#difficult_level_id").val(),
-                            used_status: $("#used_status").val(),
-                            limit: $("#limit").val()
-                        });
-
-                        window.location.href = "/exam-page?" + params;
-                    });
-
-
-                    $("select").on("change", function() {
-                        if ($(this).val() !== "") {
-                            $(this).removeClass("error");
-                            $(this).next(".error-text").text("");
-                        }
-                    });
-
-
-                    $("#startExamFromQuestionTab").on("click", function() {
-                        let params = $.param({
-                            subject_id: 5,
-                            chapter_id: 8,
-                            subchapter_id: 7,
-                            difficult_level_id: 1,
-                            used_status: "",
-                            limit: 20
-                        });
-
-                        window.location.href = "/exam-page?" + params;
-                    });
-
-                    $("#backTabBtn").on("click", function() {
-                        window.history.back();
-                    });
-
-                    function getParam(name) {
-                        return new URLSearchParams(window.location.search).get(name);
-                    }
-                </script>
-
+                </div>
             </div>
+
+            <script>
+                // ✅ tabs function
+                function openTab(tabId) {
+                    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+                    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+
+                    const activeTab = document.getElementById(tabId);
+                    if (activeTab) activeTab.classList.add("active");
+
+                    document.querySelectorAll(".tab-btn").forEach(btn => {
+                        const oc = btn.getAttribute("onclick") || "";
+                        if (oc.indexOf("'" + tabId + "'") !== -1) btn.classList.add("active");
+                    });
+                }
+
+                let allQ = [];
+                let qIndex = 0;
+                let userAnswers = {};
+
+                $("#subject_id").on("change", function() {
+                    let id = $(this).val();
+
+                    $("#chapter_id").html('<option value="">Loading...</option>');
+
+                    if (id === "") {
+                        $("#chapter_id").html('<option value="">Select</option>');
+                        return;
+                    }
+
+                    $.get("/get-chapterBy-subject", {
+                        subjects_id: id
+                    }, function(res) {
+                        let html = '<option value="">Select</option>';
+                        res.forEach(c => {
+                            html += `<option value="${c.id}">${c.name}</option>`;
+                        });
+                        $("#chapter_id").html(html);
+                    });
+                });
+
+                // ✅ NOTE: subchapter change ajax removed because subchapter dropdown removed
+
+                $("#filterBtn").on("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    $(".error-text").text("");
+                    $("select").removeClass("error");
+
+                    let isValid = true;
+
+                    if ($("#subject_id").val() === "") {
+                        $("#subject_id").addClass("error");
+                        $("#subject_error").text("Subject is required");
+                        isValid = false;
+                    }
+
+                    if ($("#chapter_id").val() === "") {
+                        $("#chapter_id").addClass("error");
+                        $("#chapter_error").text("Chapter is required");
+                        isValid = false;
+                    }
+
+                    // ✅ NEW: mode required
+                    if ($("#exam_mode").val() === "") {
+                        $("#exam_mode").addClass("error");
+                        $("#mode_error").text("Mode is required");
+                        isValid = false;
+                    }
+
+                    if ($("#difficult_level_id").val() === "") {
+                        $("#difficult_level_id").addClass("error");
+                        $("#level_error").text("Difficulty level is required");
+                        isValid = false;
+                    }
+
+                    if (!isValid) {
+                        return false;
+                    }
+
+                    let params = $.param({
+                        subject_id: $("#subject_id").val(),
+                        chapter_id: $("#chapter_id").val(),
+                        // ✅ CHANGED: mode param instead of subchapter_id
+                        mode: $("#exam_mode").val(),
+                        difficult_level_id: $("#difficult_level_id").val(),
+                        used_status: $("#used_status").val(),
+                        limit: $("#limit").val()
+                    });
+
+                    window.location.href = "/exam-page?" + params;
+                });
+
+                $("select").on("change", function() {
+                    if ($(this).val() !== "") {
+                        $(this).removeClass("error");
+                        $(this).next(".error-text").text("");
+                    }
+                });
+
+                // ✅ kept as-is, only added mode
+                $("#startExamFromQuestionTab").on("click", function() {
+                    let params = $.param({
+                        subject_id: 5,
+                        chapter_id: 8,
+                        mode: "test", // default
+                        difficult_level_id: 1,
+                        used_status: "",
+                        limit: 20
+                    });
+
+                    window.location.href = "/exam-page?" + params;
+                });
+
+                $("#backTabBtn").on("click", function() {
+                    window.history.back();
+                });
+
+                function getParam(name) {
+                    return new URLSearchParams(window.location.search).get(name);
+                }
+            </script>
+
+        </div>
+    </div>
 </body>
 
 </html>
