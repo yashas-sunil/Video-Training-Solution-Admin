@@ -14,6 +14,40 @@ class UserAnswers extends Model
 
     protected static $logAttributes = ['*'];
 
+    protected $fillable = [
+
+        'answers_id',
+        'correct_answers_id',
+        'question_id',
+        'option_id',
+        'user_id',
+
+        'marks',
+        'negative_marks',
+        'is_correct',
+        'message',
+
+        'time_taken',
+        'user_question_status',
+        'is_cumulative_question',
+        'status',
+
+        'chapters_questions_id',
+        'submitted_quiz_id',
+        'submitted_objective_id',
+        'submitted_block_id',
+        'submitted_championship_id',
+        'submitted_tournament_id',
+        'user_test_id',
+        'user_question_id',
+
+        'esec',
+        'rsec',
+        'mil',
+
+        'created_by',
+        'updated_by',
+    ];
     public function getQuestion(){
         return $this->belongsTo('App\Models\Quiz\Question','question_id','id');
     }

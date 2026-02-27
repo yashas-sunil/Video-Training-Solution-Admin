@@ -29,15 +29,23 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if (!Auth::check() || Auth::user()->role != 3) {
+            return redirect()
+                ->route('user.dashboard')
+                ->with('error', 'You are not authorized to access the home page.');
+        }
+        
         $signUpCount = Student::whereDate('created_at', '>', Carbon::now()->subDays(7))->latest()->count();
         $purchaseCount = OrderItem::whereIn('payment_status', [
             OrderItem::PAYMENT_STATUS_PARTIALLY_PAID,
-            OrderItem::PAYMENT_STATUS_FULLY_PAID])->whereDate('created_at', '>', Carbon::now()->subDays(7))
+            OrderItem::PAYMENT_STATUS_FULLY_PAID
+        ])->whereDate('created_at', '>', Carbon::now()->subDays(7))
             ->latest()
             ->count();
         $purchaseAmount = OrderItem::whereIn('payment_status', [
             OrderItem::PAYMENT_STATUS_PARTIALLY_PAID,
-            OrderItem::PAYMENT_STATUS_FULLY_PAID])->whereDate('created_at', '>', Carbon::now()->subDays(7))
+            OrderItem::PAYMENT_STATUS_FULLY_PAID
+        ])->whereDate('created_at', '>', Carbon::now()->subDays(7))
             ->latest()
             ->sum('price');
         $draftedPackagesCount = Package::where('is_approved', false)->count();
@@ -53,7 +61,7 @@ class HomeController extends Controller
             ->latest()
             ->count();
 
-        $orders = Order::where('third_party_id',Auth::id())->count();
+        $orders = Order::where('third_party_id', Auth::id())->count();
 
         return view('home', compact(
             'signUpCount',

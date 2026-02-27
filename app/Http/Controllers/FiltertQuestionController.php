@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Models\Quiz\Question;
+use App\Models\Quiz\UserAnswers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -88,7 +89,9 @@ class FiltertQuestionController extends Controller
             return response()->json($chapters);
         }
         $id = $request->input('subjects_id');
+       // dd($id);
         $chapters = Chapter::where('subject_id', $id)->where('status', Subject::ACTIVE)->get();
+      //  dd($chapters);
         return response()->json($chapters);
     }
 
@@ -161,7 +164,6 @@ class FiltertQuestionController extends Controller
 
 public function filterQBundle(Request $request)
 {
-    
     try {
 
         $request->validate([
@@ -173,7 +175,6 @@ public function filterQBundle(Request $request)
             'limit' => 'nullable|integer|min:1|max:500',
         ]);
 
-
         $limit = $request->limit ?? 50;
 
         $query = Question::with([
@@ -183,7 +184,9 @@ public function filterQBundle(Request $request)
             'subchapter:id,name',
             'answerType:id,name',
             'difficultLevel:id,name',
-            'userAttempts:id,question_id'
+            'userAttempts:id,question_id',
+
+            'solution:id,question_id,name',
         ]);
 
         $query->where('subject_id', $request->subject_id);
@@ -210,16 +213,13 @@ public function filterQBundle(Request $request)
 
         $questions = $query->paginate($limit);
 
-        Log::info(" PAGINATION RESULT", [
-            'count' => count($questions->items()),
-            'total' => $questions->total()
-        ]);
-
         $data = collect($questions->items())->map(function ($q) {
-
             return [
                 "id" => $q->id,
                 "question" => $q->question,
+
+                // ✅ NEW: solution text
+                "solution_text" => optional($q->solution)->name,
 
                 "difficult_levels_id" => $q->difficult_levels_id,
 
@@ -229,7 +229,6 @@ public function filterQBundle(Request $request)
                 ],
 
                 "answers" => $q->answers->map(function ($a) {
-                    Log::info("   ➡ PROCESSING ANSWER", ['id' => $a->id]);
                     return [
                         "id" => $a->id,
                         "answer" => $a->answer,
@@ -260,7 +259,7 @@ public function filterQBundle(Request $request)
                 "used" => $q->userAttempts->count() > 0,
             ];
         });
-    //   dd($data);
+
         return response()->json([
             'status' => true,
             'data' => $data,
@@ -272,13 +271,6 @@ public function filterQBundle(Request $request)
         ]);
 
     } catch (\Exception $e) {
-
-        Log::error(" API FAILED", [
-            'message' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile(),
-        ]);
-
         return response()->json([
             'status' => false,
             'message' => $e->getMessage(),
@@ -292,6 +284,60 @@ public function modePage($id)
 {
     return view('coursemode', ['courseId' => $id]);
 }
+
+public function store(Request $request)
+{
+    $userId = auth()->id();
+
+    foreach ($request->data as $item) {
+
+        $question = Question::findOrFail($item['question_id']);
+
+        $correctAnswerId = $question->correct_answers_id;
+        $isCorrect = ($item['answers_id'] == $correctAnswerId);
+
+        UserAnswers::create([
+
+            'user_id' => $userId,
+            'question_id' => $item['question_id'],
+            'answers_id' => $item['answers_id'],
+            'correct_answers_id' => $correctAnswerId,
+
+            'is_correct' => $isCorrect,
+            'marks' => $isCorrect ? 1 : 0,
+            'negative_marks' => $isCorrect ? 0 : 0,
+            'message' => $isCorrect ? 'Correct Answer' : 'Wrong Answer',
+
+            'time_taken' => $item['time_taken'] ?? 0,
+            'user_question_status' => $item['user_question_status'],
+            'is_cumulative_question' => $item['is_cumulative_question'] ?? false,
+
+            'chapters_questions_id' => null,
+            'submitted_quiz_id' => null,
+            'submitted_objective_id' => null,
+            'submitted_block_id' => null,
+            'submitted_championship_id' => null,
+            'submitted_tournament_id' => null,
+            'user_test_id' => null,
+            'user_question_id' => null,
+            'option_id' => null,
+
+            'esec' => null,
+            'rsec' => null,
+            'mil' => null,
+            'status' => 1,
+
+            'created_by' => $userId,
+            'updated_by' => $userId,
+        ]);
+    }
+
+    return response()->json([
+        'status' => true,
+        'message' => 'User answers saved successfully'
+    ]);
+}
+
 
 
 }

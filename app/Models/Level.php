@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Level extends Model
 {
+    const ACTIVE=1;
+    const INACTIVE=0;
     use SoftDeletes;
 
     protected $guarded = ['id'];
@@ -42,5 +44,18 @@ class Level extends Model
                 
                 return false;
             }
+    }
+        public function levelByName($course,$value){
+        $level=Level::whereHas('course',function($q) use ($course){
+            $q->where('name', $course);
+            $q->where('status', Course::ACTIVE);
+
+        })->where('name',$value)->where('status',Level::ACTIVE)->first();
+        if(!empty($level->id)){
+            return $level->id;
+        }else{
+             return 0;
+        }
+
     }
 }

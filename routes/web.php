@@ -13,6 +13,8 @@ use App\Http\Middleware\BackOfficeManagerMiddleware;
 use App\Http\Middleware\FinanceManagerMiddleware;
 use App\Http\Middleware\ActivityLog;
 use App\Http\Middleware\JuniorAdminMiddleware;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,12 +39,27 @@ Route::get('/register', function () {
     return redirect()->route('login');
 });
 
+Route::get('/secure-pdf/{file}', function ($file) {
+
+    $path = public_path('uploads/manual_uploads/58/chapter_level/glossary/' . $file);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline',
+        'Accept-Ranges' => 'bytes',
+    ]);
+});
+
 
 
 Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
-    Route::resource('courses', 'CourseController');
+    Route::resource('courses', 'CourseController')->middleware('auth');
     Route::post('courses/change-order', 'CourseController@changeOrder')->name('courses.change-order');
 
     Route::resource('third-party-agents', 'ThirdPartyAgentController');
@@ -584,6 +601,7 @@ Route::get('videos/get-player/{id}', 'VideoController@getPlayer');
 //new route add 
 Route::get('/upload', 'ScormController@showForm');
 Route::post('/admin/chapter/upload', 'ScormController@uploadChapterScorm') ->name('chapter.scorm.upload');
+Route::post('/admin/chapter/manual-upload', 'ScormController@uploadChapterManual')->name('chapter.manual.upload');
 Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
@@ -591,12 +609,25 @@ Route::get('/launch', 'LaunchController@launch');
 Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create');
 Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
 Route::get('/course/{course}/chapters', 'ScormController@getChapters')
-    ->name('course.chapters');
+    ->name('course.chapters')->middleware('auth');
 
     // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
+    Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
+    ->name('chapter.manual.edit');
+
+Route::post('/chapters/{chapter}/manual/update', 'ScormController@updateChapterManual')
+    ->name('chapter.manual.update');
+
+Route::post('/manual-content/{content}/delete', 'ScormController@deleteManualContent')
+    ->name('chapter.manual.content.delete');
+
+Route::post('/lessons/{lesson}/delete', 'ScormController@deleteLesson')
+    ->name('chapter.manual.lesson.delete');
 // chapter open
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
-    ->name('chapter.view');
+    ->name('chapter.view')->middleware('auth');
+
+Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
 
 
 Route::get('/test-token', function () {
@@ -663,9 +694,69 @@ Route::resource('assigned-courses', 'AssignedCourseController');
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
 Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
 
-Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create');
- Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store');
+Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
+ Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
+Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+Route::get('question-bank/{id}', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
+
+ Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
+
+Route::get('/test-open', function () {
+    return response()->file(
+        storage_path(
+            'app/private/manual_uploads/66/lesson_17/detailed_trainer_slides/69804ef8ace1c_1770016504_CFA_Foundation_Module_7_Chapter_20_Lesson_1.pdf'
+        )
+    );
+});
+
+Route::get('/f/{path}', function ($path) {
+    abort_unless(auth()->check(), 403);
+
+    $fullPath = storage_path('app/private/' . $path);
+
+    abort_unless(file_exists($fullPath), 404);
+
+    return response()->file($fullPath);
+})->where('path', '.*')->name('secure.file');
 
 
+Route::get('/pdf-stream/{path}', function ($path) {
+
+    if (!Auth::check()) {
+        return redirect()->route('pdf.login.required', [
+            'redirect' => url()->current()
+        ]);
+    }
 
 
+    $fullPath = storage_path('app/private/' . $path);
+    abort_unless(file_exists($fullPath), 404);
+
+    return new BinaryFileResponse(
+        $fullPath,
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'Accept-Ranges' => 'bytes',
+        ],
+        true,
+        'inline'
+    );
+
+})->where('path', '.*')->name('pdf.stream');
+
+Route::get('/pdf-login-required', function () {
+    return view('auth.pdf-login-required');
+})->name('pdf.login.required');
+
+// BATCH RESOURCE ROUTES
+Route::resource('batches', 'BatchController');
+
+// Assign Students Page (GET)
+Route::get('batches/{id}/assign', 'BatchController@assignStudents')
+    ->name('batches.assign');
+
+// Store Assigned Students (POST)
+Route::post('batches/{id}/assign', 'BatchController@storeStudents')
+    ->name('batches.storeStudents');

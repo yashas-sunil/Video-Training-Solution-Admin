@@ -2,8 +2,10 @@
 
 namespace App;
 
+use App\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class ScormPackage extends Model
 {
     use SoftDeletes;
@@ -19,4 +21,15 @@ class ScormPackage extends Model
          'watch_time',
          'view_limit',
     ];
+
+    public function batches()
+{
+    return $this->belongsToMany(
+        Batch::class,
+        'batch_course',
+        'scorm_package_id',
+        'batch_id'
+    );
+}
+
 }

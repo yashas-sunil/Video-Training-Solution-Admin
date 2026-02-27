@@ -35,7 +35,12 @@ class LoginController extends Controller
      */
     protected function attemptLogin(Request $request)
     {
-        $credentials = $this->credentials($request);
+    //      $userAgent = $request->header('User-Agent');
+
+    // if (stripos($userAgent, 'Firefox') !== false) {
+    //     return false;
+    // }
+    //     $credentials = $this->credentials($request);
 
         // Pehle user ko find karte hain
         $user = User::where($this->username(), $request->input($this->username()))->first();
@@ -57,6 +62,16 @@ class LoginController extends Controller
      */
     protected function sendFailedLoginResponse(Request $request)
     {
+         $userAgent = $request->header('User-Agent');
+
+    // ===== FIREFOX BLOCK MESSAGE =====
+    // if (stripos($userAgent, 'Firefox') !== false) {
+    //     return back()
+    //         ->withInput($request->only($this->username(), 'remember'))
+    //         ->with('browser_error',
+    //             'Login from Mozilla Firefox is not supported. Please login by using Chrome, Edge And Brave .'
+    //         );
+    // }
         $user = User::where($this->username(), $request->input($this->username()))->first();
 
         if ($user && strtolower($user->status) === 'blocked') {

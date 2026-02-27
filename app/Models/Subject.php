@@ -81,4 +81,21 @@ class Subject extends Model
                 return false;
             }
     }
+    public function subjectByCourseName($course,$level,$subject){
+        $subject = Subject::whereHas('course',function($q) use ($course){
+            $q->where('name', $course);
+            $q->where('status', Course::ACTIVE);
+
+        })->whereHas('level',function($q) use ($level){
+            $q->where('name', $level);
+            $q->where('status', Level::ACTIVE);
+
+        })->where('name', $subject)->where('status', Subject::ACTIVE)->first();
+        if (!empty($subject->id)) {
+            return $subject->id;
+        } else {
+            return 0;
+        }
+
+    }
 }

@@ -20,6 +20,10 @@
 <iframe src="{{ $launchUrl }}" id="scorm-content"></iframe>
 
 <script>
+    const COURSE_ID  = "{{ $courseId }}";
+    // ✅ chapterId SAFE (undefined error nahi aayega)
+    const CHAPTER_ID = "{{ $chapterId ?? '' }}";
+
     let progressData = {
         'cmi.core.lesson_location': "{{ $lastLocation ?? '' }}",
         'cmi.core.lesson_status': "{{ $lessonStatus ?? '' }}",
@@ -60,7 +64,7 @@
         const percent = progressData['progress_percent'] || 0;
         const score = progressData['cmi.core.score.raw'] || null;
 
-        // Collect all interaction data
+        // Collect interaction data
         const rawInteractions = {};
         for (const key in progressData) {
             if (key.startsWith('cmi.interactions.')) {
@@ -117,7 +121,6 @@
             }
         }
 
-        // Final structure to send to backend
         const chapterResults = Object.entries(chapterScores).map(([chapter, data]) => ({
             chapter_name: chapter,
             total_questions: data.total,
@@ -138,7 +141,8 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
-                course_id: "{{ $courseId }}",
+                course_id: COURSE_ID,
+                chapter_id: CHAPTER_ID || null, 
                 session_time: sessionTime,
                 cmi_core_lesson_location: lessonLoc,
                 cmi_core_lesson_status: lessonStatus,
@@ -172,11 +176,7 @@
                 .then(res => res.json())
                 .then(data => console.log(" Quiz saved", data))
                 .catch(err => console.error("❌ Quiz save error:", err));
-            } else {
-                console.log(" Duplicate quiz data — skipping save");
             }
-        } else {
-            console.log(" Quiz data empty or not valid — skipping save");
         }
     }
 
@@ -190,7 +190,6 @@
         return false;
     }
 </script>
-
 
 </body>
 </html>
