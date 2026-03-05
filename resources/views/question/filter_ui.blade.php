@@ -404,6 +404,13 @@
                 <div class="filter-card">
                     <div class="row">
                         <div class="col">
+                            <label>Course<span class="required"> *</span></label>
+                            <select id="course_id" disabled>
+                                <option value="{{$courseName ?? ''}}">{{ $courseName ?? '' }}</option>
+                            </select>
+                            <div class="error-text" id="course_error"></div>
+                        </div>
+                        <div class="col">
                             <label>Subject <span class="required"> *</span></label>
                             <select id="subject_id">
                                 <option value="">Select</option>

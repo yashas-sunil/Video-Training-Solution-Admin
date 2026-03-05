@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use App\Goal;
 use App\Assignedcourse;
 use App\CourseProgress;
 use App\DifficultLevel;
 use App\Models\Subject;
+use App\ScormPackage;
+use Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
+use Illuminate\Support\Facades\DB;
 
 class UserDashboardController extends Controller
 {
@@ -192,30 +192,35 @@ class UserDashboardController extends Controller
     //     ]);
     // }
 
-    public function testquestions(Request $request)
+    public function testquestions($id)
     {
         $user = auth()->user();
 
+        // dd($user->id);
         if (!$user) {
             return redirect('/login')->with('error', 'Please login again.');
         }
 
-        $goal = Goal::where('user_id', $user->id)->first();
+        // $goal = Goal::where('user_id', $user->id)->first();
+        $assign_course = Assignedcourse::where('course_id', $id)->first();
 
-        if ($goal && !empty($goal->course_id)) {
-            $subjects = Subject::where('course_id', $goal->course_id)
+        if ($assign_course && !empty($assign_course->course_id)) {
+
+            $subjects = Subject::where('course_id',$id)
                 ->select('id', 'name')
                 ->get();
+            $courseName = ScormPackage::where('id', $assign_course->course_id)->value('title');
         } else {
             $subjects = collect([]);
         }
 
         $levels = DifficultLevel::select('id', 'name')->get();
-
+// dd($user->id );
         return view('question.filter_ui', [
-            'subjects' => $subjects,
-            'levels'   => $levels,
-            'goal'     => $goal
+            'subjects'       => $subjects,
+            'levels'         => $levels,
+            'assign_course'  => $assign_course,
+            'courseName'     => $courseName,
         ]);
     }
 }
