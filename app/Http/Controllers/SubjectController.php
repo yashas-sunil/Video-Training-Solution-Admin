@@ -9,6 +9,7 @@ use App\Models\Subject;
 use App\Models\LevelType;
 use App\Models\Professor;
 use App\Models\PackageType;
+use App\ScormPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Html\Builder;
@@ -304,4 +305,123 @@ class SubjectController extends Controller
         return response()->json($chapters);
     }
 
+     public function createsubject()
+    {
+        $courses = ScormPackage::all();
+        return view('subjects.create', compact('courses'));
+    }
+
+    // Store Multiple Subjects
+    public function storesubject(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required',
+            'subjects' => 'required|array',
+            'subjects.*' => 'required|string|max:255'
+        ]);
+
+        foreach ($request->subjects as $subjectName) {
+            Subject::create([
+                'course_id' => $request->course_id,
+                'name' => $subjectName
+            ]);
+        }
+
+        return redirect()->route('subjects.index')
+                         ->with('success', 'Subjects Added Successfully');
+    }
+
+    public function subjectindex(Builder $builder)
+{
+    if (request()->ajax()) {
+
+        $query = Subject::join('scorm_packages', 'subjects.course_id', '=', 'scorm_packages.id')
+            ->select(
+                'subjects.*',
+                'scorm_packages.title as course_title'
+            );
+
+        return DataTables::of($query)
+
+            ->addColumn('course_title', fn($subject) => $subject->course_title)
+
+            ->addColumn('subject_name', fn($subject) => $subject->name)
+
+            ->addColumn('action', function ($subject) {
+
+                $editUrl = route('subjects.edit', $subject->id);
+
+                return '
+                    <a href="'.$editUrl.'" class="btn btn-sm btn-warning">
+                        Edit
+                    </a>
+                ';
+            })
+
+            ->rawColumns(['action'])
+
+            ->make(true);
+    }
+
+    $html = $builder->columns([
+
+        [
+            'data'  => 'course_title',
+            'name'  => 'scorm_packages.title',
+            'title' => 'Course Title',
+            'orderable' => true,
+            'searchable' => true
+        ],
+
+        [
+            'data'  => 'subject_name',
+            'name'  => 'subjects.name',
+            'title' => 'Subject Name',
+            'orderable' => true,
+            'searchable' => true
+        ],
+
+        [
+            'data'  => 'action',
+            'name'  => 'action',
+            'title' => 'Action',
+            'orderable' => false,
+            'searchable' => false,
+            'exportable' => false,
+            'printable' => false,
+            'width' => '100px',
+        ],
+    ]);
+
+    return view('subjects.index', compact('html'));
+}
+
+   public function subjectedit($id)
+{
+    $subject = Subject::findOrFail($id);
+
+    $courses = DB::table('scorm_packages')
+        ->select('id','title')
+        ->get();
+
+    return view('subjects.edit', compact('subject','courses'));
+}
+     
+     public function subjectupdate(Request $request, $id)
+{
+    $request->validate([
+        'course_id' => 'required',
+        'name' => 'required|string|max:255'
+    ]);
+
+    $subject = Subject::findOrFail($id);
+
+    $subject->update([
+        'course_id' => $request->course_id,
+        'name' => $request->name
+    ]);
+
+    return redirect()->route('subjects.index')
+        ->with('success','Subject Updated Successfully');
+}
 }

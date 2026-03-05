@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ScormPackage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -34,7 +35,7 @@ class Subject extends Model
     }
 
     public function course() {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(ScormPackage::class);
     }
 
     /******Added BY TE  *****/

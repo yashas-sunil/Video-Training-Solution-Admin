@@ -350,6 +350,12 @@ return [
                 ],
 
                  [
+                    'text'        => 'Subject',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'subjects'
+                ],
+
+                 [
                     'text'        => 'Chapter',
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'chapters'
@@ -359,6 +365,12 @@ return [
                     'text'        => 'QuestionBank',
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'question/bank'
+                ],
+
+                [
+                    'text'        => 'Assigned Courses Questions',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'course-questions'
                 ],
 
                  [
