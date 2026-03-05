@@ -6,6 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $chapter->name }} - Manual Content</title>
 
 <style>
@@ -738,7 +739,65 @@ function updateProgress(){
         : 0;
 
     document.querySelector(".progress-bar").style.width=percent+"%";
-    document.querySelector(".progress-text").textContent=percent+"%";
+    const progressText = document.querySelector(".progress-text");
+    progressText.textContent=percent+"%";
+    progressText.style.opacity = "0.6"; // Fade while saving
+
+    // Save progress to database
+    saveProgressToDatabase(percent);
+
+    // Restore opacity after save
+    setTimeout(() => {
+        progressText.style.opacity = "1";
+    }, 500);
+}
+
+function saveProgressToDatabase(percent) {
+    // Try to get course_id from chapter, or try to infer from URL
+    let courseId = {{ $chapter->course_id ?? 0 }};
+    const chapterId = {{ $chapter->id ?? 0 }};
+
+    // Fallback: Check if courseId is in URL (/course/X/view/chapter/Y)
+    if (!courseId) {
+        const urlMatch = window.location.href.match(/\/course\/(\d+)/);
+        if (urlMatch) {
+            courseId = parseInt(urlMatch[1]);
+        }
+    }
+
+    console.log('Saving Progress:', { courseId, chapterId, percent });
+
+    if (!courseId) {
+        console.warn('❌ Course ID not found! Cannot save progress.');
+        return;
+    }
+
+    const payload = {
+        course_id: courseId,
+        chapter_id: chapterId,
+        progress_percent: percent,
+    };
+
+    console.log('✅ Payload being sent:', payload);
+
+    fetch('{{ route("course.progress.save") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => {
+        console.log('Response Status:', res.status);
+        return res.json();
+    })
+    .then(data => {
+        console.log('Progress saved successfully:', data);
+    })
+    .catch(err => {
+        console.error(' Error saving progress:', err);
+    });
 }
 
 continueBtns.forEach(btn=>{
@@ -826,8 +885,34 @@ document.querySelectorAll(".lesson-video").forEach(video=>{
     });
 });
 
-render();
-setActiveTab("overview");
+// 🎯 Resume from saved progress
+const savedProgress = {{ $userProgress ?? 0 }};
+const totalLessons = tabs.length - 1; // subtract overview tab
+
+if (savedProgress > 0 && totalLessons > 0) {
+    // Calculate which lesson to resume from
+    // Formula: percent = Math.round((unlockedIndex+1)/total*100)
+    // Reverse: unlockedIndex = Math.round((percent/100)*total) - 1
+    const calculatedIndex = Math.round((savedProgress / 100) * totalLessons) - 1;
+    unlockedIndex = Math.max(0, calculatedIndex);
+    
+    console.log('📚 Resuming from saved progress:', {
+        savedProgress: savedProgress + '%',
+        totalLessons: totalLessons,
+        resumingAtLesson: unlockedIndex
+    });
+    
+    render();
+    setActiveTab(unlockedIndex);
+    
+    // Auto-scroll to the resumed lesson
+    setTimeout(() => {
+        scrollToSection(unlockedIndex);
+    }, 300);
+} else {
+    render();
+    setActiveTab("overview");
+}
 
 function toggleSidebar() {
     document.querySelector('.sidebar')?.classList.toggle('mobile-open');

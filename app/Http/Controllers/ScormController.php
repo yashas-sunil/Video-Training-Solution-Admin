@@ -674,7 +674,18 @@ class ScormController extends Controller
     public function chapterList($courseId)
     {
         // dd($courseId);
+        $userId = auth()->id();
         $chapters = Chapter::where('course_id', $courseId)->get();
+
+        // Fetch progress data for each chapter
+        foreach ($chapters as $chapter) {
+            $progress = \App\CourseProgress::where('user_id', $userId)
+                ->where('course_id', $courseId)
+                ->where('chapter_id', $chapter->id)
+                ->first();
+
+            $chapter->progress_percent = $progress->progress_percent ?? 0;
+        }
 
         return view('chapters.list', [
             'chapters' => $chapters,
@@ -685,6 +696,14 @@ class ScormController extends Controller
     public function viewChapter($id)
     {
         $chapter = Chapter::with('manualContents')->findOrFail($id);
+        $userId = auth()->id();
+
+        // Get user's progress for this chapter
+        $courseId = request()->get('course') ?? $chapter->course_id;
+        $progress = AppCourseProgress::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->where('chapter_id', $chapter->id)
+            ->first();
 
         if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
 
@@ -753,6 +772,7 @@ class ScormController extends Controller
                 'chapter' => $chapter,
                 'overview' => $overview,
                 'lessons' => $lessons,
+                'userProgress' => $progress ? $progress->progress_percent : 0,
             ]);
         }
 
@@ -814,15 +834,37 @@ class ScormController extends Controller
     {
         $userId = auth()->id();
 
-        $allProgress = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->whereNotNull('chapter_id')
-            ->get();
-
         $chapters = Chapter::where('course_id', $courseId)
             ->orderBy('id', 'asc')
             ->get()
-            ->map(function ($chapter) use ($allProgress) {
+            ->map(function ($chapter) use ($userId, $courseId) {
+
+                // First, check if there's manual chapter progress saved
+                $progress = AppCourseProgress::where('user_id', $userId)
+                    ->where('course_id', $courseId)
+                    ->where('chapter_id', $chapter->id)
+                    ->first();
+
+                // Check if chapter has manual content (no launch_file)
+                $hasManualContent = $chapter->manualContents()->count() > 0 && empty($chapter->launch_file);
+
+                // If manual content exists and progress is recorded (even if 0%), use it
+                if ($hasManualContent && $progress) {
+                    $chapter->progress_percent = (int) $progress->progress_percent;
+                    return $chapter;
+                }
+
+                // If manual content exists but no progress yet, set to 0
+                if ($hasManualContent && !$progress) {
+                    $chapter->progress_percent = 0;
+                    return $chapter;
+                }
+
+                // Otherwise calculate from SCORM session time
+                $allProgress = AppCourseProgress::where('user_id', $userId)
+                    ->where('course_id', $courseId)
+                    ->whereNotNull('chapter_id')
+                    ->get();
 
                 $chapterProgress = $allProgress->where('chapter_id', $chapter->id);
 
