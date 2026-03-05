@@ -29,6 +29,7 @@ class StoreQuestionBankRequest extends FormRequest
         {
         return [
             'name'=>'required',
+            'course_id' => 'required|exists:scorm_packages,id',
             'fileupload'=>'required|max:90000',
             // 'languages_id'=>'required|integer',
             'category'=>'required|integer',
