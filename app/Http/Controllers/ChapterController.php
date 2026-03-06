@@ -308,4 +308,16 @@ class ChapterController extends Controller
 
         return json_encode($chapters);
     }
+
+    public function getSubjectsByCourse($courseId)
+    {
+        $subjects = Subject::where('course_id', $courseId)
+            ->orderBy('name', 'asc')
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json([
+            'subjects' => $subjects
+        ]);
+    }
 }

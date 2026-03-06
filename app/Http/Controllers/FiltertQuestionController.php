@@ -90,7 +90,11 @@ class FiltertQuestionController extends Controller
         }
         $id = $request->input('subjects_id');
        // dd($id);
-        $chapters = Chapter::where('subject_id', $id)->where('status', Subject::ACTIVE)->get();
+        $chapters = Chapter::where('subject_id', $id)
+                             ->where('status', 1)
+                             ->whereNull('folder_name')
+                             ->whereNull('launch_file')
+                             ->get();
       //  dd($chapters);
         return response()->json($chapters);
     }
