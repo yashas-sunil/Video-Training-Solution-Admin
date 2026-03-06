@@ -105,22 +105,38 @@
                             {{-- Course Select --}}
                             <div class="mb-4">
                                 <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                <select name="course_id" class="form-control" required>
+                                <select name="course_id" id="scormCourseId" class="form-control" required>
                                     <option value="">-- Select Course --</option>
                                     @foreach ($courses as $course)
-                                        <option value="{{ $course->id }}">
-                                            {{ $course->title }}
-                                        </option>
+                                        <option value="{{ $course->id }}">{{ $course->title }}</option>
                                     @endforeach
                                 </select>
                             </div>
-
+                            <div class="mb-4">
+                                <label class="form-label">Subject <span class="text-danger">*</span></label>
+                                <select name="subject_id" id="scormChapterId" class="form-control" required disabled>
+                                    <option value="">-- Select Subject --</option>
+                                </select>
+                            </div>
                             {{-- Chapter Name --}}
                             <div class="mb-4">
                                 <label class="form-label">Chapter Name <span class="text-danger">*</span></label>
                                 <input type="text" name="chapter_name" class="form-control"
                                     placeholder="Enter chapter name" required>
                             </div>
+                            @if ($errors->has('chapter_name'))
+                                <div class="alert alert-danger" id="scormChapterError">{{ $errors->first('chapter_name') }}</div>
+                                <script>
+                                    setTimeout(function() {
+                                        const alert = document.getElementById('scormChapterError');
+                                        if (alert) {
+                                            alert.style.transition = 'opacity 0.5s ease';
+                                            alert.style.opacity = '0';
+                                            setTimeout(() => alert.remove(), 500);
+                                        }
+                                    }, 5000);
+                                </script>
+                            @endif
 
                             {{-- SCORM ZIP --}}
                             <div class="mb-4">
@@ -176,7 +192,7 @@
                             {{-- Course Select --}}
                             <div class="mb-4">
                                 <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                <select name="course_id" class="form-control" required>
+                                <select name="course_id" id="manualCourseId" class="form-control" required>
                                     <option value="">-- Select Course --</option>
                                     @foreach ($courses as $course)
                                         <option value="{{ $course->id }}">
@@ -185,13 +201,31 @@
                                     @endforeach
                                 </select>
                             </div>
-
+                            <div class="mb-4">
+                                <label class="form-label">Subject <span class="text-danger">*</span></label>
+                                <select name="subject_id" id="manualChapterId" class="form-control" required disabled>
+                                    <option value="">-- Select Subject --</option>
+                                </select>
+                            </div>
                             {{-- Chapter Name --}}
                             <div class="mb-4">
                                 <label class="form-label">Chapter Name <span class="text-danger">*</span></label>
                                 <input type="text" name="chapter_name" class="form-control"
                                     placeholder="Enter chapter name" required>
                             </div>
+                            @if ($errors->has('chapter_name'))
+                                <div class="alert alert-danger" id="manualChapterError">{{ $errors->first('chapter_name') }}</div>
+                                <script>
+                                    setTimeout(function() {
+                                        const alert = document.getElementById('manualChapterError');
+                                        if (alert) {
+                                            alert.style.transition = 'opacity 0.5s ease';
+                                            alert.style.opacity = '0';
+                                            setTimeout(() => alert.remove(), 250);
+                                        }
+                                    }, 2500);
+                                </script>
+                            @endif
 
                             {{-- Chapter-Level Content --}}
                             <div class="content-section">
@@ -438,7 +472,66 @@
                     }
                 });
             }
+
+            // Cascading dropdown for SCORM form
+            const scormCourseId = document.getElementById('scormCourseId');
+            const scormSubjectId = document.getElementById('scormChapterId');
+
+            if (scormCourseId && scormSubjectId) {
+                scormCourseId.addEventListener('change', function() {
+                    const courseId = this.value;
+                    if (courseId) {
+                        fetchSubjects(courseId, scormSubjectId);
+                    } else {
+                        scormSubjectId.innerHTML = '<option value="">-- Select Subject --</option>';
+                        scormSubjectId.disabled = true;
+                    }
+                });
+            }
+
+            // Cascading dropdown for Manual form
+            const manualCourseId = document.getElementById('manualCourseId');
+            const manualSubjectId = document.getElementById('manualChapterId');
+
+            if (manualCourseId && manualSubjectId) {
+                manualCourseId.addEventListener('change', function() {
+                    const courseId = this.value;
+                    if (courseId) {
+                        fetchSubjects(courseId, manualSubjectId);
+                    } else {
+                        manualSubjectId.innerHTML = '<option value="">-- Select Subject --</option>';
+                        manualSubjectId.disabled = true;
+                    }
+                });
+            }
         });
+
+        // Function to fetch subjects via AJAX
+        function fetchSubjects(courseId, selectElement) {
+            fetch(`/api/subjects/${courseId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let html = '<option value="">-- Select Subject --</option>';
+                    if (data.subjects && data.subjects.length > 0) {
+                        data.subjects.forEach(subject => {
+                            html += `<option value="${subject.id}">${subject.name}</option>`;
+                        });
+                    }
+                    selectElement.innerHTML = html;
+                    selectElement.disabled = false;
+                    console.log('✅ Subjects loaded:', data.subjects);
+                })
+                .catch(error => {
+                    console.error('❌ Error fetching subjects:', error);
+                    selectElement.innerHTML = '<option value="">-- Error Loading Subjects --</option>';
+                    selectElement.disabled = true;
+                });
+        }
     </script>
 
 @endsection

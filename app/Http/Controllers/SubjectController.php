@@ -323,12 +323,25 @@ class SubjectController extends Controller
         foreach ($request->subjects as $subjectName) {
             Subject::create([
                 'course_id' => $request->course_id,
-                'name' => $subjectName
+                'name' => $subjectName,
+                'status' => 1
             ]);
         }
 
         return redirect()->route('subjects.index')
                          ->with('success', 'Subjects Added Successfully');
+    }
+
+    public function getChaptersByCourse($courseId)
+    {
+        $subjects = Subject::where('course_id', $courseId)
+            ->orderBy('name', 'asc')
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json([
+            'subjects' => $subjects
+        ]);
     }
 
     public function subjectindex(Builder $builder)
