@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Answer;
+use App\Http\Requests\StoreQuestionBankRequest;
 use App\Question;
 use App\QuestionBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Requests\StoreQuestionBankRequest;
 
 class QuestionBankController extends Controller
 {
@@ -178,12 +179,43 @@ class QuestionBankController extends Controller
     public function show(QuestionBank $questionBank)
     {
        
-        $questionsList= $this->question->fetchQuestionsByQuestionBankId($questionBank);
+        // dd($questionBank->id);  
+        $question = new Question();
+        $questionsList= $question->fetchQuestionsByQuestionBankId($questionBank);
         // dd($questionsList);
         // $questionsList=(object)$questionsList;
         return view('questionbank.show',compact('questionBank','questionsList')); 
     }
 
+    public function fetchAnswersByQuestions(Answer $answer, Request $request)
+    {
+        // dd($answer,$request);
+        if ($request->ajax()) {
+            // $answerReponse=$answer->fetchAnswersByQuestionId($request->id);
+
+            $results = Question::with('answers')->where('id', $request->id)->first();
+            // dd($results);
+
+            $answers = array();
+            $html = '';
+            $html .= '<table bgcolor="#ffffff" class="content"  cellpadding="0" cellspacing="0" border="0"><tbody><tr>';
+            $html .= '<td colspan="2" style="padding-top: 0px;">';
+            $html .= html_entity_decode($answer->storagepath($results->question, $request->id)) . '</td></tr>';
+            foreach ($results->answers as $val) {
+
+                $html .= '<tr><td>';
+                if ($val->correctans == 1) {
+                    $html .= '<input type="checkbox"  checked ></td>';
+                } else {
+                    $html .= '<input type="checkbox"></td>';
+                }
+                $html .= '<td>' . html_entity_decode($answer->storagepath($val->answer, $request->id)) . '</td></tr>';
+            }
+            $html .= '</tbody></table>';
+            // echo ''.$html;
+            return response()->json(['html' => $html]);
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      *
