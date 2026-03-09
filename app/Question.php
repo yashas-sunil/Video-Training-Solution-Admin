@@ -24,7 +24,7 @@ class Question extends Model
     }
     public function subject()
     {
-        return $this->belongsTo(Subject::class, 'subjects_id', 'id');
+        return $this->belongsTo(Subject::class, 'subject_id', 'id');
     }
     // public function topic()
     // {
@@ -36,7 +36,7 @@ class Question extends Model
     // }
     public function chapter()
     {
-        return $this->belongsTo(Chapter::class, 'chapters_id', 'id');
+        return $this->belongsTo(Chapter::class, 'chapter_id', 'id');
     }
     public function subChapter()
     {
@@ -62,10 +62,10 @@ class Question extends Model
     // {
     //     return $this->hasMany(Concept::class, 'questions_id', 'id');
     // }
-    // public function solution()
-    // {
-    //     return $this->hasOne(Solution::class, 'questions_id', 'id');
-    // }
+    public function solution()
+    {
+        return $this->hasOne(Solution::class, 'question_id', 'id');
+    }
 
     // public function championship()
     // {
@@ -87,10 +87,10 @@ class Question extends Model
     // {
     //     return $this->belongsTo(Importance::class, 'importance_id', 'id');
     // }
-    // public function answerType()
-    // {
-    //     return $this->belongsTo(AnswerType::class, 'answer_types_id', 'id');
-    // }
+    public function answerType()
+    {
+        return $this->belongsTo(AnswerType::class, 'answer_types_id', 'id');
+    }
     public function type()
     {
         return $this->belongsTo(Type::class, 'types_id', 'id');
@@ -114,7 +114,7 @@ class Question extends Model
 
     public function answers()
     {
-        return $this->hasMany(Answer::class, 'questions_id', 'id');
+        return $this->hasMany(Answer::class, 'question_id', 'id');
     }
      public function search_max_question_id()
     {
@@ -130,25 +130,23 @@ class Question extends Model
     {
         $questionList = Question::with(
             'course',
-            'level',
             'subject',
-            'topicQuestion',
             'chapter',
-            'summary',
-            'concept',
-            'solution.solutionImages',
+            'subChapter',
             'difficultLevel',
-            'author',
-            'reviewer',
             'answerType',
-            'questionType',
             'createdBy',
-            'updatedBy'
+            'updatedBy',
+            'type',
+            'solution'
         )
             ->where('question_banks_id', $questionBank->id)->get();
 
+
+        // dd($questionBank->id);
+        // $questionList = Question::where('question_banks_id', $questionBank->id)->get();
         // dd($questionList);
-        $answer = new Answer();
+        // $answer = new Answer();
 
         if (!empty($questionList)) {
             $question = array();
@@ -159,35 +157,35 @@ class Question extends Model
                 $temp['srno'] = $i;
                 $temp['id'] = $results->id;
                 $temp['question_number'] = $results->question_number;
-                $temp['course_name'] = $results->course->name;
-                $temp['level_name'] = $results->level->name;
-                $temp['subject_name'] = $results->subject->name;
-                $temp['chapter_name'] = $results->chapter->name;
+                $temp['course_name'] = $results->course->name ?? '';
+                // $temp['level_name'] = $results->level->name;
+                $temp['subject_name'] = $results->subject->name ?? '';
+                $temp['chapter_name'] = $results->chapter->name ?? '';
                 $temp['question'] =   !empty($results->question) ? $results->question : '-';
                 $temp['summary_name'] =   !empty($results->summary->name) ? $results->summary->name : '-';
                 $content_array = [];
-                foreach ($results->topicQuestion as $content_val) {
-                    foreach ($content_val->content as $content_name) {
-                        $content_array[] = $content_name->name;
-                    }
-                }
+                // foreach ($results->topicQuestion as $content_val) {
+                //     foreach ($content_val->content as $content_name) {
+                //         $content_array[] = $content_name->name;
+                //     }
+                // }
 
-                $temp['content_name'] = $content_array ?? null;
+                $temp['content_name'] = !empty($content_array) ? implode(', ', $content_array) : '-';
                 $temp['importance'] = $results->importance;
                 $temp['source'] = $results->source;
-                $temp['solution_name'] =   !empty($results->solution->name) ? $results->solution->name : '-';
-                $temp['solution_id'] =  !empty($results->solution->id) ? $results->solution->id : 0;
-                $temp['solution_image'] =   !empty($results->solution->name) ? $results->solution->name : '-';
+                $temp['solution_name'] = !empty($results->solution->name) ? $results->solution->name : '-';
+                $temp['solution_id'] = !empty($results->solution->id) ? $results->solution->id : 0;
+                $temp['solution_image'] = !empty($results->solution->name) ? $results->solution->name : '-';
                 $concept_array = [];
                 $concept_note_array = [];
-                foreach ($results->concept as $concept_val) {
-                    $concept_array[] = $concept_val->audio->flash_card_name;
-                    $concept_note_array[] = $concept_val->audio->audio_content;
-                }
+                // foreach ($results->concept as $concept_val) {
+                //     $concept_array[] = $concept_val->audio->flash_card_name;
+                //     $concept_note_array[] = $concept_val->audio->audio_content;
+                // }
 
-                $temp['concept_name'] = $concept_array ?? null;
-                $temp['concept_note'] = $concept_note_array ?? null;
-                $temp['question_type'] =   $results->questionType->name;
+                $temp['concept_name'] = !empty($concept_array) ? implode(', ', $concept_array) : '-';
+                $temp['concept_note'] = !empty($concept_note_array) ? implode(', ', $concept_note_array) : '-';
+                $temp['question_type'] =   $results->type->name ?? null;
                 // $temp['solution_image'] =   !empty($results->solution->name) ? $results->solution->name : '-';
 
 
@@ -202,19 +200,21 @@ class Question extends Model
                 // >". $results->question."</a>":'-';
 
                 // $temp['language'] = $results->language->name;
+                $temp['language'] = '-';
                 $temp['tags'] = $results->tags;
                 // $temp['location'] = $results->location->name;
-                $temp['reviewer'] = $results->reviewer->name;
-                $temp['author'] = $results->author->name;
+                $temp['location'] = '-';
+                // $temp['reviewer'] = $results->reviewer->name ?? null;
+                $temp['author'] = null;
 
                 $topic_array = [];
-                foreach ($results->topicQuestion as $topic_val) {
-                    foreach ($topic_val->topic as $topic_name) {
-                        $topic_array[] = $topic_name->name;
-                    }
-                }
-                $temp['topic_name'] = $topic_array;
-                // $temp['sub_topic_name'] = $results->subTopic->name;
+                // foreach ($results->topicQuestion as $topic_val) {
+                //     foreach ($topic_val->topic as $topic_name) {
+                //         $topic_array[] = $topic_name->name;
+                //     }
+                // }
+                $temp['topic_name'] = !empty($topic_array) ? implode(', ', $topic_array) : '-';
+                $temp['sub_topic_name'] = $results->subChapter->name ?? '-';
 
                 $temp['status'] = $results->status;
                 $temp['created_at'] = $results->created_at;
