@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ScormPackage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -150,8 +151,8 @@ class Course extends Model
     }
      public function courseByName($value)
     {
-        $course = Course::where('name',$value)
-                        ->where('status',Course::ACTIVE)
+        $course = ScormPackage::where('title',$value)
+                        ->where('status',1)
                         ->first();
                         
         if(!empty($course->id))
