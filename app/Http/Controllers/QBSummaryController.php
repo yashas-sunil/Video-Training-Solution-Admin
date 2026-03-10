@@ -14,6 +14,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreQuestionBankRequest;
 use App\Http\Controllers\QuestionBankController;
+use App\ScormPackage;
 
 class QBSummaryController extends Controller
 {
@@ -24,13 +25,18 @@ class QBSummaryController extends Controller
         $this->questionBankController = $questionBankController;
         $this->summaryController = $summaryController;
     }
-    public function create()
-    {
-        return view('qb_summary.create');
-    }
+public function create()
+{
+    // Active courses fetch karaycha for dropdown
+    $courses = ScormPackage::where('status', 1)->get();
+
+    // View la courses pass kela
+    return view('qb_summary.create', compact('courses'));
+}
 
     public function store(StoreQuestionBankRequest $request)
     {
+      //  dd(1);
         try{
         $zipFile = $request->file('fileupload');
         $zipPath = $zipFile->getPathname();
@@ -153,7 +159,7 @@ class QBSummaryController extends Controller
 
         return redirect()->route('question.bank')->with('success',"Question Bank & Summary Upload Successfully.");
         } catch (\Throwable $th) {
-            // dd($th);
+             //dd($th);
         }
     }
 }
