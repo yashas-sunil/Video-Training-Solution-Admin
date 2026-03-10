@@ -83,6 +83,40 @@
             margin-bottom: 25px;
         }
 
+        .filter-container {
+            max-width: 90%;
+            margin: 20px auto;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .filter-container label {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .filter-container select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            min-width: 200px;
+        }
+
+        .filter-container select:focus {
+            outline: none;
+            border-color: #700002;
+            box-shadow: 0 0 0 3px rgba(112, 0, 2, 0.1);
+        }
+
         .chapter-list {
             max-width: 90%;
             margin: auto;
@@ -282,7 +316,18 @@
 
         <h2>Course Chapters</h2>
 
-        <div class="chapter-list">
+        <div class="filter-container">
+            <label for="subjectFilter">Filter by Subject:</label>
+            <select id="subjectFilter" onchange="filterChaptersBySubject()">
+                <option value="">-- All Subjects --</option>
+                @foreach($subjects as $subject)
+                    <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        
+
+        <div class="chapter-list" id="chapterListContainer">
             @forelse($chapters as $chapter)
                 @php
                     $percent = (float) ($chapter->progress_percent ?? 0);
@@ -292,7 +337,7 @@
                     $currentAttempt = $chapter->attempt_count ?? 0;
                 @endphp
 
-                <div class="chapter-item" onclick="openChapter({{ $chapter->id }})">
+                <div class="chapter-item" onclick="openChapter({{ $chapter->id }})" data-subject-id="{{ $chapter->subject_id }}">
 
                     <div class="chapter-title">{{ $chapter->name }}</div>
 
@@ -334,6 +379,66 @@
     </div>
 
     <script>
+        // Hide chapters by default on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            filterChaptersBySubject();
+        });
+
+        function filterChaptersBySubject() {
+            const selectedSubjectId = document.getElementById('subjectFilter').value;
+            const chapterItems = document.querySelectorAll('.chapter-item');
+            let visibleCount = 0;
+
+            chapterItems.forEach(item => {
+                item.style.display = 'none';
+            });
+
+            // If no subject is selected, show nothing
+            if (selectedSubjectId === '') {
+                const container = document.getElementById('chapterListContainer');
+                if (!document.getElementById('noSelectionMsg')) {
+                    const noSelectionMsg = document.createElement('div');
+                    noSelectionMsg.id = 'noSelectionMsg';
+                    noSelectionMsg.textContent = 'Please select a subject to view chapters.';
+                    noSelectionMsg.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 20px; color: #666; font-size: 16px;';
+                    container.appendChild(noSelectionMsg);
+                }
+                return;
+            }
+
+            // Show chapters matching the selected subject
+            chapterItems.forEach(item => {
+                const subjectId = item.getAttribute('data-subject-id');
+                if (subjectId === selectedSubjectId) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                }
+            });
+
+            // Remove the "no selection" message when a subject is selected
+            const noSelectionMsg = document.getElementById('noSelectionMsg');
+            if (noSelectionMsg) {
+                noSelectionMsg.remove();
+            }
+
+            // Show/hide "No chapters" message
+            if (visibleCount === 0) {
+                const container = document.getElementById('chapterListContainer');
+                if (!document.getElementById('noChaptersMsg')) {
+                    const noChaptersMsg = document.createElement('div');
+                    noChaptersMsg.id = 'noChaptersMsg';
+                    noChaptersMsg.textContent = 'No chapters available for this subject.';
+                    noChaptersMsg.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;';
+                    container.appendChild(noChaptersMsg);
+                }
+            } else {
+                const noChaptersMsg = document.getElementById('noChaptersMsg');
+                if (noChaptersMsg) {
+                    noChaptersMsg.remove();
+                }
+            }
+        }
+
         function openChapter(chapterId) {
             const w = window.screen.availWidth;
             const h = window.screen.availHeight;

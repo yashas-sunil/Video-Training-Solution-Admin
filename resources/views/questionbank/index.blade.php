@@ -44,7 +44,7 @@
                                     </td>
                                     <td>{{$val->created_at->format('d-m-Y H:i:s')}}</td>
                                     <td class="edit_delete action1">
-                                        {{-- <a href="{{ route('question-bank.show',$val->id) }}" class="btn btn-primary"><i class="fas fa-eye"></i></a> --}}
+                                        <a href="{{ route('question-bank.show',$val->id) }}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
                                 @endforeach

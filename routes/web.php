@@ -697,7 +697,8 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
-Route::get('question-bank/{id}', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('question/bank/{questionBank}', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('fetch-answers-by-questions', 'QuestionBankController@fetchAnswersByQuestions')->name('fetch-answers-by-questions');
 Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
 
  Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');

@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use ZipArchive;
-use App\CourseView;
-use App\Models\User;
-use App\Models\Lesson;
+use App\CourseProgress as AppCourseProgress;
 use App\CourseProgress;
+use App\CourseView;
 use App\Models\Chapter;
+use App\Models\ChapterManualContent;
+use App\Models\Lesson;
+use App\Models\Subject;
+use App\Models\User;
+use App\ScormPackage as AppScormPackage;
+use App\Services\ScormCloudService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Chart\Title;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
-use App\Services\ScormCloudService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Models\ChapterManualContent;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use App\ScormPackage as AppScormPackage;
-use PhpOffice\PhpSpreadsheet\Chart\Title;
-use App\CourseProgress as AppCourseProgress;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipArchive;
 
 class ScormController extends Controller
 {
@@ -68,7 +70,14 @@ class ScormController extends Controller
 
         $request->validate([
             'course_id'    => 'required|integer',
-            'chapter_name' => 'required|string',
+            'chapter_name' => [
+                'required',
+                'string',
+                Rule::unique('chapters', 'name')
+                    ->where('course_id', $request->course_id)
+                    ->where('subject_id', $request->subject_id)
+            ],
+            'subject_id'   => 'required|integer',
             'zip_file'     => 'required|mimes:zip|max:1024000',
         ]);
 
@@ -126,13 +135,14 @@ class ScormController extends Controller
             'course_id'   => $request->course_id,
             'name'        => $request->chapter_name,
             'folder_name' => $folderName,
+            'subject_id'  => $request->subject_id,
             'launch_file' => str_replace($extractPath . '/', '', $launchFullPath),
         ]);
 
         Log::info("Chapter SCORM uploaded successfully");
 
         return redirect()
-            ->route('courses.index')
+            ->route('chapters')
             ->with('success', 'Chapter created successfully.');
     }
 
@@ -159,7 +169,13 @@ class ScormController extends Controller
         // Build validation rules
         $rules = [
             'course_id' => 'required|integer',
-            'chapter_name' => 'required|string',
+            'chapter_name' => [
+                'required',
+                'string',
+                Rule::unique('chapters', 'name')
+                    ->where('course_id', $request->course_id)
+                    ->where('subject_id', $request->subject_id)
+            ],
             'lessons' => 'required|array|min:1',
             'lessons.*.lesson_name' => 'required|string',
         ];
@@ -198,6 +214,7 @@ class ScormController extends Controller
             $chapter = Chapter::create([
                 'course_id' => $validated['course_id'],
                 'name' => $validated['chapter_name'],
+                'subject_id' => $validated['subject_id'],
             ]);
 
 
@@ -477,7 +494,14 @@ class ScormController extends Controller
         ];
 
         $rules = [
-            'chapter_name' => 'required|string',
+            'chapter_name' => [
+                'required',
+                'string',
+                Rule::unique('chapters', 'name')
+                    ->where('course_id', $chapter->course_id)
+                    ->where('subject_id', $chapter->subject_id)
+                    ->ignore($chapter->id)
+            ],
             'lessons' => 'nullable|array',
             'lessons.*.lesson_id' => 'nullable|integer',
             'lessons.*.lesson_name' => 'required|string',
@@ -903,8 +927,8 @@ class ScormController extends Controller
 
                 return $chapter;
             });
-
-        return view('chapters.list', compact('chapters', 'courseId'));
+        $subjects = Subject::where('course_id', $courseId)->where('status',1)->get();    
+        return view('chapters.list', compact('chapters', 'courseId', 'subjects'));
     }
 
     public function autoLoginChapter(Request $request, $courseId)
