@@ -315,30 +315,30 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                         Log::info("Column A error" . $e->getMessage());
                     }
 
-                    try {
-                        $message = $sheet_data_loop['B'];
-                        if (!empty($sheet_data_loop['B'])) {
-                            $level = new Level();
-                            $result = $level->levelByName(trim($sheet_data_loop['A']), trim($sheet_data_loop['B']));
-                            if ($result == 0) {
-                                $message = $sheet_data_loop["B"] . "(Not Valid)";
-                                $check_if_error_in_document = "Yes";
-                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                $levelColumnError = "Yes";
-                            } else {
-                                $insert_data[$index]['level_id'] = $result;
-                            }
-                        } else {
-                            $message = "Mandatory";
-                            $check_if_error_in_document = "Yes";
-                            $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
-                            $levelColumnError = "Yes";
-                        }
+                    // try {
+                    //     $message = $sheet_data_loop['B'];
+                    //     if (!empty($sheet_data_loop['B'])) {
+                    //         $level = new Level();
+                    //         $result = $level->levelByName(trim($sheet_data_loop['A']), trim($sheet_data_loop['B']));
+                    //         if ($result == 0) {
+                    //             $message = $sheet_data_loop["B"] . "(Not Valid)";
+                    //             $check_if_error_in_document = "Yes";
+                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //             $levelColumnError = "Yes";
+                    //         } else {
+                    //             $insert_data[$index]['level_id'] = $result;
+                    //         }
+                    //     } else {
+                    //         $message = "Mandatory";
+                    //         $check_if_error_in_document = "Yes";
+                    //         $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //         $levelColumnError = "Yes";
+                    //     }
 
-                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('B' . $counter, $message);
-                    } catch (\Exception $e) {
-                        Log::info("Column B error" . $e->getMessage());
-                    }
+                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('B' . $counter, $message);
+                    // } catch (\Exception $e) {
+                    //     Log::info("Column B error" . $e->getMessage());
+                    // }
 
                     try {
                         $message = $sheet_data_loop['C'];
