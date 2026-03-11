@@ -82,21 +82,31 @@ class Subject extends Model
                 return false;
             }
     }
-    public function subjectByCourseName($course,$level,$subject){
-        $subject = Subject::whereHas('course',function($q) use ($course){
-            $q->where('name', $course);
-            $q->where('status', Course::ACTIVE);
+  public function subjectByCourseName($course,$subject){
 
-        })->whereHas('level',function($q) use ($level){
-            $q->where('name', $level);
-            $q->where('status', Level::ACTIVE);
+    $course = trim($course);
+    $subject = trim($subject);
 
-        })->where('name', $subject)->where('status', Subject::ACTIVE)->first();
-        if (!empty($subject->id)) {
-            return $subject->id;
-        } else {
-            return 0;
-        }
+    $courseData = ScormPackage::where('title',$course)->first();
 
+    if(!$courseData){
+        return 0;
     }
+
+    $subjectData = Subject::where('name',$subject)
+            ->where('course_id',$courseData->id)
+            ->where('status',1)
+            ->first();
+    //dd($subjectData);
+    if($subjectData){
+        return $subjectData->id;
+    }
+
+    return 0;
+}
+
+public function scormPackage()
+{
+    return $this->belongsTo(ScormPackage::class,'scorm_package_id');
+}
 }
