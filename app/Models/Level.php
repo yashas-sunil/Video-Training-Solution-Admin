@@ -18,7 +18,7 @@ class Level extends Model
     ];
 
     public function course() {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(ScormPackage::class);
     }
 
     public function subjects() {
