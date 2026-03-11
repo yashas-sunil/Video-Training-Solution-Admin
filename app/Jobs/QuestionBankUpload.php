@@ -414,26 +414,26 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                         Log::info("Column D error" . $e->getMessage());
                     }
 
-                    try {
-                        $message = $sheet_data_loop['E'];
-                        if (!empty($sheet_data_loop['E'])) {
-                            $sub_chapter = new AppSubchapter();
-                            $result = $sub_chapter->subChapterByName(trim($sheet_data_loop['D']), trim($sheet_data_loop['E']));
-                            if ($result == 0) {
-                                $message = $sheet_data_loop['E'] . "(Not Valid)";
-                                $check_if_error_in_document = "Yes";
-                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('E' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                $subChapterColumnError = "Yes";
-                            } else {
-                                $insert_data[$index]['subchapter_id'] = $result;
-                            }
-                        } else {
-                            $insert_data[$index]['subchapter_id'] = null;
-                        }
-                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('E' . $counter, $message);
-                    } catch (\Exception $e) {
-                        Log::info("Column E error" . $e->getMessage());
-                    }
+                    // try {
+                    //     $message = $sheet_data_loop['E'];
+                    //     if (!empty($sheet_data_loop['E'])) {
+                    //         $sub_chapter = new AppSubchapter();
+                    //         $result = $sub_chapter->subChapterByName(trim($sheet_data_loop['D']), trim($sheet_data_loop['E']));
+                    //         if ($result == 0) {
+                    //             $message = $sheet_data_loop['E'] . "(Not Valid)";
+                    //             $check_if_error_in_document = "Yes";
+                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('E' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //             $subChapterColumnError = "Yes";
+                    //         } else {
+                    //             $insert_data[$index]['subchapter_id'] = $result;
+                    //         }
+                    //     } else {
+                    //         $insert_data[$index]['subchapter_id'] = null;
+                    //     }
+                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('E' . $counter, $message);
+                    // } catch (\Exception $e) {
+                    //     Log::info("Column E error" . $e->getMessage());
+                    // }
 
                     // try {
                     //     $message = $sheet_data_loop['F'];
