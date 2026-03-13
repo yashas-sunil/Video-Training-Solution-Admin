@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\admin_test;
 use App\Assignedcourse;
 use App\CourseProgress;
 use App\DifficultLevel;
@@ -214,6 +215,10 @@ class UserDashboardController extends Controller
             $subjects = collect([]);
         }
 
+        $admintest = admin_test::where('course_id', $id)
+                                 ->where('status', 1);
+                                 
+
         $levels = DifficultLevel::select('id', 'name')->get();
 // dd($user->id );
         return view('question.filter_ui', [
@@ -221,6 +226,7 @@ class UserDashboardController extends Controller
             'levels'         => $levels,
             'assign_course'  => $assign_course,
             'courseName'     => $courseName,
+            'admintest'      => $admintest
         ]);
     }
 }
