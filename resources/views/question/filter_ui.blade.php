@@ -386,13 +386,13 @@
                 <button class="tab-btn active" onclick="openTab('examTab')">
                     <img src="{{ asset('images/user-test.png') }}" alt="User-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Eduedge Created Questions
+                      Create User Questions
                 </button>
 
                 <button class="tab-btn" onclick="openTab('questionTab')">
                     <img src="{{ asset('images/create-test.png') }}" alt="create-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Create User Questions
+                     Eduedge Created Questions
                 </button>
             </div>
         </div>

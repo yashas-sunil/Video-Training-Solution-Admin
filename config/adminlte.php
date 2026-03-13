@@ -378,11 +378,11 @@ return [
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'batches'
                 ],
-                //  [
-                //     'text'        => 'Qbsummary',
-                //     'icon'        => 'fas fa-caret-right',
-                //     'url'         => 'qb-summary'
-                // ],
+                 [
+                    'text'        => 'EduEdge Test generation',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'admin-test'
+                ],
                 // [
                 //     'text'        => 'Levels',
                 //     'url'         => 'levels'
