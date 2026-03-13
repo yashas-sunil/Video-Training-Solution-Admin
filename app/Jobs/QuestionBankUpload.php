@@ -315,36 +315,36 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                         Log::info("Column A error" . $e->getMessage());
                     }
 
-                    try {
-                        $message = $sheet_data_loop['B'];
-                        if (!empty($sheet_data_loop['B'])) {
-                            $level = new Level();
-                            $result = $level->levelByName(trim($sheet_data_loop['A']), trim($sheet_data_loop['B']));
-                            if ($result == 0) {
-                                $message = $sheet_data_loop["B"] . "(Not Valid)";
-                                $check_if_error_in_document = "Yes";
-                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                $levelColumnError = "Yes";
-                            } else {
-                                $insert_data[$index]['level_id'] = $result;
-                            }
-                        } else {
-                            $message = "Mandatory";
-                            $check_if_error_in_document = "Yes";
-                            $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
-                            $levelColumnError = "Yes";
-                        }
+                    // try {
+                    //     $message = $sheet_data_loop['B'];
+                    //     if (!empty($sheet_data_loop['B'])) {
+                    //         $level = new Level();
+                    //         $result = $level->levelByName(trim($sheet_data_loop['A']), trim($sheet_data_loop['B']));
+                    //         if ($result == 0) {
+                    //             $message = $sheet_data_loop["B"] . "(Not Valid)";
+                    //             $check_if_error_in_document = "Yes";
+                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //             $levelColumnError = "Yes";
+                    //         } else {
+                    //             $insert_data[$index]['level_id'] = $result;
+                    //         }
+                    //     } else {
+                    //         $message = "Mandatory";
+                    //         $check_if_error_in_document = "Yes";
+                    //         $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('B' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //         $levelColumnError = "Yes";
+                    //     }
 
-                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('B' . $counter, $message);
-                    } catch (\Exception $e) {
-                        Log::info("Column B error" . $e->getMessage());
-                    }
+                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('B' . $counter, $message);
+                    // } catch (\Exception $e) {
+                    //     Log::info("Column B error" . $e->getMessage());
+                    // }
 
                     try {
                         $message = $sheet_data_loop['C'];
                         if (!empty($sheet_data_loop['C'])) {
                             $subject = new Subject();
-                            $result = $subject->subjectByCourseName(trim($sheet_data_loop['A']), trim($sheet_data_loop['B']), trim($sheet_data_loop['C']));
+                            $result = $subject->subjectByCourseName(trim($sheet_data_loop['A']), trim($sheet_data_loop['C']));
                             if ($result == 0) {
                                 $message = $sheet_data_loop["C"] . "(Not Valid)";
                                 $check_if_error_in_document = "Yes";
@@ -414,74 +414,74 @@ Log::warning('QB DEBUG: FOREIGN KEY CHECKS DISABLED');
                         Log::info("Column D error" . $e->getMessage());
                     }
 
-                    try {
-                        $message = $sheet_data_loop['E'];
-                        if (!empty($sheet_data_loop['E'])) {
-                            $sub_chapter = new AppSubchapter();
-                            $result = $sub_chapter->subChapterByName(trim($sheet_data_loop['D']), trim($sheet_data_loop['E']));
-                            if ($result == 0) {
-                                $message = $sheet_data_loop['E'] . "(Not Valid)";
-                                $check_if_error_in_document = "Yes";
-                                $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('E' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                $subChapterColumnError = "Yes";
-                            } else {
-                                $insert_data[$index]['subchapter_id'] = $result;
-                            }
-                        } else {
-                            $insert_data[$index]['subchapter_id'] = null;
-                        }
-                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('E' . $counter, $message);
-                    } catch (\Exception $e) {
-                        Log::info("Column E error" . $e->getMessage());
-                    }
+                    // try {
+                    //     $message = $sheet_data_loop['E'];
+                    //     if (!empty($sheet_data_loop['E'])) {
+                    //         $sub_chapter = new AppSubchapter();
+                    //         $result = $sub_chapter->subChapterByName(trim($sheet_data_loop['D']), trim($sheet_data_loop['E']));
+                    //         if ($result == 0) {
+                    //             $message = $sheet_data_loop['E'] . "(Not Valid)";
+                    //             $check_if_error_in_document = "Yes";
+                    //             $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('E' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //             $subChapterColumnError = "Yes";
+                    //         } else {
+                    //             $insert_data[$index]['subchapter_id'] = $result;
+                    //         }
+                    //     } else {
+                    //         $insert_data[$index]['subchapter_id'] = null;
+                    //     }
+                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('E' . $counter, $message);
+                    // } catch (\Exception $e) {
+                    //     Log::info("Column E error" . $e->getMessage());
+                    // }
 
-                    try {
-                        $message = $sheet_data_loop['F'];
-                        if (!empty($sheet_data_loop['F'])) {
-                            $topics = explode(',', $sheet_data_loop['F']);
-                            $topicIds = [];
-                            $topicNames = [];
-                            $invalidTopics = [];
-                            $topicColumnError = "No";
+                    // try {
+                    //     $message = $sheet_data_loop['F'];
+                    //     if (!empty($sheet_data_loop['F'])) {
+                    //         $topics = explode(',', $sheet_data_loop['F']);
+                    //         $topicIds = [];
+                    //         $topicNames = [];
+                    //         $invalidTopics = [];
+                    //         $topicColumnError = "No";
 
-                            foreach ($topics as $topicName) {
-                                $topicName = trim($topicName);
-                                $topic = new AppTopic();
-                                $result = $topic->topicByChapterNameCopy(trim($sheet_data_loop['D']), $topicName);
+                    //         foreach ($topics as $topicName) {
+                    //             $topicName = trim($topicName);
+                    //             $topic = new AppTopic();
+                    //             $result = $topic->topicByChapterNameCopy(trim($sheet_data_loop['D']), $topicName);
 
-                                if ($result == 0) {
-                                    $invalidTopics[] = $topicName . " (Not Valid)";
-                                    $check_if_error_in_document = "Yes";
-                                    $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                    $topicColumnError = "Yes";
-                                } else {
-                                    $topicIds[] = $result;
-                                    $topicNames[] = $topicName;
-                                    // $contentIds = $topic->contentByTopicId($topicIds);
-                                    // if ($contentIds == 0) {
-                                    //     $message = $sheet_data_loop['F'] . "(Content Not Found)";
-                                    //     $check_if_error_in_document = "Yes";
-                                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
-                                    //     $chapterColumnError = "Yes";
-                                    // }
-                                }
-                            }
+                    //             if ($result == 0) {
+                    //                 $invalidTopics[] = $topicName . " (Not Valid)";
+                    //                 $check_if_error_in_document = "Yes";
+                    //                 $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //                 $topicColumnError = "Yes";
+                    //             } else {
+                    //                 $topicIds[] = $result;
+                    //                 $topicNames[] = $topicName;
+                    //                 // $contentIds = $topic->contentByTopicId($topicIds);
+                    //                 // if ($contentIds == 0) {
+                    //                 //     $message = $sheet_data_loop['F'] . "(Content Not Found)";
+                    //                 //     $check_if_error_in_document = "Yes";
+                    //                 //     $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //                 //     $chapterColumnError = "Yes";
+                    //                 // }
+                    //             }
+                    //         }
 
-                            if (!empty($invalidTopics)) {
-                                $message = implode(', ', $invalidTopics);
-                            } else {
-                                $message = implode(', ', $topics);
-                            }
-                        } else {
-                            $message = "Mandatory";
-                            $check_if_error_in_document = "Yes";
-                            $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
-                            $topicColumnError = "Yes";
-                        }
-                        $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('F' . $counter, $message);
-                    } catch (\Exception $e) {
-                        Log::info("Column F error" . $e->getMessage());
-                    }
+                    //         if (!empty($invalidTopics)) {
+                    //             $message = implode(', ', $invalidTopics);
+                    //         } else {
+                    //             $message = implode(', ', $topics);
+                    //         }
+                    //     } else {
+                    //         $message = "Mandatory";
+                    //         $check_if_error_in_document = "Yes";
+                    //         $readexcel['obj_PhpOffice']->getActiveSheet()->getStyle('F' . $counter)->applyFromArray($readexcel['style_array_error']);
+                    //         $topicColumnError = "Yes";
+                    //     }
+                    //     $readexcel['obj_PhpOffice']->getActiveSheet()->SetCellValue('F' . $counter, $message);
+                    // } catch (\Exception $e) {
+                    //     Log::info("Column F error" . $e->getMessage());
+                    // }
 
                     // try {
                     //     $message = $sheet_data_loop['G'];

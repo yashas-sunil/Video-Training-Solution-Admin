@@ -1,4 +1,9 @@
 @extends('adminlte::page')
+
+@push('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+@endpush
+
 @section('content')
 
 <div class="container-fluid">
@@ -11,7 +16,7 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <div class="col-lg-12 col-md-12 text-left mb-2 create_btn">
+                    <div class="col-lg-12 col-md-12 text-right mb-2 create_btn">
                         <a href="{{ route('qb.summary.create') }}" type="button" class="btn btn-success width_btn">Create</a>
                     </div>
                     <div class="email_id">
@@ -38,9 +43,9 @@
                                         @endif
                                     </td>
                                     <td>{{$val->created_at->format('d-m-Y H:i:s')}}</td>
-                                    {{-- <td class="edit_delete action1">
+                                    <td class="edit_delete action1">
                                         <a href="{{ route('question-bank.show',$val->id) }}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
-                                    </td> --}}
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -60,24 +65,36 @@
 
 @endsection
 @push('third_party_scripts')
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        console.log('DataTables initialization starting...');
+        
         $.fn.dataTable.moment('DD-MM-YYYY HH:mm:ss');
 
-        $('#question-bank').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": true,
-            "responsive": true,
-            order: [
-                [1, 'desc']
-            ],
-        });
+        try {
+            const table = $('#question-bank').DataTable({
+                "paging": true,
+                "pageLength": 10,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": false,
+                "columnDefs": [
+                    { "orderable": false, "targets": [1] }
+                ]
+            });
+            console.log(' DataTables initialized successfully');
+            console.log('Table info:', table.page.info());
+        } catch(e) {
+            console.error(' DataTables error:', e);
+        }
 
         $(".delete_rec").click(function(e) {
             let confirmation = confirm("Are you sure to enable/disable this?");
@@ -89,5 +106,20 @@
             }
         });
     });
+</script>
+@endpush
+@push('js')
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    console.log('datatable loaded');
+
+    $('#question-bank').DataTable({
+        paging: true,
+        pageLength: 10
+    });
+});
 </script>
 @endpush

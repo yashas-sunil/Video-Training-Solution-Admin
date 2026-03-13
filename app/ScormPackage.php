@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ScormPackage extends Model
 {
     use SoftDeletes;
+     protected $guarded = ['id'];
+    const ACTIVE = 1;
+    const INACTIVE = 0;
     protected $dates = ['deleted_at'];
     protected $table = 'scorm_packages';
 

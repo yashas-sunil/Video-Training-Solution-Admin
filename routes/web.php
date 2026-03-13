@@ -697,12 +697,32 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
-Route::get('question-bank/{id}', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('question/bank/{questionBank}', 'QuestionBankController@show')->name('question-bank.show');
+Route::get('fetch-answers-by-questions', 'QuestionBankController@fetchAnswersByQuestions')->name('fetch-answers-by-questions');
 Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
 
  Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
 
-Route::get('/test-open', function () {
+ Route::get('/course-questions', 'CourseQuestionController@index')
+        ->name('course.questions.index');
+
+    Route::get('/course-questions/filter', 'CourseQuestionController@filter')
+        ->name('course.questions.filter');
+
+    Route::post('/course-questions/assign', 'CourseQuestionController@assign')
+        ->name('course.questions.assign');
+
+        Route::get('/all-questions', 'CourseQuestionController@getAllQuestions')
+->name('course.questions.all');
+
+        Route::get('/subjects', 'SubjectController@subjectindex')->name('subjects.index');
+        Route::get('/subjects/create', 'SubjectController@createsubject')->name('subjects.create');
+        Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
+        Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+        Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+
+
+    Route::get('/test-open', function () {
     return response()->file(
         storage_path(
             'app/private/manual_uploads/66/lesson_17/detailed_trainer_slides/69804ef8ace1c_1770016504_CFA_Foundation_Module_7_Chapter_20_Lesson_1.pdf'

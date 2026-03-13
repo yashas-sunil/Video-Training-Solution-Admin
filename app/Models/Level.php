@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ScormPackage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -17,7 +18,7 @@ class Level extends Model
     ];
 
     public function course() {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(ScormPackage::class);
     }
 
     public function subjects() {
@@ -45,17 +46,27 @@ class Level extends Model
                 return false;
             }
     }
-        public function levelByName($course,$value){
-        $level=Level::whereHas('course',function($q) use ($course){
-            $q->where('name', $course);
-            $q->where('status', Course::ACTIVE);
+      public function levelByName($course,$value)
+{
+    $package = ScormPackage::where('title', $course)
+                    ->where('status', 1)
+                    ->first();
 
-        })->where('name',$value)->where('status',Level::ACTIVE)->first();
-        if(!empty($level->id)){
-            return $level->id;
-        }else{
-             return 0;
-        }
+    if(!$package){
+        return 0;
+    }
+
+    $level = Level::where('course_id', $package->id)
+                ->where('name', $value)
+                ->where('status', 1)
+                ->first();
+
+    if(!empty($level->id)){
+        return $level->id;
+    }else{
+        return 0;
+    }
+
 
     }
 }

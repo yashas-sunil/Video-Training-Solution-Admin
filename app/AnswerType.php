@@ -30,4 +30,8 @@ class AnswerType extends Model
     public function updatedBy(){
         return $this->belongsTo(User::class,'updated_by','id');
     }
+    public function questions()
+    {
+        return $this->hasMany(Question::class, 'answer_types_id', 'id');
+    }
 }

@@ -67,22 +67,22 @@ class FiltertQuestionController extends Controller
             }
             
             $chapters = Chapter::select('chapters.*')
-                        ->leftJoin('topics', 'chapters.id', '=', 'topics.chapters_id')
+                        // ->leftJoin('topics', 'chapters.id', '=', 'topics.chapters_id')
                         ->where('chapters.status', 1)
                         ->where('chapters.subject_id', $id)
-                        ->where(function ($query) use ($id) {
-                            $query->where(function ($q) use ($id) {
-                                $q->whereNotNull('topics.subchapter_id');
-                            })
-                            ->orWhere(function ($q) use ($id) {
-                                $q->where('topics.status', 0);
-                            })
-                            ->orWhereNull('topics.chapters_id');
-                        })
-                        ->where(function ($query) use ($idNoInc) {
-                            $query->whereNotIn('topics.id', $idNoInc)
-                                ->orWhereNull('topics.id');
-                        })
+                        // ->where(function ($query) use ($id) {
+                        //     $query->where(function ($q) use ($id) {
+                        //         $q->whereNotNull('topics.subchapter_id');
+                        //     })
+                        //     ->orWhere(function ($q) use ($id) {
+                        //         $q->where('topics.status', 0);
+                        //     })
+                        //     ->orWhereNull('topics.chapters_id');
+                        // })
+                        // ->where(function ($query) use ($idNoInc) {
+                        //     $query->whereNotIn('topics.id', $idNoInc)
+                        //         ->orWhereNull('topics.id');
+                        // })
                         ->distinct()
                         ->get();
 
@@ -90,7 +90,11 @@ class FiltertQuestionController extends Controller
         }
         $id = $request->input('subjects_id');
        // dd($id);
-        $chapters = Chapter::where('subject_id', $id)->where('status', Subject::ACTIVE)->get();
+        $chapters = Chapter::where('subject_id', $id)
+                             ->where('status', 1)
+                             ->whereNull('folder_name')
+                             ->whereNull('launch_file')
+                             ->get();
       //  dd($chapters);
         return response()->json($chapters);
     }
@@ -119,7 +123,7 @@ class FiltertQuestionController extends Controller
         return response()->json($sub_chapters);
     }
 
-// public function filterQBundle(Request $request)
+// public function (Request $request)
 // {
 //     $token = session('token');
 
@@ -164,6 +168,7 @@ class FiltertQuestionController extends Controller
 
 public function filterQBundle(Request $request)
 {
+    // dd($request->all());
     try {
 
         $request->validate([
@@ -184,7 +189,7 @@ public function filterQBundle(Request $request)
             'subchapter:id,name',
             'answerType:id,name',
             'difficultLevel:id,name',
-            'userAttempts:id,question_id',
+            // 'userAttempts:id,question_id',
 
             'solution:id,question_id,name',
         ]);
