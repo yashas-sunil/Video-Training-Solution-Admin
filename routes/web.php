@@ -132,6 +132,8 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
 
     Route::post('admin-test/{id}/toggle-status','QuestionController@toggleAdminTestStatus')->name('admin-test.toggle-status');
 
+    Route::get('/api/questions-by-course-subject','QuestionController@getQuestionsForTest');
+
     Route::get('custom-notifications/templatebody/{id}','CustomNotificationController@templatebody');
 
     Route::get('/getlevels/ajax/{id}','SectionController@getlevels')->name('courses.levels');
