@@ -481,18 +481,6 @@
                 <div class="filter-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h3 style="margin:0;">📝 Questions</h3>
-
-                        <button id="startExamFromQuestionTab" style="
-                            background:#2d89ff;
-                            color:#fff;
-                            border:none;
-                            padding:10px 22px;
-                            border-radius:8px;
-                            font-size:15px;
-                            cursor:pointer;
-                        ">
-                            🔍 Start Exam
-                        </button>
                     </div>
 
                     <hr style="margin:15px 0;">
@@ -507,6 +495,7 @@
                                     <th style="padding: 10px; text-align: left;">Test Name</th>
                                     <th style="padding: 10px; text-align: left;">Subjects</th>
                                     <th style="padding: 10px; text-align: left;">Questions</th>
+                                    <th style="padding: 10px; text-align: center;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="testsList">
@@ -536,11 +525,26 @@
                                             {{ implode(', ', $subjectNames) ?: 'N/A' }}
                                         </td>
                                         <td style="padding: 10px;">{{ $test->total_ques_count }}</td>
+                                        <td style="padding: 10px; text-align: center;">
+                                                <button class="start-btn" style="
+                                                        display: none;
+                                                        background:#2d89ff;
+                                                        color:#fff;
+                                                        border:none;
+                                                        padding:10px 22px;
+                                                        border-radius:8px;
+                                                        font-size:12px;
+                                                        cursor:pointer;
+                                                    " onclick="startTest({{ $test->id }})">
+                                                        🔍 Start Exam
+                                                    </button>
+                                            
+                                        </td>
                                     </tr>
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td colspan="4" style="padding: 20px; text-align: center; color: #999;">
+                                        <td colspan="5" style="padding: 20px; text-align: center; color: #999;">
                                             No tests available
                                         </td>
                                     </tr>
@@ -590,8 +594,17 @@
                         $("#chapter_id").html(html);
                     });
                 });
-
-                // ✅ NOTE: subchapter change ajax removed because subchapter dropdown removed
+                $(document).on('change', '.test-checkbox', function () {
+                    $('.test-checkbox').not(this).prop('checked', false);
+                    
+                    // Hide all start buttons
+                    $('.start-btn').hide();
+                    
+                    // Show start button in the checked row
+                    if ($(this).is(':checked')) {
+                        $(this).closest('tr').find('.start-btn').show();
+                    }
+                });
 
                 $("#filterBtn").on("click", function(e) {
                     e.preventDefault();
@@ -651,42 +664,34 @@
                     }
                 });
 
-                // ✅ kept as-is, only added mode
-                $("#startExamFromQuestionTab").on("click", function() {
-                    // Get selected test IDs
-                    let selectedTestIds = [];
-                    $(".test-checkbox:checked").each(function() {
-                        selectedTestIds.push($(this).val());
-                    });
-
-                    if (selectedTestIds.length === 0) {
-                        alert("Please select at least one test");
-                        return false;
-                    }
-
-                    let params = $.param({
-                        test_ids: selectedTestIds,
-                        mode: "test"
-                    });
-
-                    window.location.href = "/exam-page?" + params;
-                });
-
                 // ✅ Select All tests checkbox functionality
                 $("#selectAllTests").on("change", function() {
                     let isChecked = $(this).is(":checked");
                     $(".test-checkbox").prop("checked", isChecked);
+                    
+                    // Show/hide start buttons based on select all checkbox
+                    if (isChecked) {
+                        $('.start-btn').show();
+                    } else {
+                        $('.start-btn').hide();
+                    }
                 });
 
-                // ✅ Update "Select All" checkbox when individual checkboxes change
+                // ✅ Update "Select All" checkbox and button visibility when individual checkboxes change
                 $(document).on("change", ".test-checkbox", function() {
                     let totalCheckboxes = $(".test-checkbox").length;
                     let checkedCheckboxes = $(".test-checkbox:checked").length;
                     
+                    // Update select all checkbox
                     if (totalCheckboxes === checkedCheckboxes) {
                         $("#selectAllTests").prop("checked", true);
                     } else {
                         $("#selectAllTests").prop("checked", false);
+                    }
+                    
+                    // Update button visibility - hide all buttons if nothing is checked
+                    if (checkedCheckboxes === 0) {
+                        $('.start-btn').hide();
                     }
                 });
 
@@ -696,6 +701,15 @@
 
                 function getParam(name) {
                     return new URLSearchParams(window.location.search).get(name);
+                }
+
+                // Function to handle Start button click
+                function startTest(testId) {
+                    let params = $.param({
+                        test_ids: [testId],
+                        mode: "test"
+                    });
+                    window.location.href = "/exam-page?" + params;
                 }
             </script>
 
