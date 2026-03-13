@@ -1,0 +1,160 @@
+@extends('adminlte::page')
+
+@push('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+@endpush
+
+@push('js')
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+@endpush
+
+@section('title', 'Admin Test creation')
+
+@section('content_header')
+    <div class="row">
+        <div class="col">
+            <h1 class="m-0 text-dark">Admin Test creation</h1>
+        </div>
+        <div class="col text-right">
+            <a href="{{ route('admin-test.create') }}" type="button" class="btn btn-success">Create</a>
+        </div>
+    </div>
+@stop
+
+@section('content')
+    @if (request()->has('success'))
+        <div class="alert alert-success" role="alert">
+            {{ request()->get('success') }}
+        </div>
+    @endif
+    @if (request()->has('error'))
+        <div class="alert alert-danger" role="alert">
+            {{ request()->get('error') }}
+        </div>
+    @endif
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="championship" style="overflow-x: auto;">
+                                <table id="championship" class="table table-bordered table-striped text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Test Name</th>
+                                            <th>Course</th>
+                                            <th>Subject</th>
+                                            <th>Total Question</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($admin_test as $val)
+                                        <tr>
+                                            <td>{{$val->id}}</td>
+                                            <td>{{$val->test_name}}</td>
+                                            <td>
+                                                @php
+                                                    $course = \App\ScormPackage::where('id', $val->course_id)->first();
+                                                @endphp
+                                                {{ $course ? $course->title : 'N/A' }}
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $subjectIds = explode(',', $val->subject_id);
+                                                @endphp
+                                                @foreach($subjectIds as $subjectId)
+                                                    @php
+                                                        $subject = \App\Models\Subject::find(trim($subjectId));
+                                                    @endphp
+                                                    @if($subject)
+                                                        <p>{{$subject->name}}</p>
+                                                    @endif
+                                                @endforeach
+                                            </td>
+                                            {{-- <td>-</td> --}}
+                                            <td>{{$val->total_ques_count}}</td>
+                                            {{-- <td>-</td> --}}
+                                            <td>
+                                                @if($val->status == 1)
+                                                    <span class="badge badge-success">Active</span>
+                                                @else
+                                                    <span class="badge badge-danger">Inactive</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input status-toggle" id="status_{{$val->id}}" 
+                                                        {{ $val->status == 1 ? 'checked' : '' }}
+                                                        data-id="{{$val->id}}">
+                                                    <label class="custom-control-label" for="status_{{$val->id}}"></label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
+@section('js')
+<script type="text/javascript">
+    $(function() {
+        $('#championship').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+        });
+
+        // Toggle status handler
+        $('.status-toggle').on('change', function() {
+            let testId = $(this).data('id');
+            let newStatus = $(this).is(':checked') ? 1 : 0;
+            let $checkbox = $(this);
+
+            $.ajax({
+                url: '{{ url('/admin-test') }}' + '/' + testId + '/toggle-status',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    status: newStatus,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if(response.success) {
+                        // Update the badge
+                        let $badge = $checkbox.closest('tr').find('.badge');
+                        if(newStatus == 1) {
+                            $badge.removeClass('badge-danger').addClass('badge-success').text('Active');
+                        } else {
+                            $badge.removeClass('badge-success').addClass('badge-danger').text('Inactive');
+                        }
+                        // Show success message
+                        alert('Status updated successfully!');
+                    } else {
+                        alert('Error updating status');
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+                },
+                error: function() {
+                    alert('Error updating status');
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                }
+            });
+        });
+    });
+</script>
+@stop
+
+@push('third_party_scripts')
+@endpush

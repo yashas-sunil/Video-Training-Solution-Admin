@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Goal;
-use Carbon\Carbon;
-use App\Subchapter;
-use App\Models\User;
+use App\admin_test;
 use App\AskAQuestion;
-use App\Models\Video;
+use App\Course;
 use App\DifficultLevel;
+use App\Goal;
 use App\Models\Package;
-use App\Models\Subject;
-use App\Models\Professor;
 use App\Models\PackageVideo;
-use Illuminate\Http\Request;
+use App\Models\Professor;
+use App\Models\Subject;
 use App\Models\SubjectPackage;
-use Yajra\DataTables\Html\Builder;
+use App\Models\User;
+use App\Models\Video;
+use App\Question;
+use App\ScormPackage;
+use App\Subchapter;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use test;
 use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class QuestionController extends Controller
 {
@@ -278,6 +283,104 @@ class QuestionController extends Controller
         }
         $response = Package::whereIn('id',$packageIDs)->get();
         return response()->json($response, 200);
+    }
+
+    public function adminTest(){
+
+        // 
+        $admin_test = admin_test::all();
+        return view('admintest',compact('admin_test'));
+    
+    }
+
+    public function adminTestCreate(){
+
+        $course = ScormPackage::all();
+        // dd($course);
+        return view('admintestcreate',compact('course'));
+    }
+
+    public function adminTestSave(Request $request){
+        
+        // Validate the request
+        $validated = $request->validate([
+            'test_name' => 'required|string|max:255',
+            'course_id' => 'required|integer',
+            'subject_ids' => 'required|array|min:1',
+            'subject_ids.*' => 'integer',
+            'total_ques_count' => 'required|integer|min:1',
+            'easy_count' => 'required|integer|min:0',
+            'medium_count' => 'required|integer|min:0',
+            'hard_count' => 'required|integer|min:0',
+        ]);
+
+        // Verify that the sum of difficulty counts equals total questions
+        $difficultySum = $validated['easy_count'] + $validated['medium_count'] + $validated['hard_count'];
+        if ($difficultySum != $validated['total_ques_count']) {
+            return back()->withErrors(['total_ques_count' => 'Sum of easy, medium, and hard questions must equal total questions.'])->withInput();
+        }
+
+        try {
+            // Create admin test record with comma-separated subject IDs
+            $subjectIdsString = implode(',', $validated['subject_ids']);
+            
+            $adminTest = admin_test::create([
+                'test_name' => $validated['test_name'],
+                'course_id' => $validated['course_id'],
+                'subject_id' => $subjectIdsString,
+                'total_ques_count' => $validated['total_ques_count'],
+                'easy_count' => $validated['easy_count'],
+                'medium_count' => $validated['medium_count'],
+                'hard_count' => $validated['hard_count'],
+                'status' => 1,
+            ]);
+
+            return redirect()->route('admin-test')->with('success', 'Test created successfully!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error creating test: ' . $e->getMessage()])->withInput();
+        }
+
+    }
+
+    public function toggleAdminTestStatus(Request $request, $id){
+        try {
+            $adminTest = admin_test::find($id);
+            if(!$adminTest) {
+                return response()->json(['success' => false, 'message' => 'Test not found'], 404);
+            }
+
+            $adminTest->update([
+                'status' => $request->input('status')
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully',
+                'status' => $adminTest->status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getQuestionsByCourseSubject($courseId, $subjectId = null)
+    {
+        $query = Question::where('course_id', $courseId)
+            ->select('id', 'question', 'question_number')
+            ->orderBy('id', 'asc');
+
+        if (!is_null($subjectId) && $subjectId !== '' ) {
+            $query->where('subject_id', $subjectId);
+        }
+
+        $questions = $query->get();
+
+        return response()->json([
+            'questions' => $questions
+        ]);
     }
     
     // public function getSubchaptersByChapterId(Request $request)

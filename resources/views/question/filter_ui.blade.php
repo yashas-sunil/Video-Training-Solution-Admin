@@ -386,13 +386,13 @@
                 <button class="tab-btn active" onclick="openTab('examTab')">
                     <img src="{{ asset('images/user-test.png') }}" alt="User-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Eduedge Created Questions
+                      Create User Questions
                 </button>
 
                 <button class="tab-btn" onclick="openTab('questionTab')">
                     <img src="{{ asset('images/create-test.png') }}" alt="create-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Create User Questions
+                     Eduedge Created Questions
                 </button>
             </div>
         </div>
@@ -497,12 +497,57 @@
 
                     <hr style="margin:15px 0;">
 
-                    <ul style="margin:0; padding-left:20px;">
-                        <li>Question 1</li>
-                        <li>Question 2</li>
-                        <li>Question 3</li>
-                        <li>Question 4</li>
-                    </ul>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #ddd;background: #f8f9fa;">
+                                    <th style="padding: 10px; text-align: left;">
+                                        <input type="checkbox" id="selectAllTests" style="cursor: pointer;" disabled>
+                                    </th>
+                                    <th style="padding: 10px; text-align: left;">Test Name</th>
+                                    <th style="padding: 10px; text-align: left;">Subjects</th>
+                                    <th style="padding: 10px; text-align: left;">Questions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testsList">
+                                @php
+                                    $tests = $admintest instanceof \Illuminate\Database\Eloquent\Builder 
+                                        ? $admintest->get() 
+                                        : $admintest;
+                                @endphp
+                                @if(is_iterable($tests) && count($tests) > 0)
+                                    @foreach($tests as $test)
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 10px;">
+                                            <input type="checkbox" class="test-checkbox" value="{{ $test->id }}" style="cursor: pointer;">
+                                        </td>
+                                        <td style="padding: 10px;">{{ $test->test_name }}</td>
+                                        <td style="padding: 10px;">
+                                            @php
+                                                $subjectIds = explode(',', $test->subject_id);
+                                                $subjectNames = [];
+                                                foreach($subjectIds as $subjectId) {
+                                                    $subject = \App\Models\Subject::find(trim($subjectId));
+                                                    if($subject) {
+                                                        $subjectNames[] = $subject->name;
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ implode(', ', $subjectNames) ?: 'N/A' }}
+                                        </td>
+                                        <td style="padding: 10px;">{{ $test->total_ques_count }}</td>
+                                    </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="4" style="padding: 20px; text-align: center; color: #999;">
+                                            No tests available
+                                        </td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -608,16 +653,41 @@
 
                 // ✅ kept as-is, only added mode
                 $("#startExamFromQuestionTab").on("click", function() {
+                    // Get selected test IDs
+                    let selectedTestIds = [];
+                    $(".test-checkbox:checked").each(function() {
+                        selectedTestIds.push($(this).val());
+                    });
+
+                    if (selectedTestIds.length === 0) {
+                        alert("Please select at least one test");
+                        return false;
+                    }
+
                     let params = $.param({
-                        subject_id: 5,
-                        chapter_id: 8,
-                        mode: "test", // default
-                        difficult_level_id: 1,
-                        used_status: "",
-                        limit: 20
+                        test_ids: selectedTestIds,
+                        mode: "test"
                     });
 
                     window.location.href = "/exam-page?" + params;
+                });
+
+                // ✅ Select All tests checkbox functionality
+                $("#selectAllTests").on("change", function() {
+                    let isChecked = $(this).is(":checked");
+                    $(".test-checkbox").prop("checked", isChecked);
+                });
+
+                // ✅ Update "Select All" checkbox when individual checkboxes change
+                $(document).on("change", ".test-checkbox", function() {
+                    let totalCheckboxes = $(".test-checkbox").length;
+                    let checkedCheckboxes = $(".test-checkbox:checked").length;
+                    
+                    if (totalCheckboxes === checkedCheckboxes) {
+                        $("#selectAllTests").prop("checked", true);
+                    } else {
+                        $("#selectAllTests").prop("checked", false);
+                    }
                 });
 
                 $("#backTabBtn").on("click", function() {

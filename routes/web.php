@@ -124,6 +124,14 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
 
     Route::resource('sms', 'SmsController');
 
+    Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+
+    Route::get('admin-test/create','QuestionController@adminTestCreate')->name('admin-test.create');
+
+    Route::post('admin-test/save','QuestionController@adminTestSave')->name('admin-test.store');
+
+    Route::post('admin-test/{id}/toggle-status','QuestionController@toggleAdminTestStatus')->name('admin-test.toggle-status');
+
     Route::get('custom-notifications/templatebody/{id}','CustomNotificationController@templatebody');
 
     Route::get('/getlevels/ajax/{id}','SectionController@getlevels')->name('courses.levels');
