@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\admin_test;
 use App\AskAQuestion;
+use App\AdminTestQuestion;
 use App\Course;
 use App\DifficultLevel;
 use App\Goal;
@@ -312,6 +313,7 @@ class QuestionController extends Controller
             'easy_count' => 'required|integer|min:0',
             'medium_count' => 'required|integer|min:0',
             'hard_count' => 'required|integer|min:0',
+            'selected_questions' => 'nullable|string',
         ]);
 
         // Verify that the sum of difficulty counts equals total questions
@@ -334,6 +336,18 @@ class QuestionController extends Controller
                 'hard_count' => $validated['hard_count'],
                 'status' => 1,
             ]);
+
+            // Save selected questions to admin_test_questions table
+            if ($request->filled('selected_questions')) {
+                $selectedQuestionIds = explode(',', $request->input('selected_questions'));
+                
+                foreach ($selectedQuestionIds as $questionId) {
+                    AdminTestQuestion::create([
+                        'admin_test_id' => $adminTest->id,
+                        'question_id' => trim($questionId),
+                    ]);
+                }
+            }
 
             return redirect()->route('admin-test')->with('success', 'Test created successfully!');
         } catch (\Exception $e) {
@@ -381,6 +395,47 @@ class QuestionController extends Controller
         return response()->json([
             'questions' => $questions
         ]);
+    }
+
+    public function getQuestionsForTest(Request $request)
+    {
+        try {
+            $courseId = $request->input('course_id');
+            $subjectIds = explode(',', $request->input('subject_ids', ''));
+            $subjectIds = array_filter(array_map('trim', $subjectIds));
+
+            if (!$courseId || empty($subjectIds)) {
+                return response()->json([
+                    'success' => false,
+                    'questions' => []
+                ], 400);
+            }
+
+            $questions = Question::where('course_id', $courseId)
+                ->whereIn('subject_id', $subjectIds)
+                ->with('difficultLevel')
+                ->select('id', 'question', 'difficult_levels_id')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->map(function($q) {
+                    return [
+                        'id' => $q->id,
+                        'question_text' => $q->question,
+                        'difficult_level_name' => $q->difficultLevel ? $q->difficultLevel->name : 'N/A'
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'questions' => $questions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'questions' => []
+            ], 500);
+        }
     }
     
     // public function getSubchaptersByChapterId(Request $request)

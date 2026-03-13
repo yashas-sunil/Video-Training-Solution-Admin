@@ -1,20 +1,48 @@
 @extends('adminlte::page')
 
-@push('css')
+{{-- @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
-@endpush
+@endpush --}}
 
 @push('js')
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 @endpush
+@section('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{-- <style>
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        min-height: 38px;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #007bff;
+        border-color: #0056b3;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+        margin: 5px 5px 5px 0;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: white;
+        margin-right: 8px;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: #fff;
+    }
+</style> --}}
+@endsection
 
 @section('title', 'Admin Test creation')
 
 @section('content_header')
     <div class="row">
         <div class="col">
-            <h1 class="m-0 text-dark">Create Championship Test</h1>
+            <h1 class="m-0 text-dark">Create Admin Test</h1>
         </div>
     </div>
 @stop
@@ -63,7 +91,7 @@
                         <div class="form-group row">
                             <label for="subject_ids" class="col-md-2 col-form-label">Subject <span class="text-danger">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-control @error('subject_ids') is-invalid @enderror" 
+                                <select class="form-control select2 @error('subject_ids') is-invalid @enderror" 
                                     id="subject_ids" name="subject_ids[]" multiple="multiple" required>
                                     <option value="">-- Select Subjects --</option>
                                 </select>
@@ -73,55 +101,71 @@
                             </div>
                         </div>
 
+                        {{-- Questions Selection --}}
+                        <div class="form-group row">
+                            <label for="questions_section" class="col-md-2 col-form-label">Select Questions <span class="text-danger">*</span></label>
+                            <div class="col-md-10">
+                                <div id="questions_section" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; display: none;">
+                                    <div id="questionsLoading" style="text-align: center; color: #999;">
+                                        <p>Select course and subject to view questions</p>
+                                    </div>
+                                    <div id="questionsList" style="display: none;">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 50px;">
+                                                        <input type="checkbox" id="selectAllQuestions" title="Select all questions">
+                                                    </th>
+                                                    <th>Question</th>
+                                                    <th style="width: 100px;">Difficulty</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="questionsBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Selected: <span id="selectedQuestionsCount">0</span> questions</small>
+                            </div>
+                        </div>
+
                         {{-- Total Questions Count --}}
                         <div class="form-group row">
-                            <label for="total_ques_count" class="col-md-2 col-form-label">Total Questions <span class="text-danger">*</span></label>
+                            <label for="total_ques_count" class="col-md-2 col-form-label">Total Questions</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control @error('total_ques_count') is-invalid @enderror" 
-                                    id="total_ques_count" name="total_ques_count" placeholder="Enter total number of questions" 
-                                    value="{{ old('total_ques_count') }}" min="1" required>
-                                @error('total_ques_count')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
+                                <input type="number" class="form-control" 
+                                    id="total_ques_count" name="total_ques_count" 
+                                    value="0" min="0" disabled readonly>
                             </div>
                         </div>
 
                         {{-- Easy Count --}}
                         <div class="form-group row">
-                            <label for="easy_count" class="col-md-2 col-form-label">Easy Questions <span class="text-danger">*</span></label>
+                            <label for="easy_count" class="col-md-2 col-form-label">Easy Questions</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control @error('easy_count') is-invalid @enderror" 
-                                    id="easy_count" name="easy_count" placeholder="Enter number of easy questions" 
-                                    value="{{ old('easy_count') }}" min="0" required>
-                                @error('easy_count')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
+                                <input type="number" class="form-control" 
+                                    id="easy_count" name="easy_count" 
+                                    value="0" min="0" disabled readonly>
                             </div>
                         </div>
 
                         {{-- Medium Count --}}
                         <div class="form-group row">
-                            <label for="medium_count" class="col-md-2 col-form-label">Medium Questions <span class="text-danger">*</span></label>
+                            <label for="medium_count" class="col-md-2 col-form-label">Medium Questions</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control @error('medium_count') is-invalid @enderror" 
-                                    id="medium_count" name="medium_count" placeholder="Enter number of medium questions" 
-                                    value="{{ old('medium_count') }}" min="0" required>
-                                @error('medium_count')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
+                                <input type="number" class="form-control" 
+                                    id="medium_count" name="medium_count" 
+                                    value="0" min="0" disabled readonly>
                             </div>
                         </div>
 
                         {{-- Hard Count --}}
                         <div class="form-group row">
-                            <label for="hard_count" class="col-md-2 col-form-label">Hard Questions <span class="text-danger">*</span></label>
+                            <label for="hard_count" class="col-md-2 col-form-label">Hard Questions</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control @error('hard_count') is-invalid @enderror" 
-                                    id="hard_count" name="hard_count" placeholder="Enter number of hard questions" 
-                                    value="{{ old('hard_count') }}" min="0" required>
-                                @error('hard_count')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
+                                <input type="number" class="form-control" 
+                                    id="hard_count" name="hard_count" 
+                                    value="0" min="0" disabled readonly>
                             </div>
                         </div>
 
@@ -160,11 +204,24 @@
 @stop
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(function () {
+            // Initialize Select2 for subjects
+            $('#subject_ids').select2({
+                placeholder: '-- Select Subjects --',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#subject_ids').closest('.col-md-10')
+            });
+
+            // Load subjects when course changes
             $('#course_id').on('change', function () {
                 let courseId = $(this).val();
                 $('#subject_ids').empty().append('<option value="">-- Select Subjects --</option>');
+                $('#questions_section').hide();
+                $('#questionsList').hide();
+                $('#questionsLoading').show();
                 
                 if (courseId) {
                     $.ajax({
@@ -179,6 +236,152 @@
                             }
                         }
                     });
+                }
+            });
+
+            // Load questions when subject changes
+            $('#subject_ids').on('change', function () {
+                loadQuestions();
+            });
+
+            // Function to load questions
+            function loadQuestions() {
+                let courseId = $('#course_id').val();
+                let selectedSubjects = $('#subject_ids').val();
+
+                if (!courseId || !selectedSubjects || selectedSubjects.length === 0) {
+                    $('#questions_section').hide();
+                    $('#questionsList').hide();
+                    $('#questionsLoading').text('Select course and subject to view questions').show();
+                    return;
+                }
+
+                $('#questionsLoading').text('Loading questions...').show();
+                $('#questionsList').hide();
+
+                $.ajax({
+                    url: '{{ url('/api/questions-by-course-subject') }}',
+                    type: 'GET',
+                    data: {
+                        course_id: courseId,
+                        subject_ids: selectedSubjects.join(',')
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.questions && data.questions.length > 0) {
+                            let tbody = '';
+                            // Store questions data globally for easy access
+                            window.questionsData = {};
+                            $.each(data.questions, function (key, question) {
+                                let difficulty = question.difficult_level_name || 'Easy';
+                                window.questionsData[question.id] = {
+                                    id: question.id,
+                                    text: question.question_text,
+                                    difficulty: difficulty
+                                };
+                                tbody += '<tr>' +
+                                    '<td><input type="checkbox" class="question-checkbox" value="' + question.id + '" data-difficulty="' + difficulty + '"></td>' +
+                                    '<td>' + question.question_text + '</td>' +
+                                    '<td>' + difficulty + '</td>' +
+                                    '</tr>';
+                            });
+                            $('#questionsBody').html(tbody);
+                            $('#questionsList').show();
+                            $('#questionsLoading').hide();
+                            $('#questions_section').show();
+                        } else {
+                            $('#questionsLoading').text('No questions found for selected criteria').show();
+                            $('#questionsList').hide();
+                            $('#questions_section').show();
+                        }
+                    },
+                    error: function () {
+                        $('#questionsLoading').text('Error loading questions. Please try again.').show();
+                        $('#questionsList').hide();
+                        $('#questions_section').show();
+                    }
+                });
+            }
+
+            // Select all questions checkbox
+            $(document).on('change', '#selectAllQuestions', function () {
+                let isChecked = $(this).is(':checked');
+                $('.question-checkbox').prop('checked', isChecked);
+                updateSelectedCount();
+            });
+
+            // Update count when individual questions are selected
+            $(document).on('change', '.question-checkbox', function () {
+                updateSelectedCount();
+                
+                // Update select all checkbox
+                let totalQuestions = $('.question-checkbox').length;
+                let selectedQuestions = $('.question-checkbox:checked').length;
+                
+                if (totalQuestions === selectedQuestions) {
+                    $('#selectAllQuestions').prop('checked', true);
+                } else {
+                    $('#selectAllQuestions').prop('checked', false);
+                }
+            });
+
+            // Function to update selected count and difficulty counts
+            function updateSelectedCount() {
+                let selectedCheckboxes = $('.question-checkbox:checked');
+                let totalCount = selectedCheckboxes.length;
+                let easyCount = 0;
+                let mediumCount = 0;
+                let hardCount = 0;
+
+                selectedCheckboxes.each(function () {
+                    let difficulty = $(this).data('difficulty');
+                    if (difficulty) {
+                        difficulty = difficulty.toLowerCase().trim();
+                        if (difficulty === 'easy') {
+                            easyCount++;
+                        } else if (difficulty === 'medium') {
+                            mediumCount++;
+                        } else if (difficulty === 'hard') {
+                            hardCount++;
+                        }
+                    }
+                });
+
+                // Update display and hidden fields
+                $('#selectedQuestionsCount').text(totalCount);
+                $('#total_ques_count').val(totalCount);
+                $('#easy_count').val(easyCount);
+                $('#medium_count').val(mediumCount);
+                $('#hard_count').val(hardCount);
+            }
+
+            // Form submission
+            $('#adminTestForm').on('submit', function (e) {
+                let selectedQuestions = $('.question-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (selectedQuestions.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one question');
+                    return false;
+                }
+
+                // Enable disabled fields temporarily for form submission
+                $('#total_ques_count').prop('disabled', false);
+                $('#easy_count').prop('disabled', false);
+                $('#medium_count').prop('disabled', false);
+                $('#hard_count').prop('disabled', false);
+
+                // Create hidden input for selected questions if not exists
+                if ($('input[name="selected_questions"]').length === 0) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selected_questions',
+                        value: selectedQuestions.join(',')
+                    }).appendTo('#adminTestForm');
+                } else {
+                    $('input[name="selected_questions"]').val(selectedQuestions.join(','));
                 }
             });
         });
