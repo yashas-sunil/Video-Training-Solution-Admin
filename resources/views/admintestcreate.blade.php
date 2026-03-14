@@ -91,6 +91,14 @@
                         <div class="form-group row">
                             <label for="subject_ids" class="col-md-2 col-form-label">Subject <span class="text-danger">*</span></label>
                             <div class="col-md-10">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" id="selectAllSubjectsBtn" class="btn btn-sm btn-info" style="display: none;">
+                                        <i class="fas fa-check-double"></i> Select All
+                                    </button>
+                                    <button type="button" id="clearAllSubjectsBtn" class="btn btn-sm btn-warning" style="display: none;">
+                                        <i class="fas fa-times"></i> Clear All
+                                    </button>
+                                </div>
                                 <select class="form-control select2 @error('subject_ids') is-invalid @enderror" 
                                     id="subject_ids" name="subject_ids[]" multiple="multiple" required>
                                     <option value="">-- Select Subjects --</option>
@@ -110,6 +118,9 @@
                                         <p>Select course and subject to view questions</p>
                                     </div>
                                     <div id="questionsList" style="display: none;">
+                                        <div style="margin-bottom: 15px;">
+                                            <input type="text" id="questionsSearchInput" class="form-control" placeholder="Search questions by text..." style="width: 100%;">
+                                        </div>
                                         <table class="table table-sm table-striped">
                                             <thead>
                                                 <tr>
@@ -210,7 +221,7 @@
             // Initialize Select2 for subjects
             $('#subject_ids').select2({
                 placeholder: '-- Select Subjects --',
-                allowClear: true,
+                allowClear: false,
                 width: '100%',
                 dropdownParent: $('#subject_ids').closest('.col-md-10')
             });
@@ -222,6 +233,8 @@
                 $('#questions_section').hide();
                 $('#questionsList').hide();
                 $('#questionsLoading').show();
+                $('#selectAllSubjectsBtn').hide();
+                $('#clearAllSubjectsBtn').hide();
                 
                 if (courseId) {
                     $.ajax({
@@ -233,10 +246,31 @@
                                 $.each(data.subjects, function (key, subject) {
                                     $('#subject_ids').append('<option value="' + subject.id + '">' + subject.name + '</option>');
                                 });
+                                // Show Select All and Clear All buttons
+                                $('#selectAllSubjectsBtn').show();
+                                $('#clearAllSubjectsBtn').show();
                             }
                         }
                     });
                 }
+            });
+
+            // Select All Subjects button click
+            $('#selectAllSubjectsBtn').on('click', function(e) {
+                e.preventDefault();
+                // Get all option values except the empty one
+                let allValues = $('#subject_ids').find('option:not(:first)').map(function() {
+                    return $(this).val();
+                }).get();
+                
+                $('#subject_ids').val(allValues).trigger('change');
+            });
+
+            // Clear All Subjects button click
+            $('#clearAllSubjectsBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#subject_ids').val(null).trigger('change');
+                $('#subject_ids').find('option:first').prop('selected', false);
             });
 
             // Load questions when subject changes
@@ -248,6 +282,12 @@
             function loadQuestions() {
                 let courseId = $('#course_id').val();
                 let selectedSubjects = $('#subject_ids').val();
+
+                // Clear previous selections and reset counts
+                $('.question-checkbox').prop('checked', false);
+                $('#selectAllQuestions').prop('checked', false);
+                $('#questionsSearchInput').val(''); // Clear search input
+                updateSelectedCount();
 
                 if (!courseId || !selectedSubjects || selectedSubjects.length === 0) {
                     $('#questions_section').hide();
@@ -308,6 +348,20 @@
                 let isChecked = $(this).is(':checked');
                 $('.question-checkbox').prop('checked', isChecked);
                 updateSelectedCount();
+            });
+
+            // Search questions functionality
+            $(document).on('keyup', '#questionsSearchInput', function () {
+                let searchText = $(this).val().toLowerCase();
+                
+                $('#questionsBody tr').each(function () {
+                    let questionText = $(this).find('td:eq(1)').text().toLowerCase();
+                    if (questionText.includes(searchText)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
             });
 
             // Update count when individual questions are selected
