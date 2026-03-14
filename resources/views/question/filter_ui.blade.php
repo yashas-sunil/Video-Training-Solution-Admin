@@ -480,7 +480,7 @@
             <div id="questionTab" class="tab-content">
                 <div class="filter-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3 style="margin:0;">📝 Questions</h3>
+                        <h3 style="margin:0;">📝 List of Test</h3>
                     </div>
 
                     <hr style="margin:15px 0;">
@@ -490,7 +490,7 @@
                             <thead>
                                 <tr style="border-bottom: 2px solid #ddd;background: #f8f9fa;">
                                     <th style="padding: 10px; text-align: left;">
-                                        <input type="checkbox" id="selectAllTests" style="cursor: pointer;" disabled>
+                                        <input type="checkbox" id="selectAllTests" style="cursor: pointer; display:none;" >
                                     </th>
                                     <th style="padding: 10px; text-align: left;">Test Name</th>
                                     <th style="padding: 10px; text-align: left;">Subjects</th>
@@ -531,12 +531,12 @@
                                                         background:#2d89ff;
                                                         color:#fff;
                                                         border:none;
-                                                        padding:10px 22px;
+                                                        padding:9px 20px;
                                                         border-radius:8px;
-                                                        font-size:12px;
+                                                        font-size:13.5px;
                                                         cursor:pointer;
                                                     " onclick="startTest({{ $test->id }})">
-                                                        🔍 Start Exam
+                                                        📚 Start Exam 
                                                     </button>
                                             
                                         </td>
@@ -706,7 +706,7 @@
                 // Function to handle Start button click
                 function startTest(testId) {
                     let params = $.param({
-                        test_ids: [testId],
+                        test_ids: testId,
                         mode: "test"
                     });
                     window.location.href = "/exam-page?" + params;
