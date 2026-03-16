@@ -695,9 +695,12 @@ Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name
 Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
 Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
 Route::get('/gettestquestion', 'UserDashboardController@getTestQuestion')->name('gettestquestion');
+// Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
+    Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
 
 Route::get('/exam-page', function () {
     return view('exam_page'); 
+
 });
 
 

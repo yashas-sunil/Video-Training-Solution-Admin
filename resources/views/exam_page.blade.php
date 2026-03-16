@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Eduedge Exam</title>
 
     <!-- jQuery -->
@@ -864,7 +865,12 @@
                     });
 
                     if (!answersSaved) {
-                        saveUserAnswers();
+                        // ✅ Tab 2 (Eduedge test) alag API, Tab 1 alag API
+                        if (isAdminTest) {
+                            saveAdminTestAnswers();
+                        } else {
+                            saveUserAnswers();
+                        }
                         answersSaved = true;
                     }
 
@@ -952,6 +958,50 @@
                         },
                         error: function(err) {
                             console.error("❌ Save failed", err);
+                        }
+                    });
+                }
+
+                // ✅ NEW: Tab 2 (Eduedge Test) ke answers save karo
+                function saveAdminTestAnswers() {
+
+                    let questionsPayload = [];
+
+                    allQ.forEach(q => {
+                        let rightId   = getRightAnswerId(q);
+                        let selectedId = answers[q.id] ?? null;
+                        let isCorrect  = selectedId && rightId && String(selectedId) === String(rightId) ? 1 : 0;
+
+                        questionsPayload.push({
+                            test_id     : testIds,               // konsi test thi
+                            question_id : q.id,                  // question id
+                            selected_option_id : selectedId,     // user ne konsa option click kiya
+                            is_correct  : isCorrect,             // sahi tha ya galat
+                            mode        : mode                   // test ya study
+                        });
+                    });
+
+                    let payload = {
+                        test_id   : testIds,                     // test id
+                        mode      : mode,                        // test ya study
+                        questions : questionsPayload             // saare questions ke answers
+                    };
+
+                    console.log("Saving admin test answers:", payload);
+
+                    $.ajax({
+                        url         : "/save-admin-test-answers",
+                        type        : "POST",
+                        data        : JSON.stringify(payload),
+                        contentType : "application/json",
+                        headers     : {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        success: function(res) {
+                            console.log("✅ Admin test answers saved", res);
+                        },
+                        error: function(err) {
+                            console.error("❌ Admin test save failed", err);
                         }
                     });
                 }
