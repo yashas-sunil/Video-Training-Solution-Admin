@@ -703,13 +703,23 @@
                     return new URLSearchParams(window.location.search).get(name);
                 }
 
-                // Function to handle Start button click
                 function startTest(testId) {
-                    let params = $.param({
-                        test_ids: testId,
-                        mode: "test"
+                    $.ajax({
+                        type    : "GET",
+                        url     : "/gettestquestion",
+                        data    : { test_id: testId },
+                        success : function(res) {
+                            let params = $.param({
+                                test_ids : testId,
+                                mode     : "test"
+                            });
+                            window.location.href = "/exam-page?" + params;
+                        },
+                        error   : function(err) {
+                            alert("Something went wrong. Please try again.");
+                            console.error("API Error:", err);
+                        }
                     });
-                    window.location.href = "/exam-page?" + params;
                 }
             </script>
 

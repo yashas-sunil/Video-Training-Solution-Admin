@@ -678,6 +678,7 @@ Route::get('/get-chapterBy-subject', 'FiltertQuestionController@getChapterbySubj
 Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name('get.subchapters')->middleware('auth');
 Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
 Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
+Route::get('/gettestquestion', 'UserDashboardController@getTestQuestion')->name('gettestquestion');
 
 Route::get('/exam-page', function () {
     return view('exam_page'); 
