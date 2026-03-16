@@ -562,30 +562,82 @@
                 const qp = n => new URLSearchParams(window.location.search).get(n);
                 const mode = (qp('mode') || 'test').toLowerCase(); // test | study
 
+                // ✅ Kaunse tab se aaya - test_ids hai to Tab 2 (Eduedge), nahi to Tab 1 (User)
+                const testIds = qp('test_ids'); // Tab 2 se aaya
+                const isAdminTest = !!testIds;  // true = Tab 2, false = Tab 1
+
                 let checkedMap = {}; // study: { [questionId]: true/false }
 
-                let data = {
-                    subject_id: qp('subject_id'),
-                    chapter_id: qp('chapter_id'),
-                    difficult_level_id: qp('difficult_level_id'),
-                    used_status: qp('used_status'),
-                    limit: qp('limit'),
-                    mode: mode
-                };
+                // ✅ Tab check karke sahi API call karo
+                if (isAdminTest) {
 
-                $.get("/qbundle/filter", data, function(res) {
-                    allQ = res.data || [];
-                    if (allQ.length === 0) {
-                        $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
-                        return;
-                    }
-                    showQuestion(0);
-                    $(".nav-btns").show();
-                });
+                    // ============================
+                    // TAB 2: Eduedge Created Test
+                    // /gettestquestion API call
+                    // ============================
+                    $.get("/gettestquestion", { test_id: testIds }, function(res) {
 
-                // ✅ NEW: scroll to top (so next question shows at top without manual scroll)
+                        console.log("gettestquestion API response:", res);
+
+                        // ✅ res.data hai - questions array
+                        allQ = (res && Array.isArray(res.data)) ? res.data : [];
+
+                        // ✅ options field ko answers mein normalize karo (correctans string "1"/"0" hai)
+                        allQ = allQ.map(q => {
+                            let opts = q.options || q.answers || [];
+                            opts = opts.map(o => ({
+                                id        : o.id,
+                                answer    : o.answer,
+                                correctans: o.correctans  // "1" ya "0" as string - == 1 se kaam karega
+                            }));
+                            return { ...q, answers: opts };
+                        });
+
+                        console.log("Questions normalized:", allQ.length, allQ);
+
+                        if (allQ.length === 0) {
+                            $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+                            return;
+                        }
+                        showQuestion(0);
+                        $(".nav-btns").show();
+                    }).fail(function(err) {
+                        $("#examBox").html("<p style='text-align:center;color:red;'>Failed to load questions. Please try again.</p>");
+                        console.error("API Error:", err);
+                    });
+
+                } else {
+
+                    // ============================
+                    // TAB 1: User Created Questions
+                    // /qbundle/filter API call
+                    // ============================
+                    let data = {
+                        subject_id         : qp('subject_id'),
+                        chapter_id         : qp('chapter_id'),
+                        difficult_level_id : qp('difficult_level_id'),
+                        used_status        : qp('used_status'),
+                        limit              : qp('limit'),
+                        mode               : mode
+                    };
+
+                    $.get("/qbundle/filter", data, function(res) {
+                        allQ = res.data || [];
+                        if (allQ.length === 0) {
+                            $("#examBox").html("<p style='text-align:center;'>No Questions Found</p>");
+                            return;
+                        }
+                        showQuestion(0);
+                        $(".nav-btns").show();
+                    }).fail(function(err) {
+                        $("#examBox").html("<p style='text-align:center;color:red;'>Failed to load questions. Please try again.</p>");
+                        console.error("API Error:", err);
+                    });
+
+                }
+
+                // ✅ scroll to top
                 function scrollToQuestionTop() {
-                    // immediate top for perfect UX
                     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
                 }
 
@@ -600,7 +652,14 @@
                 }
 
                 function getRightAnswerId(q) {
-                    return q.answers.find(a => a.correctans == 1)?.id;
+                    // ✅ answers ya options dono handle karo
+                    const opts = q.answers || q.options || [];
+                    return opts.find(a => a.correctans == 1 || a.is_correct == 1 || a.correct == 1)?.id;
+                }
+
+                function getAnswers(q) {
+                    // ✅ answers ya options dono handle karo
+                    return q.answers || q.options || [];
                 }
 
                 function getSolutionText(q) {
@@ -635,7 +694,7 @@
                             <div class="options-box">
                     `;
 
-                    q.answers.forEach((a, idx) => {
+                    getAnswers(q).forEach((a, idx) => {
                         let checked = (answers[q.id] == a.id) ? 'checked' : '';
                         let cls = '';
 
@@ -683,7 +742,6 @@
 
                     $("#examBox").html(html);
 
-                    // ✅ NEW: after rendering question, auto scroll to top
                     scrollToQuestionTop();
 
                     if (reviewMode) {
@@ -733,7 +791,7 @@
 
                     fb.removeClass("correct wrong").addClass(isCorrect ? "correct" : "wrong");
 
-                    let correctText = q.answers.find(a => String(a.id) === String(rightId))?.answer || "Correct option";
+                    let correctText = getAnswers(q).find(a => String(a.id) === String(rightId))?.answer || "Correct option";
                     fb.html(isCorrect
                         ? `✅ Correct!`
                         : `❌ Wrong! Correct Answer: <b>${correctText}</b>`
@@ -797,7 +855,7 @@
                     let wrong = 0;
 
                     allQ.forEach(q => {
-                        let right = q.answers.find(a => a.correctans == 1);
+                        let right = getAnswers(q).find(a => a.correctans == 1 || a.is_correct == 1 || a.correct == 1);
                         if (answers[q.id] == right?.id) {
                             correct++;
                         } else {
@@ -872,21 +930,21 @@
 
                     allQ.forEach(q => {
                         payload.data.push({
-                            question_id: q.id,
-                            answers_id: answers[q.id] ?? null,
-                            time_taken: 0,
-                            user_question_status: answers[q.id] ? 1 : 0,
-                            is_cumulative_question: false,
-                            mode: mode
+                            question_id            : q.id,
+                            answers_id             : answers[q.id] ?? null,
+                            time_taken             : 0,
+                            user_question_status   : answers[q.id] ? 1 : 0,
+                            is_cumulative_question : false,
+                            mode                   : mode
                         });
                     });
 
                     $.ajax({
-                        url: "/api/save-user-answers",
-                        type: "POST",
-                        data: JSON.stringify(payload),
-                        contentType: "application/json",
-                        headers: {
+                        url         : "/api/save-user-answers",
+                        type        : "POST",
+                        data        : JSON.stringify(payload),
+                        contentType : "application/json",
+                        headers     : {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {

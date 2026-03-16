@@ -229,4 +229,40 @@ class UserDashboardController extends Controller
             'admintest'      => $admintest
         ]);
     }
+
+    public function getTestQuestion(Request $request)
+{
+
+    $test_id = $request->test_id;
+
+    $questions = DB::table('admin_test_questions')
+    ->join('questions', 'questions.id', '=', 'admin_test_questions.question_id')
+    ->where('admin_test_questions.admin_test_id', $test_id)
+    ->select(
+        'questions.id',
+        'questions.question',
+        'questions.difficult_levels_id'
+    )
+    ->get();
+
+    foreach ($questions as $q) {
+
+        $options = DB::table('answers')
+        ->where('question_id', $q->id)
+        ->select(
+            'id',
+            'answer',
+            'correctans'
+        )
+        ->get();
+
+        $q->options = $options;
+    }
+
+    return response()->json([
+        'status' => true,
+        'data' => $questions
+    ]);
+
+}
 }
