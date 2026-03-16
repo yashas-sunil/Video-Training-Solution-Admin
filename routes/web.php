@@ -13,6 +13,7 @@ use App\Http\Middleware\BackOfficeManagerMiddleware;
 use App\Http\Middleware\FinanceManagerMiddleware;
 use App\Http\Middleware\ActivityLog;
 use App\Http\Middleware\JuniorAdminMiddleware;
+use App\Http\Middleware\AdminOnlyMiddleware;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -56,7 +57,7 @@ Route::get('/secure-pdf/{file}', function ($file) {
 
 
 
-Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
+Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
     Route::resource('courses', 'CourseController')->middleware('auth');
@@ -124,7 +125,6 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
 
     Route::resource('sms', 'SmsController');
 
-    Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
 
     Route::get('admin-test/create','QuestionController@adminTestCreate')->name('admin-test.create');
 
@@ -485,11 +485,27 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
         Route::post('getSelectedConcept', 'TestController@getSelectedConcept')->name('getSelectedConcept');
         Route::post('module/auto-update/{ID}', 'TestModulesController@autoUpdate')->name('module.auto-update');
         Route::get('module/getStep2/{ID}', 'TestModulesController@getStep2')->name('module.getStep2');
+        
     });
     // Quiz end
 
+    //Admin routes
     Route::get('users/usage', 'UserController@usage')->name('users.usage');
-
+    Route::resource('assigned-courses', 'AssignedCourseController');
+    // Route::resource('subjects', 'SubjectController');
+    Route::get('/subjects', 'SubjectController@subjectindex')->name('subjects.index');
+    Route::get('/subjects/create', 'SubjectController@createsubject')->name('subjects.create');
+    Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
+    Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+    Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+    // Route::resource('chapters', 'ChapterController')->only('index');
+    Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+    Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
+    Route::get('/course-questions', 'CourseQuestionController@index')
+        ->name('course.questions.index');
+    Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+    Route::resource('batches', 'BatchController');
+    //adminroute
     Route::get('questions', 'QuestionController@index')->name('questions.index');
     Route::get('questions/professors', 'QuestionController@professors')->name('questions.professors.index');
     Route::get('questions/{id}', 'QuestionController@show')->name('questions.show');
@@ -554,8 +570,8 @@ Route::middleware('auth')
 
         Route::resource('courses', 'CourseController')->only('index');
         Route::resource('levels', 'LevelController')->only('index');
-        Route::resource('subjects', 'SubjectController')->only('index');
-        Route::resource('chapters', 'ChapterController')->only('index');
+       
+    
         Route::resource('professors', 'ProfessorController')->only('index');
         Route::resource('languages', 'LanguageController')->only('index');
         Route::resource('countries', 'CountryController')->only('index');
@@ -617,7 +633,7 @@ Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
 Route::post('/scorm/progress/save', 'ScormController@saveProgress')->name('scorm.progress.save');
 Route::get('/launch', 'LaunchController@launch');
 Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create');
-Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
+
 Route::get('/course/{course}/chapters', 'ScormController@getChapters')
     ->name('course.chapters')->middleware('auth');
 
@@ -701,21 +717,20 @@ Route::get('/course-attempts/{quizName}/view/{attemptNumber}', 'CourseProgressCo
 // Route::get('/assigned-courses/create', 'AssignedCourseController@create')->name('assigned_courses.create')->middleware('auth');
 // Route::post('/assigned-courses', 'AssignedCourseController@store')->name('assigned_courses.store')->middleware('auth');
 // routes/web.php
-Route::resource('assigned-courses', 'AssignedCourseController');
+
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
 Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
 
 Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
  Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
-Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+
 Route::get('question/bank/{questionBank}', 'QuestionBankController@show')->name('question-bank.show');
 Route::get('fetch-answers-by-questions', 'QuestionBankController@fetchAnswersByQuestions')->name('fetch-answers-by-questions');
 Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
 
  Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
 
- Route::get('/course-questions', 'CourseQuestionController@index')
-        ->name('course.questions.index');
+
 
     Route::get('/course-questions/filter', 'CourseQuestionController@filter')
         ->name('course.questions.filter');
@@ -726,11 +741,7 @@ Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('f
         Route::get('/all-questions', 'CourseQuestionController@getAllQuestions')
 ->name('course.questions.all');
 
-        Route::get('/subjects', 'SubjectController@subjectindex')->name('subjects.index');
-        Route::get('/subjects/create', 'SubjectController@createsubject')->name('subjects.create');
-        Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
-        Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
-        Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+
 
 
     Route::get('/test-open', function () {
@@ -782,7 +793,6 @@ Route::get('/pdf-login-required', function () {
 })->name('pdf.login.required');
 
 // BATCH RESOURCE ROUTES
-Route::resource('batches', 'BatchController');
 
 // Assign Students Page (GET)
 Route::get('batches/{id}/assign', 'BatchController@assignStudents')
