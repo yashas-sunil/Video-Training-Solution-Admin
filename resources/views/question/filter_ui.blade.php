@@ -386,13 +386,13 @@
                 <button class="tab-btn active" onclick="openTab('examTab')">
                     <img src="{{ asset('images/user-test.png') }}" alt="User-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Eduedge Created Questions
+                      Create User Questions
                 </button>
 
                 <button class="tab-btn" onclick="openTab('questionTab')">
                     <img src="{{ asset('images/create-test.png') }}" alt="create-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                    Create User Questions
+                     Eduedge Created Questions
                 </button>
             </div>
         </div>
@@ -480,29 +480,78 @@
             <div id="questionTab" class="tab-content">
                 <div class="filter-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3 style="margin:0;">📝 Questions</h3>
-
-                        <button id="startExamFromQuestionTab" style="
-                            background:#2d89ff;
-                            color:#fff;
-                            border:none;
-                            padding:10px 22px;
-                            border-radius:8px;
-                            font-size:15px;
-                            cursor:pointer;
-                        ">
-                            🔍 Start Exam
-                        </button>
+                        <h3 style="margin:0;">📝 List of Test</h3>
                     </div>
 
                     <hr style="margin:15px 0;">
 
-                    <ul style="margin:0; padding-left:20px;">
-                        <li>Question 1</li>
-                        <li>Question 2</li>
-                        <li>Question 3</li>
-                        <li>Question 4</li>
-                    </ul>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #ddd;background: #f8f9fa;">
+                                    <th style="padding: 10px; text-align: left;">
+                                        <input type="checkbox" id="selectAllTests" style="cursor: pointer; display:none;" >
+                                    </th>
+                                    <th style="padding: 10px; text-align: left;">Test Name</th>
+                                    <th style="padding: 10px; text-align: left;">Subjects</th>
+                                    <th style="padding: 10px; text-align: left;">Questions</th>
+                                    <th style="padding: 10px; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testsList">
+                                @php
+                                    $tests = $admintest instanceof \Illuminate\Database\Eloquent\Builder 
+                                        ? $admintest->get() 
+                                        : $admintest;
+                                @endphp
+                                @if(is_iterable($tests) && count($tests) > 0)
+                                    @foreach($tests as $test)
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 10px;">
+                                            <input type="checkbox" class="test-checkbox" value="{{ $test->id }}" style="cursor: pointer;">
+                                        </td>
+                                        <td style="padding: 10px;">{{ $test->test_name }}</td>
+                                        <td style="padding: 10px;">
+                                            @php
+                                                $subjectIds = explode(',', $test->subject_id);
+                                                $subjectNames = [];
+                                                foreach($subjectIds as $subjectId) {
+                                                    $subject = \App\Models\Subject::find(trim($subjectId));
+                                                    if($subject) {
+                                                        $subjectNames[] = $subject->name;
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ implode(', ', $subjectNames) ?: 'N/A' }}
+                                        </td>
+                                        <td style="padding: 10px;">{{ $test->total_ques_count }}</td>
+                                        <td style="padding: 10px; text-align: center;">
+                                                <button class="start-btn" style="
+                                                        display: none;
+                                                        background:#2d89ff;
+                                                        color:#fff;
+                                                        border:none;
+                                                        padding:9px 20px;
+                                                        border-radius:8px;
+                                                        font-size:13.5px;
+                                                        cursor:pointer;
+                                                    " onclick="startTest({{ $test->id }})">
+                                                        📚 Start Exam 
+                                                    </button>
+                                            
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="5" style="padding: 20px; text-align: center; color: #999;">
+                                            No tests available
+                                        </td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -545,8 +594,17 @@
                         $("#chapter_id").html(html);
                     });
                 });
-
-                // ✅ NOTE: subchapter change ajax removed because subchapter dropdown removed
+                $(document).on('change', '.test-checkbox', function () {
+                    $('.test-checkbox').not(this).prop('checked', false);
+                    
+                    // Hide all start buttons
+                    $('.start-btn').hide();
+                    
+                    // Show start button in the checked row
+                    if ($(this).is(':checked')) {
+                        $(this).closest('tr').find('.start-btn').show();
+                    }
+                });
 
                 $("#filterBtn").on("click", function(e) {
                     e.preventDefault();
@@ -606,18 +664,35 @@
                     }
                 });
 
-                // ✅ kept as-is, only added mode
-                $("#startExamFromQuestionTab").on("click", function() {
-                    let params = $.param({
-                        subject_id: 5,
-                        chapter_id: 8,
-                        mode: "test", // default
-                        difficult_level_id: 1,
-                        used_status: "",
-                        limit: 20
-                    });
+                // ✅ Select All tests checkbox functionality
+                $("#selectAllTests").on("change", function() {
+                    let isChecked = $(this).is(":checked");
+                    $(".test-checkbox").prop("checked", isChecked);
+                    
+                    // Show/hide start buttons based on select all checkbox
+                    if (isChecked) {
+                        $('.start-btn').show();
+                    } else {
+                        $('.start-btn').hide();
+                    }
+                });
 
-                    window.location.href = "/exam-page?" + params;
+                // ✅ Update "Select All" checkbox and button visibility when individual checkboxes change
+                $(document).on("change", ".test-checkbox", function() {
+                    let totalCheckboxes = $(".test-checkbox").length;
+                    let checkedCheckboxes = $(".test-checkbox:checked").length;
+                    
+                    // Update select all checkbox
+                    if (totalCheckboxes === checkedCheckboxes) {
+                        $("#selectAllTests").prop("checked", true);
+                    } else {
+                        $("#selectAllTests").prop("checked", false);
+                    }
+                    
+                    // Update button visibility - hide all buttons if nothing is checked
+                    if (checkedCheckboxes === 0) {
+                        $('.start-btn').hide();
+                    }
                 });
 
                 $("#backTabBtn").on("click", function() {
@@ -626,6 +701,25 @@
 
                 function getParam(name) {
                     return new URLSearchParams(window.location.search).get(name);
+                }
+
+                function startTest(testId) {
+                    $.ajax({
+                        type    : "GET",
+                        url     : "/gettestquestion",
+                        data    : { test_id: testId },
+                        success : function(res) {
+                            let params = $.param({
+                                test_ids : testId,
+                                mode     : "test"
+                            });
+                            window.location.href = "/exam-page?" + params;
+                        },
+                        error   : function(err) {
+                            alert("Something went wrong. Please try again.");
+                            console.error("API Error:", err);
+                        }
+                    });
                 }
             </script>
 

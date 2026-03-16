@@ -23,7 +23,7 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
 
-        <table class="table table-hover mb-0">
+        <table id="batches-table"class="table table-hover mb-0">
             <thead style="background:#700002; color:white;">
                 <tr>
                     <th style="width:70px;">Id</th>
@@ -93,3 +93,36 @@
 </div>
 
 @stop
+
+@section('js')
+<script type="text/javascript">
+    $(function() {
+        $('#batches-table').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+        });
+    });
+</script>
+@stop
+
+{{-- @push('third_party_scripts')
+<script type="text/javascript">
+    $(function() {
+        $('#batches-table').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            order: [[0, 'desc']],
+        });
+    });
+</script>
+@endpush --}}

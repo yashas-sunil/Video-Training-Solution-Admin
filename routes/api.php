@@ -23,4 +23,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/save-user-answers', 'FiltertQuestionController@store')->name('course.progress.save');
     Route::post('/launch', 'LaunchController@launch');
     Route::post('/v1/student/token', 'StudentTokenController@generate');
+    Route::get('/questions/course/{courseId}', 'QuestionController@getQuestionsByCourseSubject');
+    Route::get('/questions/course/{courseId}/subject/{subjectId?}', 'QuestionController@getQuestionsByCourseSubject');
 

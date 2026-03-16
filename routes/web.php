@@ -124,6 +124,16 @@ Route::middleware(['auth', ReportAdminMiddleware::class, ContentManagerAdminMidd
 
     Route::resource('sms', 'SmsController');
 
+    Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+
+    Route::get('admin-test/create','QuestionController@adminTestCreate')->name('admin-test.create');
+
+    Route::post('admin-test/save','QuestionController@adminTestSave')->name('admin-test.store');
+
+    Route::post('admin-test/{id}/toggle-status','QuestionController@toggleAdminTestStatus')->name('admin-test.toggle-status');
+
+    Route::get('/api/questions-by-course-subject','QuestionController@getQuestionsForTest');
+
     Route::get('custom-notifications/templatebody/{id}','CustomNotificationController@templatebody');
 
     Route::get('/getlevels/ajax/{id}','SectionController@getlevels')->name('courses.levels');
@@ -668,6 +678,7 @@ Route::get('/get-chapterBy-subject', 'FiltertQuestionController@getChapterbySubj
 Route::get('/get-subchapters', 'FiltertQuestionController@getSubChapters')->name('get.subchapters')->middleware('auth');
 Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('qbundle.filter')->middleware('auth');
 Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
+Route::get('/gettestquestion', 'UserDashboardController@getTestQuestion')->name('gettestquestion');
 
 Route::get('/exam-page', function () {
     return view('exam_page'); 
