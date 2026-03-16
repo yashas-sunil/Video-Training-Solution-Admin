@@ -498,7 +498,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
     Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
     Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
-    // Route::resource('chapters', 'ChapterController')->only('index');
+    Route::get('test-result', 'AnswerController@dashboard');
     Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
