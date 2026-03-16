@@ -23,7 +23,7 @@ class AdminOnlyMiddleware
 
         // Only allow Admin role (3)
         if (Auth::user()->role != 3) {
-            abort(403, 'Unauthorized Access - Admin Area Only');
+            abort(403, 'Unauthorized Access');
         }
 
         return $next($request);
