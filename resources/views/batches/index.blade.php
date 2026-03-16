@@ -21,7 +21,7 @@
 @endif
 
 <div class="card shadow-sm">
-    <div class="card-body p-0">
+    <div class="card-body p-3">
 
         <table id="batches-table"class="table table-hover mb-0">
             <thead style="background:#700002; color:white;">
@@ -45,7 +45,6 @@
                             <strong>{{ $batch->batch_name }}</strong>
                         </td>
 
-                        {{-- 🔥 MULTIPLE COURSES DISPLAY --}}
                         <td>
                             @if($batch->courses->count() > 0)
                                 @foreach($batch->courses as $course)
@@ -99,7 +98,7 @@
     $(function() {
         $('#batches-table').DataTable({
             "paging": true,
-            "lengthChange": false,
+            "lengthChange": true,
             "searching": true,
             "ordering": true,
             "info": true,
