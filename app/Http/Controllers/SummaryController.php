@@ -779,188 +779,188 @@ class SummaryController extends Controller
         }, $value);
     }
 
-    public function return_vvmt_url($from_id, $to_id,$from_date,$to_date)
-    {
-        ini_set('max_execution_time', 300);
-        ini_set('memory_limit', '512M');
+    // public function return_vvmt_url($from_id, $to_id,$from_date,$to_date)
+    // {
+    //     ini_set('max_execution_time', 300);
+    //     ini_set('memory_limit', '512M');
 
-        $fromDate = Carbon::parse($from_date)->format('Y-m-d');
-        $toDate   = Carbon::parse($to_date)->format('Y-m-d');
+    //     $fromDate = Carbon::parse($from_date)->format('Y-m-d');
+    //     $toDate   = Carbon::parse($to_date)->format('Y-m-d');
 
-        $devanagari = [
-            0 => '०',
-            1 => '१',
-            2 => '२',
-            3 => '३',
-            4 => '४',
-            5 => '५',
-            6 => '६',
-            7 => '७',
-            8 => '८',
-            9 => '९',
-        ];
+    //     $devanagari = [
+    //         0 => '०',
+    //         1 => '१',
+    //         2 => '२',
+    //         3 => '३',
+    //         4 => '४',
+    //         5 => '५',
+    //         6 => '६',
+    //         7 => '७',
+    //         8 => '८',
+    //         9 => '९',
+    //     ];
 
-        $full_price = [
-            0  => 0,
-            5  => 10,
-            8  => 15,
-            10 => 20,
-            13 => 25,
-            15 => 30,
-            18 => 35,
-            20 => 40,
-            23 => 45,
-        ];
+    //     $full_price = [
+    //         0  => 0,
+    //         5  => 10,
+    //         8  => 15,
+    //         10 => 20,
+    //         13 => 25,
+    //         15 => 30,
+    //         18 => 35,
+    //         20 => 40,
+    //         23 => 45,
+    //     ];
 
-        $data = DB::connection('mysql_vvmt')->table('tbl_trip_ticket_details')
-            ->select(
-                DB::raw("'सातिवली' as fldv_depot_name"),
-                'tbl_trip_ticket_details.id as id',
-                'tbl_trip_ticket_details.fldv_ticket_no as ticket_no',
-                'tbl_trip_ticket_details.fldv_etm_number as etm_number',
-                'tbl_trip_ticket_details.flddt_ticket_date as ticket_date',
-                'tbl_trip_ticket_details.fldv_ticket_time as ticket_time',
-                'tbl_trip_ticket_details.fldv_waybill_no as waybill_no',
-                'tbl_trip_ticket_details.fldi_half_ticket as half_ticket',
-                'tbl_trip_ticket_details.fldi_full_ticket as full_ticket',
-                'tbl_trip_ticket_details.fldv_conductor_employee_code as conductor_employee_code',
-                'tbl_trip_ticket_details.fldi_route_no as route_no',
-                'tbl_trip_ticket_details.fldi_ticket_fare as ticket_fare',
-                'fromstage.fldv_stage_name_marathi as from_stage_name',
-                'tostage.fldv_stage_name_marathi as to_stage_name'
-            )
-            ->join('tbl_waybill_mst', 'tbl_trip_ticket_details.fldv_waybill_no', '=', 'tbl_waybill_mst.fldv_waybill_no')
-            ->leftJoin('tbl_route_stage_details as fromstage', function ($join) {
-                $join->on('tbl_trip_ticket_details.fldi_stage_from', '=', 'fromstage.fldi_stage_no')
-                    ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'fromstage.fldi_route_no');
-            })
-            ->leftJoin('tbl_route_stage_details as tostage', function ($join) {
-                $join->on('tbl_trip_ticket_details.fldi_stage_to', '=', 'tostage.fldi_stage_no')
-                    ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'tostage.fldi_route_no');
-            })
-            ->where('tbl_trip_ticket_details.id', '>=', $from_id)
-            ->where('tbl_trip_ticket_details.id', '<=', $to_id)
-            ->whereBetween('tbl_waybill_mst.flddt_date', [$fromDate, $toDate])
-            ->where('tbl_trip_ticket_details.fldv_concession_case_code', '05')
-            ->distinct()
-            ->get();
+    //     $data = DB::connection('mysql_vvmt')->table('tbl_trip_ticket_details')
+    //         ->select(
+    //             DB::raw("'सातिवली' as fldv_depot_name"),
+    //             'tbl_trip_ticket_details.id as id',
+    //             'tbl_trip_ticket_details.fldv_ticket_no as ticket_no',
+    //             'tbl_trip_ticket_details.fldv_etm_number as etm_number',
+    //             'tbl_trip_ticket_details.flddt_ticket_date as ticket_date',
+    //             'tbl_trip_ticket_details.fldv_ticket_time as ticket_time',
+    //             'tbl_trip_ticket_details.fldv_waybill_no as waybill_no',
+    //             'tbl_trip_ticket_details.fldi_half_ticket as half_ticket',
+    //             'tbl_trip_ticket_details.fldi_full_ticket as full_ticket',
+    //             'tbl_trip_ticket_details.fldv_conductor_employee_code as conductor_employee_code',
+    //             'tbl_trip_ticket_details.fldi_route_no as route_no',
+    //             'tbl_trip_ticket_details.fldi_ticket_fare as ticket_fare',
+    //             'fromstage.fldv_stage_name_marathi as from_stage_name',
+    //             'tostage.fldv_stage_name_marathi as to_stage_name'
+    //         )
+    //         ->join('tbl_waybill_mst', 'tbl_trip_ticket_details.fldv_waybill_no', '=', 'tbl_waybill_mst.fldv_waybill_no')
+    //         ->leftJoin('tbl_route_stage_details as fromstage', function ($join) {
+    //             $join->on('tbl_trip_ticket_details.fldi_stage_from', '=', 'fromstage.fldi_stage_no')
+    //                 ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'fromstage.fldi_route_no');
+    //         })
+    //         ->leftJoin('tbl_route_stage_details as tostage', function ($join) {
+    //             $join->on('tbl_trip_ticket_details.fldi_stage_to', '=', 'tostage.fldi_stage_no')
+    //                 ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'tostage.fldi_route_no');
+    //         })
+    //         ->where('tbl_trip_ticket_details.id', '>=', $from_id)
+    //         ->where('tbl_trip_ticket_details.id', '<=', $to_id)
+    //         ->whereBetween('tbl_waybill_mst.flddt_date', [$fromDate, $toDate])
+    //         ->where('tbl_trip_ticket_details.fldv_concession_case_code', '05')
+    //         ->distinct()
+    //         ->get();
 
-        $convert_data = $data->map(function ($item) use ($devanagari, $full_price) {
-            $item->ticket_fare             = number_format($item->ticket_fare / 100);
-            $item->ticket_fare_display_sub = $full_price[$item->ticket_fare];
-            $item->ticket_fare_display     = $full_price[$item->ticket_fare] - 0.15;
+    //     $convert_data = $data->map(function ($item) use ($devanagari, $full_price) {
+    //         $item->ticket_fare             = number_format($item->ticket_fare / 100);
+    //         $item->ticket_fare_display_sub = $full_price[$item->ticket_fare];
+    //         $item->ticket_fare_display     = $full_price[$item->ticket_fare] - 0.15;
 
-            $item->ticket_fare             = number_format($item->ticket_fare, 2);
-            $item->ticket_fare_display_sub = number_format($item->ticket_fare_display_sub, 2);
-            foreach ($item as $key => $value) {
-                if (is_numeric($value) || preg_match('/\d/', $value)) {
-                    $item->$key = $this->convertToMarathiNumerals((string) $value, $devanagari);
-                }
-            }
-            return $item;
-        });
+    //         $item->ticket_fare             = number_format($item->ticket_fare, 2);
+    //         $item->ticket_fare_display_sub = number_format($item->ticket_fare_display_sub, 2);
+    //         foreach ($item as $key => $value) {
+    //             if (is_numeric($value) || preg_match('/\d/', $value)) {
+    //                 $item->$key = $this->convertToMarathiNumerals((string) $value, $devanagari);
+    //             }
+    //         }
+    //         return $item;
+    //     });
 
-        $iCnt         = 0;
-        $counter      = 0;
-        $grouped_data = [];
+    //     $iCnt         = 0;
+    //     $counter      = 0;
+    //     $grouped_data = [];
 
-        foreach ($convert_data as $value) {
-            if (! isset($grouped_data[$iCnt])) {
-                $grouped_data[$iCnt] = [];
-            }
+    //     foreach ($convert_data as $value) {
+    //         if (! isset($grouped_data[$iCnt])) {
+    //             $grouped_data[$iCnt] = [];
+    //         }
 
-            $grouped_data[$iCnt][] = $value;
-            $counter++;
+    //         $grouped_data[$iCnt][] = $value;
+    //         $counter++;
 
-            if ($counter % 9 == 0) {
-                $iCnt++;
-            }
-        }
-        return view('demo', compact('grouped_data'));
-    }
+    //         if ($counter % 9 == 0) {
+    //             $iCnt++;
+    //         }
+    //     }
+    //     return view('demo', compact('grouped_data'));
+    // }
 
-    public function vvmt_dummy(Request $request)
-    {
-        ini_set('max_execution_time', 300);
-        ini_set('memory_limit', '512M');
+    // public function vvmt_dummy(Request $request)
+    // {
+    //     ini_set('max_execution_time', 300);
+    //     ini_set('memory_limit', '512M');
 
-        $fromDate = Carbon::parse($request->from)->format('Y-m-d');
-        $toDate   = Carbon::parse($request->to)->format('Y-m-d');
+    //     $fromDate = Carbon::parse($request->from)->format('Y-m-d');
+    //     $toDate   = Carbon::parse($request->to)->format('Y-m-d');
 
-        $data = DB::connection('mysql_vvmt')->table('rpstagedetails')
-            ->where('fldc_status', 'Y')
-            ->first();
+    //     $data = DB::connection('mysql_vvmt')->table('rpstagedetails')
+    //         ->where('fldc_status', 'Y')
+    //         ->first();
 
-        $dummy_array = [];
-        $data        = DB::connection('mysql_vvmt')->table('tbl_trip_ticket_details')
-            ->select(
-                DB::raw("'सातिवली' as fldv_depot_name"),
-                'tbl_trip_ticket_details.id as id',
-                'tbl_trip_ticket_details.fldv_ticket_no as ticket_no',
-                'tbl_trip_ticket_details.fldv_etm_number as etm_number',
-                'tbl_trip_ticket_details.flddt_ticket_date as ticket_date',
-                'tbl_trip_ticket_details.fldv_ticket_time as ticket_time',
-                'tbl_trip_ticket_details.fldv_waybill_no as waybill_no',
-                'tbl_trip_ticket_details.fldi_half_ticket as half_ticket',
-                'tbl_trip_ticket_details.fldi_full_ticket as full_ticket',
-                'tbl_trip_ticket_details.fldv_conductor_employee_code as conductor_employee_code',
-                'tbl_trip_ticket_details.fldi_route_no as route_no',
-                'tbl_trip_ticket_details.fldi_ticket_fare as ticket_fare',
-                'fromstage.fldv_stage_name_marathi as from_stage_name',
-                'tostage.fldv_stage_name_marathi as to_stage_name'
-            )
-            ->join('tbl_waybill_mst', 'tbl_trip_ticket_details.fldv_waybill_no', '=', 'tbl_waybill_mst.fldv_waybill_no')
-            ->leftJoin('tbl_route_stage_details as fromstage', function ($join) {
-                $join->on('tbl_trip_ticket_details.fldi_stage_from', '=', 'fromstage.fldi_stage_no')
-                    ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'fromstage.fldi_route_no');
-            })
-            ->leftJoin('tbl_route_stage_details as tostage', function ($join) {
-                $join->on('tbl_trip_ticket_details.fldi_stage_to', '=', 'tostage.fldi_stage_no')
-                    ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'tostage.fldi_route_no');
-            })
-            ->whereBetween('tbl_waybill_mst.flddt_date', [$fromDate, $toDate])
-            ->where('tbl_trip_ticket_details.fldv_concession_case_code', '05')
-            ->orderBy('id', 'asc')
-            ->get();
+    //     $dummy_array = [];
+    //     $data        = DB::connection('mysql_vvmt')->table('tbl_trip_ticket_details')
+    //         ->select(
+    //             DB::raw("'सातिवली' as fldv_depot_name"),
+    //             'tbl_trip_ticket_details.id as id',
+    //             'tbl_trip_ticket_details.fldv_ticket_no as ticket_no',
+    //             'tbl_trip_ticket_details.fldv_etm_number as etm_number',
+    //             'tbl_trip_ticket_details.flddt_ticket_date as ticket_date',
+    //             'tbl_trip_ticket_details.fldv_ticket_time as ticket_time',
+    //             'tbl_trip_ticket_details.fldv_waybill_no as waybill_no',
+    //             'tbl_trip_ticket_details.fldi_half_ticket as half_ticket',
+    //             'tbl_trip_ticket_details.fldi_full_ticket as full_ticket',
+    //             'tbl_trip_ticket_details.fldv_conductor_employee_code as conductor_employee_code',
+    //             'tbl_trip_ticket_details.fldi_route_no as route_no',
+    //             'tbl_trip_ticket_details.fldi_ticket_fare as ticket_fare',
+    //             'fromstage.fldv_stage_name_marathi as from_stage_name',
+    //             'tostage.fldv_stage_name_marathi as to_stage_name'
+    //         )
+    //         ->join('tbl_waybill_mst', 'tbl_trip_ticket_details.fldv_waybill_no', '=', 'tbl_waybill_mst.fldv_waybill_no')
+    //         ->leftJoin('tbl_route_stage_details as fromstage', function ($join) {
+    //             $join->on('tbl_trip_ticket_details.fldi_stage_from', '=', 'fromstage.fldi_stage_no')
+    //                 ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'fromstage.fldi_route_no');
+    //         })
+    //         ->leftJoin('tbl_route_stage_details as tostage', function ($join) {
+    //             $join->on('tbl_trip_ticket_details.fldi_stage_to', '=', 'tostage.fldi_stage_no')
+    //                 ->on('tbl_trip_ticket_details.fldi_route_no', '=', 'tostage.fldi_route_no');
+    //         })
+    //         ->whereBetween('tbl_waybill_mst.flddt_date', [$fromDate, $toDate])
+    //         ->where('tbl_trip_ticket_details.fldv_concession_case_code', '05')
+    //         ->orderBy('id', 'asc')
+    //         ->get();
 
-        $dummy_array = [];
-        $lastIndex   = count($data) - 1;
-        $appUrl      = config('app.url');
+    //     $dummy_array = [];
+    //     $lastIndex   = count($data) - 1;
+    //     $appUrl      = config('app.url');
 
-        foreach ($data as $index => $item) {
-            if ($index % 500 === 0) {
-                $currentGroup = ['start' => $item->id];
-            }
+    //     foreach ($data as $index => $item) {
+    //         if ($index % 500 === 0) {
+    //             $currentGroup = ['start' => $item->id];
+    //         }
 
-            if (($index + 1) % 500 === 0 || $index === $lastIndex) {
-                $currentGroup['end'] = $item->id;
+    //         if (($index + 1) % 500 === 0 || $index === $lastIndex) {
+    //             $currentGroup['end'] = $item->id;
 
-                $fromId = $currentGroup['start'];
-                $toId   = $currentGroup['end'];
+    //             $fromId = $currentGroup['start'];
+    //             $toId   = $currentGroup['end'];
 
-                $currentGroup['link'] = "{$appUrl}/vvmt/{$fromId}/{$toId}/{$fromDate}/{$toDate}";
+    //             $currentGroup['link'] = "{$appUrl}/vvmt/{$fromId}/{$toId}/{$fromDate}/{$toDate}";
 
-                $dummy_array[] = $currentGroup;
-            }
-        }
+    //             $dummy_array[] = $currentGroup;
+    //         }
+    //     }
 
-        $htmlBody = "<h3>VVMT Ticket Links - " . Carbon::parse($request->from)->format('d-M-y') . "</h3>";
-        $htmlBody .= "<ul>";
-        foreach ($dummy_array as $group) {
-            $htmlBody .= "<li><strong>From:</strong> {$group['start']} <strong>To:</strong> {$group['end']} —
-                      <a href=\"{$group['link']}\">View</a></li>";
-        }
-        $htmlBody .= "</ul>";
+    //     $htmlBody = "<h3>VVMT Ticket Links - " . Carbon::parse($request->from)->format('d-M-y') . "</h3>";
+    //     $htmlBody .= "<ul>";
+    //     foreach ($dummy_array as $group) {
+    //         $htmlBody .= "<li><strong>From:</strong> {$group['start']} <strong>To:</strong> {$group['end']} —
+    //                   <a href=\"{$group['link']}\">View</a></li>";
+    //     }
+    //     $htmlBody .= "</ul>";
 
-        Mail::html($htmlBody, function ($message) {
-            $message->to([
-                'jks_support@datavoice.co.in',
-                'temkarsiddharth1999@gmail.com',
-            ])
-            ->cc('lakshadeep@datavoice.co.in')
-            ->subject('VVMT Ticket Links');
-        });
+    //     Mail::html($htmlBody, function ($message) {
+    //         $message->to([
+    //             'jks_support@datavoice.co.in',
+    //             'temkarsiddharth1999@gmail.com',
+    //         ])
+    //         ->cc('lakshadeep@datavoice.co.in')
+    //         ->subject('VVMT Ticket Links');
+    //     });
 
-        return response()->json(['message' => 'Email sent successfully.']);
-    }
+    //     return response()->json(['message' => 'Email sent successfully.']);
+    // }
 }

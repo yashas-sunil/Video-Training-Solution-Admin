@@ -74,11 +74,11 @@
                             <div class="col-md-10">
                                 <select class="form-control @error('course_id') is-invalid @enderror" 
                                     id="course_id" name="course_id" required>
-                                    <option value="">-- Select Course --</option>
-                                    @foreach($course as $courses)
-                                        <option value="{{ $courses->id }}" {{ old('course_id') == $courses->id ? 'selected' : '' }}>
-                                            {{ $courses->title }}
-                                        </option>
+                                    <option value="">-Select Course-</option>
+                                        @foreach($course->sortBy('title') as $courses)
+                                            <option value="{{ $courses->id }}" {{ old('course_id') == $courses->id ? 'selected' : '' }}>
+                                                {{ $courses->title }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('course_id')
@@ -118,8 +118,14 @@
                                         <p>Select course and subject to view questions</p>
                                     </div>
                                     <div id="questionsList" style="display: none;">
-                                        <div style="margin-bottom: 15px;">
-                                            <input type="text" id="questionsSearchInput" class="form-control" placeholder="Search questions by text..." style="width: 100%;">
+                                        <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                                            <input type="text" id="questionsSearchInput" class="form-control" placeholder="Search questions by text..." style="flex: 1;">
+                                            <select id="difficultyFilter" class="form-control" style="width: 150px;">
+                                                <option value="">All Difficulties</option>
+                                                <option value="easy">Easy</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="hard">Hard</option>
+                                            </select>
                                         </div>
                                         <table class="table table-sm table-striped">
                                             <thead>
@@ -287,6 +293,7 @@
                 $('.question-checkbox').prop('checked', false);
                 $('#selectAllQuestions').prop('checked', false);
                 $('#questionsSearchInput').val(''); // Clear search input
+                $('#difficultyFilter').val(''); // Clear difficulty filter
                 updateSelectedCount();
 
                 if (!courseId || !selectedSubjects || selectedSubjects.length === 0) {
@@ -309,10 +316,18 @@
                     dataType: 'json',
                     success: function (data) {
                         if (data.questions && data.questions.length > 0) {
+                            // Sort questions by difficulty level
+                            let sortedQuestions = data.questions.sort(function(a, b) {
+                                let difficultyOrder = { 'easy': 1, 'medium': 2, 'hard': 3 };
+                                let diffA = (a.difficult_level_name || 'Easy').toLowerCase().trim();
+                                let diffB = (b.difficult_level_name || 'Easy').toLowerCase().trim();
+                                return (difficultyOrder[diffA] || 1) - (difficultyOrder[diffB] || 1);
+                            });
+
                             let tbody = '';
                             // Store questions data globally for easy access
                             window.questionsData = {};
-                            $.each(data.questions, function (key, question) {
+                            $.each(sortedQuestions, function (key, question) {
                                 let difficulty = question.difficult_level_name || 'Easy';
                                 window.questionsData[question.id] = {
                                     id: question.id,
@@ -346,33 +361,50 @@
             // Select all questions checkbox
             $(document).on('change', '#selectAllQuestions', function () {
                 let isChecked = $(this).is(':checked');
-                $('.question-checkbox').prop('checked', isChecked);
+                // Only select visible checkboxes (filtered by difficulty/search)
+                $('#questionsBody tr:visible .question-checkbox').prop('checked', isChecked);
                 updateSelectedCount();
             });
 
-            // Search questions functionality
-            $(document).on('keyup', '#questionsSearchInput', function () {
-                let searchText = $(this).val().toLowerCase();
+            // Filter questions by search and difficulty
+            function filterQuestions() {
+                let searchText = $('#questionsSearchInput').val().toLowerCase();
+                let difficultyFilter = $('#difficultyFilter').val().toLowerCase();
                 
                 $('#questionsBody tr').each(function () {
                     let questionText = $(this).find('td:eq(1)').text().toLowerCase();
-                    if (questionText.includes(searchText)) {
+                    let difficulty = $(this).find('td:eq(2)').text().toLowerCase().trim();
+                    
+                    let searchMatch = questionText.includes(searchText);
+                    let difficultyMatch = !difficultyFilter || difficulty.includes(difficultyFilter);
+                    
+                    if (searchMatch && difficultyMatch) {
                         $(this).show();
                     } else {
                         $(this).hide();
                     }
                 });
+            }
+
+            // Search questions functionality
+            $(document).on('keyup', '#questionsSearchInput', function () {
+                filterQuestions();
+            });
+
+            // Filter by difficulty
+            $(document).on('change', '#difficultyFilter', function () {
+                filterQuestions();
             });
 
             // Update count when individual questions are selected
             $(document).on('change', '.question-checkbox', function () {
                 updateSelectedCount();
                 
-                // Update select all checkbox
-                let totalQuestions = $('.question-checkbox').length;
-                let selectedQuestions = $('.question-checkbox:checked').length;
+                // Update select all checkbox - only count visible questions
+                let totalQuestions = $('#questionsBody tr:visible .question-checkbox').length;
+                let selectedQuestions = $('#questionsBody tr:visible .question-checkbox:checked').length;
                 
-                if (totalQuestions === selectedQuestions) {
+                if (totalQuestions > 0 && totalQuestions === selectedQuestions) {
                     $('#selectAllQuestions').prop('checked', true);
                 } else {
                     $('#selectAllQuestions').prop('checked', false);
