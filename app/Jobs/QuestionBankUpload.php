@@ -1570,7 +1570,7 @@ if ($this->championship_data != null)  // initiated via championship
                 $messages->cc('sunil@datavoice.co.in');
                 $messages->bcc('testing@datavoice.co.in');
                 // $messages->bcc('yashas@datavoice.co.in');
-                $messages->bcc('lakshadeep@datavoice.co.in');
+                // $messages->bcc('lakshadeep@datavoice.co.in');
                 $messages->bcc('bhagwan@datavoice.co.in');
 
                 $messages->subject('Questionbank Upload Status');
