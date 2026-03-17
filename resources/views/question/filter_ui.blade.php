@@ -758,7 +758,6 @@
                     `);
                 }
 
-                // ✅ Start Test - already attempted check + redirect
                 function startTest(testId) {
                     $.ajax({
                         type    : "GET",
@@ -766,13 +765,11 @@
                         data    : { test_id: testId },
                         success : function(res) {
 
-                            // ✅ Already attempted - modal dikhao
                             if (res.already_attempted === true || res.status === false) {
                                 showAlreadyAttemptedModal();
                                 return;
                             }
 
-                            // ✅ Sahi hai - exam page pe jao
                             let params = $.param({
                                 test_ids : testId,
                                 mode     : "test"
@@ -781,7 +778,6 @@
                         },
                         error : function(err) {
 
-                            // ✅ 403 = already attempted
                             if (err.status === 403) {
                                 showAlreadyAttemptedModal();
                                 return;
