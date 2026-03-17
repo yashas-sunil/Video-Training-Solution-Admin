@@ -703,19 +703,90 @@
                     return new URLSearchParams(window.location.search).get(name);
                 }
 
+                // ✅ Already attempted popup helper
+                function showAlreadyAttemptedModal() {
+                    $("#alertModal").remove();
+                    $("body").append(`
+                        <div id="alertModal" style="
+                            position: fixed;
+                            top: 0; left: 0;
+                            width: 100%; height: 100%;
+                            background: rgba(0,0,0,0.5);
+                            z-index: 9999;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        ">
+                            <div style="
+                                background: white;
+                                border-radius: 16px;
+                                padding: 35px 30px;
+                                max-width: 420px;
+                                width: 90%;
+                                text-align: center;
+                                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                            ">
+                                <div style="font-size: 55px; margin-bottom: 12px;">⚠️</div>
+                                <h2 style="
+                                    color: #b45309;
+                                    margin: 0 0 10px 0;
+                                    font-size: 20px;
+                                    font-family: Arial;
+                                ">Test Already Attempted</h2>
+                                <p style="
+                                    color: #78350f;
+                                    font-size: 15px;
+                                    margin: 0 0 25px 0;
+                                    font-family: Arial;
+                                    line-height: 1.6;
+                                ">
+                                    You have already attempted this test.<br>
+                                    Each test can only be taken <b>once</b>.
+                                </p>
+                                <button onclick="$('#alertModal').remove();" style="
+                                    background: linear-gradient(180deg, #700002 0%, #700002e0 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 30px;
+                                    border-radius: 10px;
+                                    font-size: 15px;
+                                    cursor: pointer;
+                                    font-family: Arial;
+                                ">OK, Got it</button>
+                            </div>
+                        </div>
+                    `);
+                }
+
+                // ✅ Start Test - already attempted check + redirect
                 function startTest(testId) {
                     $.ajax({
                         type    : "GET",
                         url     : "/gettestquestion",
                         data    : { test_id: testId },
                         success : function(res) {
+
+                            // ✅ Already attempted - modal dikhao
+                            if (res.already_attempted === true || res.status === false) {
+                                showAlreadyAttemptedModal();
+                                return;
+                            }
+
+                            // ✅ Sahi hai - exam page pe jao
                             let params = $.param({
                                 test_ids : testId,
                                 mode     : "test"
                             });
                             window.location.href = "/exam-page?" + params;
                         },
-                        error   : function(err) {
+                        error : function(err) {
+
+                            // ✅ 403 = already attempted
+                            if (err.status === 403) {
+                                showAlreadyAttemptedModal();
+                                return;
+                            }
+
                             alert("Something went wrong. Please try again.");
                             console.error("API Error:", err);
                         }

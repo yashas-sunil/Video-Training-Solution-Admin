@@ -383,10 +383,11 @@ return [
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'admin-test'
                 ],
-                // [
-                //     'text'        => 'Levels',
-                //     'url'         => 'levels'
-                // ],
+                [
+                    'text'        => 'Admin Test results',
+                    'icon'        => 'fas fa-caret-right',
+                    'url'         => 'test-result'
+                ],
                 // // [
                 //     'text'        => 'Modules',
                 //     'url'         => 'modules'
