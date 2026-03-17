@@ -21,8 +21,8 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <form method="GET" action="{{ url('test-result') }}" class="form-inline">
-                    <div class="form-group mr-3">
+                <form method="GET" action="{{ url('test-result') }}" class="form-inline align-items-end">
+                    <div class="form-group mr-3 mb-0">
                         <label for="filter_type" class="mr-2">Filter By:</label>
                         <select id="filter_type" name="filter_type" class="form-control" onchange="updateFilters()">
                             <option value="">-- Select --</option>
@@ -31,7 +31,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group mr-3">
+                    <div class="form-group mr-3 mb-0">
                         <label for="filter_id" class="mr-2" id="filter_label">Select Test:</label>
                         <select id="filter_id" name="filter_id" class="form-control">
                             <option value="">-- Select --</option>
@@ -51,8 +51,10 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">View Leaderboard</button>
-                    <a href="{{ url('test-result') }}" class="btn btn-secondary ml-2">Clear Filters</a>
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary">View Leaderboard</button>
+                        <a href="{{ url('test-result') }}" class="btn btn-secondary ml-2">Clear Filters</a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -135,8 +137,32 @@
 
 @section('css')
 <style>
+    .form-inline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+    }
+    
     .form-inline .form-group {
-        display: inline-block;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0;
+    }
+    
+    .form-inline .form-group label {
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+    
+    .form-inline .form-group .form-control {
+        margin-bottom: 0;
+        min-width: 200px;
+    }
+    
+    .form-inline .form-group .btn {
+        margin-bottom: 0;
     }
     
     .table-success {
