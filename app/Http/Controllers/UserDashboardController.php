@@ -230,38 +230,51 @@ class UserDashboardController extends Controller
         ]);
     }
 
-    public function getTestQuestion(Request $request)
+public function getTestQuestion(Request $request)
 {
-
     $test_id = $request->test_id;
+    $user_id = Auth::id(); 
+
+    $alreadyAttempted = DB::table('user_test_results')
+                          ->where('user_id', $user_id)
+                          ->where('test_id', $test_id)
+                          ->exists();
+
+    if ($alreadyAttempted) {
+        return response()->json([
+            'status'  => false,
+            'already_attempted' => true,
+            'message' => 'You have already attempted this test. Each test can only be taken once.'
+        ], 403);
+    }
 
     $questions = DB::table('admin_test_questions')
-    ->join('questions', 'questions.id', '=', 'admin_test_questions.question_id')
-    ->where('admin_test_questions.admin_test_id', $test_id)
-    ->select(
-        'questions.id',
-        'questions.question',
-        'questions.difficult_levels_id'
-    )
-    ->get();
+        ->join('questions', 'questions.id', '=', 'admin_test_questions.question_id')
+        ->where('admin_test_questions.admin_test_id', $test_id)
+        ->select(
+            'questions.id',
+            'questions.question',
+            'questions.difficult_levels_id'
+        )
+        ->get();
 
     foreach ($questions as $q) {
 
         $options = DB::table('answers')
-        ->where('question_id', $q->id)
-        ->select(
-            'id',
-            'answer',
-            'correctans'
-        )
-        ->get();
+            ->where('question_id', $q->id)
+            ->select(
+                'id',
+                'answer',
+                'correctans'
+            )
+            ->get();
 
         $q->options = $options;
     }
 
     return response()->json([
         'status' => true,
-        'data' => $questions
+        'data'   => $questions
     ]);
 
 }
