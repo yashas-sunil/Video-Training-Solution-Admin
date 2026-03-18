@@ -23,22 +23,16 @@ class CourseQuestionController extends Controller
     // Filter Questions (Already Assigned Hide)
    public function filter(Request $request)
 {
-   // dd($request->all());
     $courseId = $request->course_id;
     $bankId = $request->bank_id;
-    $difficulty = $request->difficulty;
-
-    // Already assigned questions
     $assignedIds = DB::table('course_question')
         ->where('course_id', $courseId)
         ->pluck('question_id');
 
     $questions = Question::where('question_banks_id', $bankId)
-        ->when($difficulty, function ($query) use ($difficulty) {
-            $query->where('difficult_levels_id', $difficulty);
-        })
         ->whereNotIn('id', $assignedIds)
-        ->paginate(10);
+        ->with('difficultLevel')
+        ->get();
 
     return view('course_questions.partials.question_list', compact('questions'))->render();
 }

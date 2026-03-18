@@ -85,11 +85,16 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input status-toggle" id="status_{{$val->id}}" 
-                                                        {{ $val->status == 1 ? 'checked' : '' }}
-                                                        data-id="{{$val->id}}">
-                                                    <label class="custom-control-label" for="status_{{$val->id}}"></label>
+                                                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                    <a href="{{ route('admin-test.preview', $val->id) }}" title="Preview Test Questions">
+                                                            <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input status-toggle" id="status_{{$val->id}}" 
+                                                            {{ $val->status == 1 ? 'checked' : '' }}
+                                                            data-id="{{$val->id}}">
+                                                        <label class="custom-control-label" for="status_{{$val->id}}"></label>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
