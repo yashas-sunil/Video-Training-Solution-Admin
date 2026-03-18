@@ -504,6 +504,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
     Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+    Route::get('admin-test/preview/{id}', 'QuestionController@previewAdminTest')->name('admin-test.preview');
     Route::resource('batches', 'BatchController');
     //adminroute
     Route::get('questions', 'QuestionController@index')->name('questions.index');
