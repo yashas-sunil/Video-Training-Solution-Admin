@@ -503,6 +503,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
+     Route::get('/get-subjects/{course_id}', 'SubjectController@getSubjects');
     Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
     Route::get('admin-test/preview/{id}', 'QuestionController@previewAdminTest')->name('admin-test.preview');
     Route::resource('batches', 'BatchController');

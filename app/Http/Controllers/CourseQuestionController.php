@@ -41,7 +41,9 @@ class CourseQuestionController extends Controller
 // Assign Questions
 public function assign(Request $request)
 {
+  //  dd($request->all());
     $courseId = $request->course_id;
+    $subjectId = $request->subject_id;
     $questionIds = $request->question_ids;
 
     foreach ($questionIds as $questionId) {
@@ -52,6 +54,7 @@ public function assign(Request $request)
                 'question_id' => $questionId
             ],
             [
+               'subject_id' => $subjectId,
                 'created_at' => now(),
                 'updated_at' => now()
             ]

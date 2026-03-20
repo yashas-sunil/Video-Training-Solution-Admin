@@ -437,4 +437,9 @@ class SubjectController extends Controller
     return redirect()->route('subjects.index')
         ->with('success','Subject Updated Successfully');
 }
+public function getSubjects($course_id)
+{
+    $subjects = Subject::where('course_id', $course_id)->get();
+    return response()->json($subjects);
+}
 }

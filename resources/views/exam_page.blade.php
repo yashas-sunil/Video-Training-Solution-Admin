@@ -563,13 +563,11 @@
                 const qp = n => new URLSearchParams(window.location.search).get(n);
                 const mode = (qp('mode') || 'test').toLowerCase(); // test | study
 
-                // ✅ Kaunse tab se aaya - test_ids hai to Tab 2 (Eduedge), nahi to Tab 1 (User)
                 const testIds = qp('test_ids'); // Tab 2 se aaya
                 const isAdminTest = !!testIds;  // true = Tab 2, false = Tab 1
 
                 let checkedMap = {}; // study: { [questionId]: true/false }
 
-                // ✅ Tab check karke sahi API call karo
                 if (isAdminTest) {
 
                     // ============================
@@ -580,10 +578,8 @@
 
                         console.log("gettestquestion API response:", res);
 
-                        // ✅ res.data hai - questions array
                         allQ = (res && Array.isArray(res.data)) ? res.data : [];
 
-                        // ✅ options field ko answers mein normalize karo (correctans string "1"/"0" hai)
                         allQ = allQ.map(q => {
                             let opts = q.options || q.answers || [];
                             opts = opts.map(o => ({
@@ -637,7 +633,6 @@
 
                 }
 
-                // ✅ scroll to top
                 function scrollToQuestionTop() {
                     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
                 }
@@ -653,13 +648,11 @@
                 }
 
                 function getRightAnswerId(q) {
-                    // ✅ answers ya options dono handle karo
                     const opts = q.answers || q.options || [];
                     return opts.find(a => a.correctans == 1 || a.is_correct == 1 || a.correct == 1)?.id;
                 }
 
                 function getAnswers(q) {
-                    // ✅ answers ya options dono handle karo
                     return q.answers || q.options || [];
                 }
 
