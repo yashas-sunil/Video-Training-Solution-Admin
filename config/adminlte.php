@@ -367,27 +367,27 @@ return [
                     'url'         => 'question/bank'
                 ],
 
-                [
-                    'text'        => 'Assigned Courses Questions',
-                    'icon'        => 'fas fa-caret-right',
-                    'url'         => 'course-questions'
-                ],
+                // [
+                //     'text'        => 'Assigned Courses Questions',
+                //     'icon'        => 'fas fa-caret-right',
+                //     'url'         => 'course-questions'
+                // ],
 
                  [
                     'text'        => 'Batch',
                     'icon'        => 'fas fa-caret-right',
                     'url'         => 'batches'
                 ],
-                 [
-                    'text'        => 'EduEdge Test generation',
-                    'icon'        => 'fas fa-caret-right',
-                    'url'         => 'admin-test'
-                ],
-                [
-                    'text'        => 'Admin Test results',
-                    'icon'        => 'fas fa-caret-right',
-                    'url'         => 'test-result'
-                ],
+                //  [
+                //     'text'        => 'EduEdge Test generation',
+                //     'icon'        => 'fas fa-caret-right',
+                //     'url'         => 'admin-test'
+                // ],
+                // [
+                //     'text'        => 'Admin Test results',
+                //     'icon'        => 'fas fa-caret-right',
+                //     'url'         => 'test-result'
+                // ],
                 // // [
                 //     'text'        => 'Modules',
                 //     'url'         => 'modules'
