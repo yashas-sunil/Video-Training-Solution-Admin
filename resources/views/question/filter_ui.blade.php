@@ -647,7 +647,6 @@
                     let params = $.param({
                         subject_id: $("#subject_id").val(),
                         chapter_id: $("#chapter_id").val(),
-                        // ✅ CHANGED: mode param instead of subchapter_id
                         mode: $("#exam_mode").val(),
                         difficult_level_id: $("#difficult_level_id").val(),
                         used_status: $("#used_status").val(),
@@ -664,7 +663,6 @@
                     }
                 });
 
-                // ✅ Select All tests checkbox functionality
                 $("#selectAllTests").on("change", function() {
                     let isChecked = $(this).is(":checked");
                     $(".test-checkbox").prop("checked", isChecked);
@@ -677,7 +675,6 @@
                     }
                 });
 
-                // ✅ Update "Select All" checkbox and button visibility when individual checkboxes change
                 $(document).on("change", ".test-checkbox", function() {
                     let totalCheckboxes = $(".test-checkbox").length;
                     let checkedCheckboxes = $(".test-checkbox:checked").length;
@@ -703,7 +700,6 @@
                     return new URLSearchParams(window.location.search).get(name);
                 }
 
-                // ✅ Already attempted popup helper
                 function showAlreadyAttemptedModal() {
                     $("#alertModal").remove();
                     $("body").append(`

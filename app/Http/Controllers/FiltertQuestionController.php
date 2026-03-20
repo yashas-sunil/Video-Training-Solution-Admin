@@ -170,7 +170,6 @@ class FiltertQuestionController extends Controller
 
 public function filterQBundle(Request $request)
 {
-    // dd($request->all());
     try {
 
         $request->validate([
@@ -184,6 +183,11 @@ public function filterQBundle(Request $request)
 
         $limit = $request->limit ?? 50;
 
+        $assignedQuestionIds = DB::table('course_question')
+            ->where('subject_id', $request->subject_id)
+            ->pluck('question_id')
+            ->toArray();
+
         $query = Question::with([
             'answers:id,question_id,answer,correctans,option_image,image_flag',
             'subject:id,name',
@@ -191,8 +195,6 @@ public function filterQBundle(Request $request)
             'subchapter:id,name',
             'answerType:id,name',
             'difficultLevel:id,name',
-            // 'userAttempts:id,question_id',
-
             'solution:id,question_id,name',
         ]);
 
@@ -210,6 +212,10 @@ public function filterQBundle(Request $request)
             $query->where('difficult_levels_id', $request->difficult_level_id);
         }
 
+        if (!empty($assignedQuestionIds)) {
+            $query->orWhereIn('id', $assignedQuestionIds);
+        }
+
         if ($request->used_status === 'used') {
             $query->whereHas('userAttempts');
         }
@@ -224,10 +230,7 @@ public function filterQBundle(Request $request)
             return [
                 "id" => $q->id,
                 "question" => $q->question,
-
-                // ✅ NEW: solution text
                 "solution_text" => optional($q->solution)->name,
-
                 "difficult_levels_id" => $q->difficult_levels_id,
 
                 "difficult_level" => [
