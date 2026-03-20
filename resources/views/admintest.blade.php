@@ -2,19 +2,21 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 @endpush
 
 @push('js')
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 @endpush
 
-@section('title', 'Admin Test creation')
+@section('title', 'EduEdge Test creation')
 
 @section('content_header')
     <div class="row">
         <div class="col">
-            <h1 class="m-0 text-dark">Admin Test creation</h1>
+            <h1 class="m-0 text-dark">EduEdge Test creation</h1>
         </div>
         <div class="col text-right">
             <a href="{{ route('admin-test.create') }}" type="button" class="btn btn-success">Create</a>
@@ -23,16 +25,6 @@
 @stop
 
 @section('content')
-    @if (request()->has('success'))
-        <div class="alert alert-success" role="alert">
-            {{ request()->get('success') }}
-        </div>
-    @endif
-    @if (request()->has('error'))
-        <div class="alert alert-danger" role="alert">
-            {{ request()->get('error') }}
-        </div>
-    @endif
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -145,19 +137,41 @@
                             $badge.removeClass('badge-success').addClass('badge-danger').text('Inactive');
                         }
                         // Show success message
-                        alert('Status updated successfully!');
+                        toastr.success('Status updated successfully!');
                     } else {
-                        alert('Error updating status');
+                        toastr.error('Error updating status');
                         $checkbox.prop('checked', !$checkbox.is(':checked'));
                     }
                 },
                 error: function() {
-                    alert('Error updating status');
+                    toastr.error('Error updating status');
                     $checkbox.prop('checked', !$checkbox.is(':checked'));
                 }
             });
         });
     });
+
+    // Toastr options
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "4000"
+    };
+
+    // Flash messages from session
+    @if(session('success'))
+        toastr.success('{{ session('success') }}');
+    @endif
+    @if(session('error'))
+        toastr.error('{{ session('error') }}');
+    @endif
+    @if(session('warning'))
+        toastr.warning('{{ session('warning') }}');
+    @endif
+    @if(session('info'))
+        toastr.info('{{ session('info') }}');
+    @endif
 </script>
 @stop
 

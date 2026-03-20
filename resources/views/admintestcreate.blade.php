@@ -37,12 +37,12 @@
 </style> --}}
 @endsection
 
-@section('title', 'Admin Test creation')
+@section('title', 'EduEdge Test creation')
 
 @section('content_header')
     <div class="row">
         <div class="col">
-            <h1 class="m-0 text-dark">Create Admin Test</h1>
+            <h1 class="m-0 text-dark">EduEdge Admin Test</h1>
         </div>
     </div>
 @stop
