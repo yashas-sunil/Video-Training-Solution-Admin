@@ -294,6 +294,31 @@ class QuestionController extends Controller
     
     }
 
+    public function previewAdminTest($id){
+
+        $test = admin_test::findOrFail($id);
+
+        // Get course name from scorm_packages
+        $course = ScormPackage::find($test->course_id);
+
+        // Get paginated questions linked to this test (10 per page)
+        $questions = \DB::table('admin_test_questions')
+            ->join('questions', 'questions.id', '=', 'admin_test_questions.question_id')
+            ->where('admin_test_questions.admin_test_id', $test->id)
+            ->select('questions.id', 'questions.question', 'questions.difficult_levels_id')
+            ->paginate(10);
+
+        // Attach options only for the current page's questions
+        foreach ($questions->items() as $q) {
+            $q->options = \DB::table('answers')
+                ->where('question_id', $q->id)
+                ->select('id', 'answer', 'correctans')
+                ->get();
+        }
+
+        return view('admin_test_preview', compact('test', 'course', 'questions'));
+    }
+
     public function adminTestCreate(){
 
         $course = ScormPackage::all();

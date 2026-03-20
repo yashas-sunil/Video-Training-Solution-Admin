@@ -496,14 +496,15 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/subjects', 'SubjectController@subjectindex')->name('subjects.index');
     Route::get('/subjects/create', 'SubjectController@createsubject')->name('subjects.create');
     Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
-    Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
-    Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+    // Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+    // Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
     Route::get('test-result', 'AnswerController@dashboard');
     Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
     Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+    Route::get('admin-test/preview/{id}', 'QuestionController@previewAdminTest')->name('admin-test.preview');
     Route::resource('batches', 'BatchController');
     //adminroute
     Route::get('questions', 'QuestionController@index')->name('questions.index');
@@ -804,3 +805,6 @@ Route::get('batches/{id}/assign', 'BatchController@assignStudents')
 // Store Assigned Students (POST)
 Route::post('batches/{id}/assign', 'BatchController@storeStudents')
     ->name('batches.storeStudents');
+
+ Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+ Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');

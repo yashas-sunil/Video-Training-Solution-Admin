@@ -17,60 +17,63 @@
 <div class="row">
 
 <!-- Course -->
-<div class="col-md-4">
+<div class="col-md-6">
 <label><b>Course</b></label>
 <select id="course_id" class="form-control">
 <option value="">Select Course</option>
-@foreach($courses as $course)
+@foreach($courses->sortBy('title') as $course)
 <option value="{{ $course->id }}">{{ $course->title }}</option>
 @endforeach
 </select>
 </div>
 
 <!-- Question Bank -->
-<div class="col-md-4">
+<div class="col-md-6">
 <label><b>Question Bank</b></label>
 <select id="bank_id" class="form-control">
 <option value="">Select Bank</option>
-@foreach($banks as $bank)
+@foreach($banks->sortBy('name') as $bank)
 <option value="{{ $bank->id }}">{{ $bank->name }}</option>
 @endforeach
 </select>
-</div>
-
-<!-- Difficulty -->
-<div class="col-md-4">
-<label><b>Difficulty Level</b></label>
-
-<select id="difficulty_level" class="form-control">
-
-<option value="">Select Level</option>
-
-@foreach($levels as $level)
-
-<option value="{{ $level->id }}">
-    {{ $level->name }}
-</option>
-
-@endforeach
-
-</select>
-
 </div>
 
 </div>
 
 <br>
 
+<!-- Selected Question Counts -->
+<div class="row mb-3">
+<div class="col-md-3">
+<label><b>Selected Total</b></label>
+<input type="text" id="selected_total" class="form-control" readonly value="0">
+</div>
+<div class="col-md-3">
+<label><b>Selected Easy</b></label>
+<input type="text" id="selected_easy" class="form-control" readonly value="0">
+</div>
+<div class="col-md-3">
+<label><b>Selected Medium</b></label>
+<input type="text" id="selected_medium" class="form-control" readonly value="0">
+</div>
+<div class="col-md-3">
+<label><b>Selected Hard</b></label>
+<input type="text" id="selected_hard" class="form-control" readonly value="0">
+</div>
+</div>
 <div class="text-right">
 <button class="btn btn-primary" onclick="filterQuestions()">
 <i class="fas fa-filter"></i> Filter Questions
 </button>
+<button class="btn btn-success" onclick="assignQuestions()" style="margin-left: 10px;">
+<i class="fas fa-check"></i> Assign Questions
+</button>
 </div>
 
-<hr>
-
+<!-- Questions Scroll Container -->
+<div id="questions-container" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: auto; margin-top: 20px; display: none;">
 <div id="question-list"></div>
+</div>
 
 </div>
 
@@ -89,11 +92,10 @@ let selectAllGlobal = false;
 
 /* FILTER QUESTIONS */
 
-function filterQuestions(page = 1){
+function filterQuestions(){
 
 let course_id = document.getElementById('course_id').value;
 let bank_id = document.getElementById('bank_id').value;
-let difficulty = document.getElementById('difficulty_level').value;
 
 if(course_id === ""){
 alert("Please select course");
@@ -105,7 +107,10 @@ alert("Please select question bank");
 return;
 }
 
-fetch(`{{ route('course.questions.filter') }}?course_id=${course_id}&bank_id=${bank_id}&difficulty=${difficulty}&page=${page}`)
+// Show container and clear previous data
+document.getElementById('questions-container').style.display = 'block';
+
+fetch(`{{ route('course.questions.filter') }}?course_id=${course_id}&bank_id=${bank_id}`)
 .then(res => res.text())
 .then(data => {
 
@@ -133,6 +138,8 @@ cb.checked = true;
 
 });
 
+updateSelectedCounts();
+
 
 /* SELECT ALL */
 
@@ -140,39 +147,76 @@ let selectAll = document.getElementById('selectAll');
 
 if(selectAll){
 
-if(selectAllGlobal){
-selectAll.checked = true;
-}
-
 selectAll.addEventListener('change', function(){
 
 selectAllGlobal = this.checked;
 
-document.querySelectorAll('.question-checkbox').forEach(cb => {
+// Get all visible checkboxes (rows not hidden by filter)
+document.querySelectorAll('#questionsBody tr').forEach(row => {
+  let cb = row.querySelector('.question-checkbox');
+  // Check if row is visible (display is not 'none')
+  if(cb && row.style.display !== 'none') {
+    cb.checked = this.checked;
+    
+    let id = cb.value;
+    
+    if(this.checked) {
+      if(!selectedQuestions.includes(id)){
+        selectedQuestions.push(id);
+      }
+    } else {
+      selectedQuestions = selectedQuestions.filter(q => q != id);
+    }
+  }
+});
 
-cb.checked = this.checked;
+updateSelectedCounts();
 
-let id = cb.value;
+});
 
-if(this.checked){
-
-if(!selectedQuestions.includes(id)){
-selectedQuestions.push(id);
 }
 
-}else{
+// Setup search and difficulty filter
+let questionsSearchInput = document.getElementById('questionsSearchInput');
+let difficultyFilter = document.getElementById('difficultyFilter');
 
-selectedQuestions = [];
+if(questionsSearchInput) {
+questionsSearchInput.addEventListener('keyup', filterQuestionsTable);
+}
 
+if(difficultyFilter) {
+difficultyFilter.addEventListener('change', filterQuestionsTable);
 }
 
 });
 
-});
-
 }
 
+
+/* FILTER QUESTIONS TABLE */
+
+function filterQuestionsTable() {
+
+let searchText = document.getElementById('questionsSearchInput')?.value.toLowerCase() || '';
+let difficultyFilter = document.getElementById('difficultyFilter')?.value.toLowerCase() || '';
+
+document.querySelectorAll('#questionsBody tr').forEach(row => {
+let questionText = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+let difficulty = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase().trim() || '';
+
+let searchMatch = questionText.includes(searchText);
+let difficultyMatch = !difficultyFilter || difficulty.includes(difficultyFilter);
+
+if(searchMatch && difficultyMatch) {
+row.style.display = '';
+} else {
+row.style.display = 'none';
+}
 });
+
+// Reset select all checkbox when filter changes
+document.getElementById('selectAll').checked = false;
+selectAllGlobal = false;
 
 }
 
@@ -194,28 +238,32 @@ selectedQuestions.push(id);
 }else{
 
 selectedQuestions = selectedQuestions.filter(q => q != id);
+document.getElementById('selectAll').checked = false;
 selectAllGlobal = false;
 
 }
 
-}
+// Update counts
+updateSelectedCounts();
 
+// Update Select All checkbox state based on visible questions
+let totalVisible = 0;
+let selectedVisible = 0;
+
+document.querySelectorAll('#questionsBody tr').forEach(row => {
+  if(row.style.display !== 'none') {
+    totalVisible++;
+    if(row.querySelector('.question-checkbox:checked')) {
+      selectedVisible++;
+    }
+  }
 });
 
-
-/* AJAX PAGINATION */
-
-document.addEventListener('click', function(e){
-
-if(e.target.closest('.pagination a')){
-
-e.preventDefault();
-
-let url = e.target.closest('a').getAttribute('href');
-
-let page = url.split('page=')[1];
-
-filterQuestions(page);
+if(totalVisible > 0 && totalVisible === selectedVisible) {
+  document.getElementById('selectAll').checked = true;
+} else {
+  document.getElementById('selectAll').checked = false;
+}
 
 }
 
@@ -269,6 +317,36 @@ selectAllGlobal = false;
 filterQuestions();
 
 });
+
+}
+
+
+/* UPDATE SELECTED COUNTS */
+
+function updateSelectedCounts() {
+
+let totalCount = 0;
+let easyCount = 0;
+let mediumCount = 0;
+let hardCount = 0;
+
+document.querySelectorAll('.question-checkbox:checked').forEach(cb => {
+let difficulty = cb.getAttribute('data-difficulty');
+totalCount++;
+
+if(difficulty === 'easy') {
+easyCount++;
+} else if(difficulty === 'medium') {
+mediumCount++;
+} else if(difficulty === 'hard') {
+hardCount++;
+}
+});
+
+document.getElementById('selected_total').value = totalCount;
+document.getElementById('selected_easy').value = easyCount;
+document.getElementById('selected_medium').value = mediumCount;
+document.getElementById('selected_hard').value = hardCount;
 
 }
 
