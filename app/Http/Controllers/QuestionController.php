@@ -301,12 +301,27 @@ class QuestionController extends Controller
         // Get course name from scorm_packages
         $course = ScormPackage::find($test->course_id);
 
+        // Optional difficulty filter: easy=1, medium=2, hard=3
+        $difficultyFilter = request('difficulty');
+        $difficultyMap = ['easy' => 1, 'medium' => 2, 'hard' => 3];
+
         // Get paginated questions linked to this test (10 per page)
-        $questions = \DB::table('admin_test_questions')
+        $query = \DB::table('admin_test_questions')
             ->join('questions', 'questions.id', '=', 'admin_test_questions.question_id')
+            ->leftJoin('difficult_levels', 'difficult_levels.id', '=', 'questions.difficult_levels_id')
             ->where('admin_test_questions.admin_test_id', $test->id)
-            ->select('questions.id', 'questions.question', 'questions.difficult_levels_id')
-            ->paginate(10);
+            ->select(
+                'questions.id',
+                'questions.question',
+                'questions.difficult_levels_id',
+                'difficult_levels.name as difficulty_name'
+            );
+
+        if ($difficultyFilter && isset($difficultyMap[$difficultyFilter])) {
+            $query->where('questions.difficult_levels_id', $difficultyMap[$difficultyFilter]);
+        }
+
+        $questions = $query->paginate(10)->withQueryString();
 
         // Attach options only for the current page's questions
         foreach ($questions->items() as $q) {
@@ -316,7 +331,7 @@ class QuestionController extends Controller
                 ->get();
         }
 
-        return view('admin_test_preview', compact('test', 'course', 'questions'));
+        return view('admin_test_preview', compact('test', 'course', 'questions', 'difficultyFilter'));
     }
 
     public function adminTestCreate(){

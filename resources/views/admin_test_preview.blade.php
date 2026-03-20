@@ -224,6 +224,65 @@
         background: #e8f0fe;
         color: #0f3460;
     }
+    /* Difficulty filter bar */
+    .difficulty-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 10px;
+        padding: 12px 20px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .difficulty-filter-bar .filter-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+        margin-right: 4px;
+        white-space: nowrap;
+    }
+    .filter-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 16px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.18s;
+        border: 2px solid transparent;
+    }
+    .filter-pill.all     { background:#f0f4ff; color:#0f3460; border-color:#c5d3f5; }
+    .filter-pill.all.active, .filter-pill.all:hover { background:#0f3460; color:#fff; border-color:#0f3460; }
+    .filter-pill.easy    { background:#eafaf1; color:#1a6b3c; border-color:#a9dfbf; }
+    .filter-pill.easy.active, .filter-pill.easy:hover { background:#27ae60; color:#fff; border-color:#27ae60; }
+    .filter-pill.medium  { background:#fef9e7; color:#7d6608; border-color:#f9e79f; }
+    .filter-pill.medium.active, .filter-pill.medium:hover { background:#f39c12; color:#fff; border-color:#f39c12; }
+    .filter-pill.hard    { background:#fdf2f8; color:#7b241c; border-color:#f1948a; }
+    .filter-pill.hard.active, .filter-pill.hard:hover { background:#e74c3c; color:#fff; border-color:#e74c3c; }
+    /* Difficulty badge next to question */
+    .diff-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        margin-left: auto;
+    }
+    .diff-badge.easy   { background:#d5f5e3; color:#1a6b3c; }
+    .diff-badge.medium { background:#fdebd0; color:#7d4600; }
+    .diff-badge.hard   { background:#fce0dd; color:#7b241c; }
+    .diff-badge.unknown{ background:#eee; color:#666; }
 </style>
 @endpush
 
@@ -279,6 +338,31 @@
         </div>
     </div> -->
 
+    {{-- Difficulty Filter Bar --}}
+    @php
+        $baseUrl = request()->url();
+    @endphp
+    <div class="difficulty-filter-bar">
+        <span class="filter-label"><i class="fas fa-filter mr-1"></i>Filter by Difficulty:</span>
+        <a href="{{ $baseUrl }}" class="filter-pill all {{ !$difficultyFilter ? 'active' : '' }}">
+            <i class="fas fa-layer-group"></i> All
+        </a>
+        <a href="{{ $baseUrl }}?difficulty=easy" class="filter-pill easy {{ $difficultyFilter === 'easy' ? 'active' : '' }}">
+            <i class="fas fa-circle" style="font-size:0.6rem;"></i> Easy
+        </a>
+        <a href="{{ $baseUrl }}?difficulty=medium" class="filter-pill medium {{ $difficultyFilter === 'medium' ? 'active' : '' }}">
+            <i class="fas fa-circle" style="font-size:0.6rem;"></i> Medium
+        </a>
+        <a href="{{ $baseUrl }}?difficulty=hard" class="filter-pill hard {{ $difficultyFilter === 'hard' ? 'active' : '' }}">
+            <i class="fas fa-circle" style="font-size:0.6rem;"></i> Hard
+        </a>
+        @if($difficultyFilter)
+            <span style="margin-left:auto; font-size:0.8rem; color:#888;">
+                Showing <strong>{{ $questions->total() }}</strong> {{ ucfirst($difficultyFilter) }} question{{ $questions->total() !== 1 ? 's' : '' }}
+            </span>
+        @endif
+    </div>
+
     {{-- Questions List --}}
     @if($questions->isEmpty())
         <div class="no-questions">
@@ -293,10 +377,18 @@
         @endphp
 
         @foreach($questions->items() as $index => $question)
+        @php
+            $dlName  = strtolower(trim($question->difficulty_name ?? ''));
+            $dlClass = in_array($dlName, ['easy','medium','hard']) ? $dlName : 'unknown';
+            $dlLabel = $dlClass !== 'unknown' ? ucfirst($dlClass) : ($question->difficulty_name ?? 'N/A');
+        @endphp
         <div class="question-card">
             <div class="question-header">
                 <div class="question-num">{{ $offset + $index + 1 }}</div>
                 <div class="question-text">{!! $question->question !!}</div>
+                <span class="diff-badge {{ $dlClass }}" title="Difficulty: {{ $dlLabel }}">
+                    {{ $dlLabel }}
+                </span>
             </div>
             <ul class="options-list">
                 @if($question->options->isEmpty())
