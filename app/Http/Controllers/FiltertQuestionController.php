@@ -42,6 +42,7 @@ class FiltertQuestionController extends Controller
         but only if there is at least one topic with a status of 1. 
         Therefore, if there is one topic with a status of 1 and another with a status of 0, we should not allow the creation of a subchapter, as one active topic is present."
         */
+
         if(isset($request->noSubjTopic)){
             $idStatusOne=[];
             $idNoInc=[];
@@ -91,11 +92,12 @@ class FiltertQuestionController extends Controller
         $id = $request->input('subjects_id');
        // dd($id);
         $chapters = Chapter::where('subject_id', $id)
+        
                              ->where('status', 1)
-                             ->whereNull('folder_name')
-                             ->whereNull('launch_file')
+                            //  ->whereNull('folder_name')
+                            //  ->whereNull('launch_file')
                              ->get();
-      //  dd($chapters);
+       // dd($chapters);
         return response()->json($chapters);
     }
 
