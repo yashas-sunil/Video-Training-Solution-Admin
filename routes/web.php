@@ -496,8 +496,8 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/subjects', 'SubjectController@subjectindex')->name('subjects.index');
     Route::get('/subjects/create', 'SubjectController@createsubject')->name('subjects.create');
     Route::post('/subjects/store', 'SubjectController@storesubject')->name('subjects.storesubject');
-    Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
-    Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+    // Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+    // Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
     Route::get('test-result', 'AnswerController@dashboard');
     Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
@@ -805,3 +805,6 @@ Route::get('batches/{id}/assign', 'BatchController@assignStudents')
 // Store Assigned Students (POST)
 Route::post('batches/{id}/assign', 'BatchController@storeStudents')
     ->name('batches.storeStudents');
+
+ Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+ Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
