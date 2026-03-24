@@ -66,7 +66,10 @@
               <label>Active / Inactive</label><br>
               <input type="checkbox" id="status" name="status">
             </div>
-
+            
+             <a href="{{ route('question.bank') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-1"></i> Back
+                                </a>
             {{-- Submit --}}
             <button type="submit" class="btn btn-primary" id="submit">
               Submit
