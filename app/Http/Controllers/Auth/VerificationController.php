@@ -32,10 +32,10 @@ class VerificationController extends Controller
     if (auth()->check()) {
 
         if (auth()->user()->role == 2) {
-            return '/user/dashboard'; // student
+            return '/login'; // student
         }
 
-        return '/home'; // admin
+        return '/login'; // admin
     }
 
     return '/login';

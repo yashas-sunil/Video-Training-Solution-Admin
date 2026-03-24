@@ -29,9 +29,9 @@ class ResetPasswordController extends Controller
    protected function redirectTo()
 {
     if (auth()->user()->role == 2) {
-        return '/user/dashboard';
+        return '/login';
     }
 
-    return '/home';
+    return '/login';
 }
 }
