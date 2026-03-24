@@ -88,8 +88,8 @@
                     <div class="form-group mb-3">
                         <label for="expire_date" class="font-weight-bold">Expire Date & Time</label>
                         <input type="datetime-local" name="expire_date" id="expire_date"
-                            class="form-control form-control-sm" placeholder="Select date and time"
-                            onfocus="this.showPicker()" onkeydown="return false" onpaste="return false">
+                            class="form-control form-control-sm" onfocus="this.showPicker()" onkeydown="return false"
+                            onpaste="return false">
                     </div>
 
                     <div class="d-flex mt-4" style="gap: 10px">
@@ -97,7 +97,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                         <button type="submit" class="btn btn-success px-3">
-                            Assign Course <i class="fas fa-save mr-1"></i> 
+                            Assign Course <i class="fas fa-save mr-1"></i>
                         </button>
                     </div>
                 </form>
@@ -136,6 +136,20 @@
             }
 
             $('#user_id, #course_id').on('change', fetchExpireDate);
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+            let now = new Date();
+
+            // Format: YYYY-MM-DDTHH:MM
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+            let hours = String(now.getHours()).padStart(2, '0');
+            let minutes = String(now.getMinutes()).padStart(2, '0');
+
+            let minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            document.getElementById("expire_date").setAttribute("min", minDateTime);
         });
     </script>
 @stop
