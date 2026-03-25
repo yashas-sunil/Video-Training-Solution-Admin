@@ -83,7 +83,7 @@
                         <div class="mb-4" id="customViewLimitDiv" style="display:none;">
                             <label class="form-label">Enter Custom View Limit</label>
                             <input type="number" name="view_limit" id="view_limit" class="form-control"
-                                placeholder="e.g. 10" min="1">
+                                placeholder="e.g. 10" min="1" max="200" oninput="limitView(this)">
                         </div>
 
                         <div class="d-flex" style="gap:10px;">
@@ -140,6 +140,7 @@
             showError("watch_time", "Watch time must be at least 1 minute.");
             error = true;
         }
+
         if (viewOption === "") {
             showError("view_limit_option", "Please select view limit.");
             error = true;
@@ -147,6 +148,12 @@
 
         if (viewOption === "custom" && (customView === "" || parseInt(customView) < 1)) {
             showError("view_limit", "Please enter valid custom view limit.");
+            error = true;
+        }
+
+        // ✅ ADD ONLY THIS (max 200 validation)
+        if (viewOption === "custom" && parseInt(customView) > 200) {
+            showError("view_limit", "Max 200 views allowed.");
             error = true;
         }
 
@@ -158,28 +165,46 @@
     });
 
     function showError(field, msg) {
-        let el = document.getElementById(field);
-        el.insertAdjacentHTML("afterend",
-            `<div class="text-danger text-danger-custom">${msg}</div>`);
+    let el = document.getElementById(field);
+
+    let next = el.nextElementSibling;
+    if (next && next.classList.contains("text-danger-custom")) {
+        next.innerText = msg; // sirf update kar
+        return;
     }
+
+    el.insertAdjacentHTML("afterend",
+        `<div class="text-danger text-danger-custom">${msg}</div>`);
+}
 
     document.addEventListener("DOMContentLoaded", function() {
         toggleCustomViewLimit();
     });
+
     function limitInput(el) {
-    let max = 3000;
+        let max = 3000;
 
-    if (el.value.length > 10) {
-        el.value = el.value.slice(0, 10); // max 10 digits
+        if (el.value.length > 10) {
+            el.value = el.value.slice(0, 10);
+        }
+
+        if (parseInt(el.value) > max) {
+            document.getElementById("watchError").innerText = "Max allowed is 3000 minutes (50 hours)";
+            el.value = max;
+        } else {
+            document.getElementById("watchError").innerText = "";
+        }
     }
 
-    if (parseInt(el.value) > max) {
-        document.getElementById("watchError").innerText = "Max allowed is 3000 minutes (50 hours)";
-        el.value = max;
-    } else {
-        document.getElementById("watchError").innerText = "";
+    // ✅ ADD ONLY THIS FUNCTION
+    function limitView(el) {
+        let max = 200;
+
+        if (parseInt(el.value) > max) {
+            showError("view_limit", "Max 200 views allowed.");
+            el.value = max;
+        }
     }
-}
 </script>
 
 @endsection
