@@ -3,13 +3,15 @@
 @section('title', 'Batch List')
 
 @section('content_header')
-<div class="d-flex justify-content-between align-items-center">
-    <h1 class="m-0 text-dark">Batch List</h1>
+ <div class="card-header">
+            <h3 class="card-title">Subjects List</h3>
 
-    <a href="{{ route('batches.create') }}" class="btn btn-danger">
-        <i class="fas fa-plus"></i> Create Batch
-    </a>
-</div>
+            <div class="card-tools">
+                <a href="{{ route('batches.create') }}" type="button" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Batch
+            </a>
+            </div>
+        </div>
 @stop
 
 @section('content')
@@ -24,7 +26,7 @@
     <div class="card-body p-3">
 
         <table id="batches-table"class="table table-hover mb-0">
-            <thead style="background:#700002; color:white;">
+            <thead style="">
                 <tr>
                     <th style="width:70px;">Id</th>
                     <th>Batch Name</th>

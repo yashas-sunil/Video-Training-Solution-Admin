@@ -49,15 +49,20 @@
                                 placeholder="Enter title...">
                         </div>
 
-                        {{-- Watch Time --}}
                         <div class="mb-4">
-                            <label class="form-label">
-                                Total Watch Time (minutes) <span class="text-danger">*</span>
-                            </label>
-                            <input type="number" name="watch_time" id="watch_time"
-                                class="form-control"
-                                value="{{ old('watch_time') }}" placeholder="e.g. 90" min="1">
-                        </div>
+    <label class="form-label">
+        Total Watch Time (minutes) <span class="text-danger">*</span>
+    </label>
+    <input type="number" name="watch_time" id="watch_time"
+        class="form-control"
+        value="{{ old('watch_time') }}"
+        placeholder="e.g. 90"
+        min="1"
+        max="1000000000"
+        oninput="limitInput(this)">
+    
+    <span class="text-danger" id="watchError"></span>
+</div>
 
                         {{-- View Limit --}}
                         <div class="mb-4">
@@ -161,6 +166,20 @@
     document.addEventListener("DOMContentLoaded", function() {
         toggleCustomViewLimit();
     });
+    function limitInput(el) {
+    let max = 3000;
+
+    if (el.value.length > 10) {
+        el.value = el.value.slice(0, 10); // max 10 digits
+    }
+
+    if (parseInt(el.value) > max) {
+        document.getElementById("watchError").innerText = "Max allowed is 3000 minutes (50 hours)";
+        el.value = max;
+    } else {
+        document.getElementById("watchError").innerText = "";
+    }
+}
 </script>
 
 @endsection

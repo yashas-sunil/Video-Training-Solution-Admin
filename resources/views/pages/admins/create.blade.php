@@ -114,8 +114,8 @@
                                                 name="mobile_code">
                                                 <option value="+91" {{ old('mobile_code') == '+91' ? 'selected' : '' }}>
                                                     +91</option>
-                                                <option value="+971"
-                                                    {{ old('mobile_code') == '+971' ? 'selected' : '' }}>+971</option>
+                                                {{-- <option value="+971"
+                                                    {{ old('mobile_code') == '+971' ? 'selected' : '' }}>+971</option> --}}
                                             </select>
                                             @error('mobile_code')
                                                 <span class="invalid-feedback d-block text-danger" role="alert">
@@ -171,7 +171,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                         <button type="submit" class="btn btn-success">
-                            Create <i class="fas fa-save ml-1"></i>
+                            Save <i class="fas fa-save ml-1"></i>
                         </button>
                     </div>
                 </form>

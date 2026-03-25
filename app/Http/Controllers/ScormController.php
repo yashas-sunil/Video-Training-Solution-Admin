@@ -38,7 +38,7 @@ class ScormController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'watch_time' => 'required|numeric|min:1',
+               'watch_time' => 'required|integer|min:1|max:3000',
             'view_limit_option' => 'required|string',
             'view_limit' => 'nullable|numeric|min:1',
         ]);

@@ -88,7 +88,7 @@ class AdminController extends Controller
                 Rule::unique('users', 'phone')->whereNotNull('phone'),
             ],
             'role_id' => 'required|exists:roles,id',
-            'password' => 'required|min:6'
+            'password' => 'required|min:8'
         ]);
         $admin = new Admin();
         $admin->name = $request->name;

@@ -19,7 +19,7 @@
             <h1 class="m-0 text-dark">EduEdge Test creation</h1>
         </div>
         <div class="col text-right">
-            <a href="{{ route('admin-test.create') }}" type="button" class="btn btn-success">Create</a>
+            <a href="{{ route('admin-test.create') }}" type="button" class="btn btn-success"> Add EduEdgeTest </a>
         </div>
     </div>
 @stop
