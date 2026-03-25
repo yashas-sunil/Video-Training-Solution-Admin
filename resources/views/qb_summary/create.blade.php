@@ -68,12 +68,12 @@
             </div>
             
              <a href="{{ route('question.bank') }}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left mr-1"></i> Back
-                                </a>
-            {{-- Submit --}}
-            <button type="submit" class="btn btn-primary" id="submit">
-              Submit
-            </button>
+                                Back
+                            </a>
+                    {{-- Submit --}}
+             <button id="submitBtn" type="submit" class="btn btn-success">
+                                Save
+                            </button>
 
           </div>
 

@@ -171,7 +171,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                         <button type="submit" class="btn btn-success">
-                            Create <i class="fas fa-save ml-1"></i>
+                            Save <i class="fas fa-save ml-1"></i>
                         </button>
                     </div>
                 </form>

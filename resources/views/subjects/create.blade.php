@@ -80,16 +80,15 @@
                     </div>
 
 
-                    <div class="card-footer text-center">
+                    <div class="d-flex" style="gap:10px;">
+                            <a href="{{ route('subjects.index') }}" class="btn btn-secondary">
+                                Back
+                            </a>
 
-                        <button type="submit" class="btn btn-primary">
-                            Save Subjects
-                        </button>
-
-                        <a href="{{ route('subjects.index') }}" class="btn btn-secondary">
-                            Back
-                        </a>
-
+                            <button id="submitBtn" type="submit" class="btn btn-success">
+                                Save
+                            </button>
+                        </div>
                     </div>
 
                 </form>

@@ -17,7 +17,7 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="col-lg-12 col-md-12 text-right mb-2 create_btn">
-                        <a href="{{ route('qb.summary.create') }}" type="button" class="btn btn-success width_btn">Create</a>
+                        <a href="{{ route('qb.summary.create') }}" type="button" class="btn btn-success width_btn">Add QuestionBank</a>
                     </div>
                     <div class="email_id">
                         <table id="question-bank" class="table table-bordered table-striped text-center">
