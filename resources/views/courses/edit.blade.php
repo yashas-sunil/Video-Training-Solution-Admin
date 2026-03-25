@@ -41,9 +41,22 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="watch_time" class="form-label">Watch Time (in minutes) <span class="text-danger"> *</span></label>
-                            <input type="number" name="watch_time" id="watch_time" class="form-control" value="{{ old('watch_time', $course->watch_time) }}" min="0" required>
-                        </div>
+    <label for="watch_time" class="form-label">
+        Watch Time (in minutes) <span class="text-danger">*</span>
+    </label>
+
+    <input type="number" 
+           name="watch_time" 
+           id="watch_time" 
+           class="form-control" 
+           value="{{ old('watch_time', $course->watch_time) }}"
+           min="1"
+           max="3000"
+           required
+           oninput="limitInput(this)">
+
+    <span class="text-danger" id="watchError"></span>
+</div>
 
                         <div class="d-flex" style="gap: 10px">
                             <a href="{{ route('courses.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Back</a>
@@ -57,4 +70,16 @@
         </div>
     </div>
 </div>
+<script>
+function limitInput(el) {
+    let max = 3000;
+
+    if (parseInt(el.value) > max) {
+        document.getElementById("watchError").innerText = "Max allowed is 3000 minutes (50 hours)";
+        el.value = max;
+    } else {
+        document.getElementById("watchError").innerText = "";
+    }
+}
+</script>
 @endsection

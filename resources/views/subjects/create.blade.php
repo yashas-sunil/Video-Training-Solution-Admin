@@ -4,72 +4,79 @@
 
 @section('content')
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
-    <div class="row justify-content-center">
+        <div class="row justify-content-center">
 
-        <div class="col-md-10">  {{-- form bigger --}}
+            <div class="col-md-10">
 
-            <div class="card">
+                <div class="card">
 
-                <div class="card-header">
-                    <h3 class="card-title">Add Subjects</h3>
-                </div>
-
-                @if ($errors->any())
-                    <div class="alert alert-danger m-3">
-                        @foreach ($errors->all() as $error)
-                            <p class="mb-0">{{ $error }}</p>
-                        @endforeach
+                    <div class="card-header">
+                        <h3 class="card-title">Add Subjects</h3>
                     </div>
-                @endif
 
-                <form action="{{ route('subjects.storesubject') }}" method="POST">
-                    @csrf
-
-                    <div class="card-body">
-
-                        <!-- Course Dropdown -->
-                        <div class="form-group">
-                            <label>Select Course</label>
-
-                            <select name="course_id" class="form-control" required>
-                                <option value="">Select Course</option>
-
-                                @foreach($courses as $course)
-                                    <option value="{{ $course->id }}">
-                                        {{ $course->title }}
-                                    </option>
-                                @endforeach
-
-                            </select>
+                    @if (session('success'))
+                        <div class="alert alert-success m-3" id="successAlert">
+                            {{ session('success') }}
                         </div>
+                    @endif
 
+                    @if ($errors->has('duplicate'))
+                        <div class="alert alert-danger m-3" id="errorAlert">
+                            {{ $errors->first('duplicate') }}
+                        </div>
+                    @endif
 
-                        <!-- Subjects -->
+                    <form action="{{ route('subjects.storesubject') }}" method="POST">
+                        @csrf
 
-                        <div class="form-group">
+                        <div class="card-body">
 
-                            <label>Subjects</label>
+                            <!-- Course Dropdown -->
+                            <div class="form-group">
+                                <label>Select Course</label>
 
-                            <div id="subject-wrapper">
+                                <select name="course_id" id="course_id"
+                                    class="form-control @error('course_id') is-invalid @enderror">
 
-                                <div class="input-group mb-2">
+                                    <option value="">Select Course</option>
 
-                                    <input type="text"
-                                           name="subjects[]"
-                                           class="form-control"
-                                           placeholder="Enter Subject Name">
+                                    @foreach ($courses as $course)
+                                        <option value="{{ $course->id }}"
+                                            {{ old('course_id') == $course->id ? 'selected' : '' }}>
+                                            {{ $course->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
 
-                                    <div class="input-group-append">
+                                @error('course_id')
+                                    <small class="text-danger" id="courseError">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-                                        <button type="button"
-                                                class="btn btn-success"
-                                                onclick="addMore()">
-                                                +
-                                        </button>
+                            <!-- Subjects -->
+                            <div class="form-group">
+
+                                <label>Subjects</label>
+
+                                <div id="subject-wrapper">
+
+                                    <div class="input-group mb-2">
+
+                                        <input type="text" name="subjects[]" id="subjectInput"
+                                            class="form-control @error('subjects.0') is-invalid @enderror"
+                                            placeholder="Enter Subject Name" value="{{ old('subjects.0') }}">
+
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-success" onclick="addMore()">+</button>
+                                        </div>
 
                                     </div>
+
+                                    @error('subjects.0')
+                                        <small class="text-danger" id="subjectError">{{ $message }}</small>
+                                    @enderror
 
                                 </div>
 
@@ -77,21 +84,19 @@
 
                         </div>
 
-                    </div>
-
-
-                    <div class="d-flex" style="gap:10px;">
+                        <div class="d-flex p-3" style="gap:10px;">
                             <a href="{{ route('subjects.index') }}" class="btn btn-secondary">
                                 Back
                             </a>
 
-                            <button id="submitBtn" type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success">
                                 Save
                             </button>
                         </div>
-                    </div>
 
-                </form>
+                    </form>
+
+                </div>
 
             </div>
 
@@ -99,19 +104,15 @@
 
     </div>
 
-</div>
-
 @endsection
 
 
 @section('js')
 
-<script>
+    <script>
+        function addMore() {
 
-function addMore() {
-
-    let html = `
-
+            let html = `
     <div class="input-group mb-2">
 
         <input type="text"
@@ -120,24 +121,58 @@ function addMore() {
                placeholder="Enter Subject Name">
 
         <div class="input-group-append">
-
             <button type="button"
                     class="btn btn-danger"
                     onclick="this.closest('.input-group').remove()">
                     -
             </button>
-
         </div>
 
     </div>
-
     `;
 
-    document.getElementById('subject-wrapper')
-            .insertAdjacentHTML('beforeend', html);
+            document.getElementById('subject-wrapper')
+                .insertAdjacentHTML('beforeend', html);
+        }
 
-}
+        document.addEventListener("DOMContentLoaded", function() {
 
-</script>
+            let course = document.getElementById("course_id");
+            let subject = document.getElementById("subjectInput");
+            let successBox = document.getElementById("successAlert");
+            let errorBox = document.getElementById("errorAlert");
+
+            if (course) {
+                course.addEventListener("change", function() {
+                    this.classList.remove("is-invalid");
+                    let err = document.getElementById("courseError");
+                    if (err) err.remove();
+                });
+            }
+
+            if (subject) {
+                subject.addEventListener("input", function() {
+                    this.classList.remove("is-invalid");
+                    let err = document.getElementById("subjectError");
+                    if (err) err.remove();
+                });
+            }
+
+            if (successBox) {
+                setTimeout(() => {
+                    successBox.style.opacity = "0";
+                    setTimeout(() => successBox.remove(), 500);
+                }, 2000);
+            }
+
+            if (errorBox) {
+                setTimeout(() => {
+                    errorBox.style.opacity = "0";
+                    setTimeout(() => errorBox.remove(), 500);
+                }, 3000);
+            }
+
+        });
+    </script>
 
 @endsection
