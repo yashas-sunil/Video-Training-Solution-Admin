@@ -61,15 +61,14 @@
 
             </div>
 
-            <div class="card-footer">
-                <button type="submit" class="btn btn-success">
-                    Update
-                </button>
-
-                <a href="{{ route('subjects.index') }}" class="btn btn-secondary">
-                    Back
-                </a>
-            </div>
+           <div class="d-flex mt-4" style="gap: 10px">
+                        <a href="{{ route('subjects.index') }}" class="btn btn-secondary px-3">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success px-3">
+                            Update <i class="fas fa-save mr-1"></i>
+                        </button>
+                    </div>
 
         </form>
 

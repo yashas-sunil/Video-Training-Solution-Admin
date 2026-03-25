@@ -292,9 +292,9 @@
             <h1 class="m-0 text-dark">Test Preview</h1>
         </div>
         <div class="col text-right">
-            <a href="{{ route('admin-test') }}" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Tests
-            </a>
+           <a href="{{ route('admin-test') }}" class="btn btn-secondary px-3">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
         </div>
     </div>
 @stop

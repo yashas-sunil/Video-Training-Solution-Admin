@@ -86,13 +86,12 @@
                                 placeholder="e.g. 10" min="1" max="200" oninput="limitView(this)">
                         </div>
 
-                        <div class="d-flex" style="gap:10px;">
+                       <div class="d-flex" style="gap: 10px">
                             <a href="{{ route('courses.index') }}" class="btn btn-secondary">
-                                Back
+                                <i class="fas fa-arrow-left mr-1"></i>Back
                             </a>
-
-                            <button id="submitBtn" type="submit" class="btn btn-success">
-                                Save
+                            <button type="submit" class="btn btn-success">
+                                Save<i class="fas fa-save ml-1"></i>
                             </button>
                         </div>
 

@@ -30,37 +30,47 @@
                             <input type="text" name="title" id="title" value="{{ old('title', $course->title) }}" class="form-control" required>
                         </div>
 
-                        {{-- <div class="mb-3">
-                            <label for="description" class="form-label">Course Description</label>
-                            <textarea name="description" id="description" rows="4" class="form-control" required>{{ old('description', $course->description) }}</textarea>
-                        </div> --}}
-
+                        {{-- VIEW LIMIT --}}
                         <div class="mb-3">
                             <label for="view_limit" class="form-label">View Limit <span class="text-danger"> *</span></label>
-                            <input type="number" name="view_limit" id="view_limit" class="form-control" value="{{ old('view_limit', $course->view_limit) }}" min="0" required>
+                            <input type="number" 
+                                   name="view_limit" 
+                                   id="view_limit" 
+                                   class="form-control" 
+                                   value="{{ old('view_limit', $course->view_limit) }}" 
+                                   min="1"
+                                   max="200"
+                                   required
+                                   oninput="limitView(this)">
+                            <span class="text-danger" id="viewError"></span>
                         </div>
 
+                        {{-- WATCH TIME --}}
                         <div class="mb-3">
-    <label for="watch_time" class="form-label">
-        Watch Time (in minutes) <span class="text-danger">*</span>
-    </label>
+                            <label for="watch_time" class="form-label">
+                                Watch Time (in minutes) <span class="text-danger">*</span>
+                            </label>
 
-    <input type="number" 
-           name="watch_time" 
-           id="watch_time" 
-           class="form-control" 
-           value="{{ old('watch_time', $course->watch_time) }}"
-           min="1"
-           max="3000"
-           required
-           oninput="limitInput(this)">
+                            <input type="number" 
+                                   name="watch_time" 
+                                   id="watch_time" 
+                                   class="form-control" 
+                                   value="{{ old('watch_time', $course->watch_time) }}"
+                                   min="1"
+                                   max="3000"
+                                   required
+                                   oninput="limitInput(this)">
 
-    <span class="text-danger" id="watchError"></span>
-</div>
+                            <span class="text-danger" id="watchError"></span>
+                        </div>
 
                         <div class="d-flex" style="gap: 10px">
-                            <a href="{{ route('courses.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Back</a>
-                            <button type="submit" class="btn btn-success">Update Course<i class="fas fa-save ml-1"></i></button>
+                            <a href="{{ route('courses.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-1"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                Update<i class="fas fa-save ml-1"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -70,9 +80,15 @@
         </div>
     </div>
 </div>
+
 <script>
+// ✅ WATCH TIME LIMIT (3000)
 function limitInput(el) {
     let max = 3000;
+
+    if (el.value.length > 4) {
+        el.value = el.value.slice(0, 4);
+    }
 
     if (parseInt(el.value) > max) {
         document.getElementById("watchError").innerText = "Max allowed is 3000 minutes (50 hours)";
@@ -81,5 +97,22 @@ function limitInput(el) {
         document.getElementById("watchError").innerText = "";
     }
 }
+
+// ✅ VIEW LIMIT (200)
+function limitView(el) {
+    let max = 200;
+
+    if (el.value.length > 3) {
+        el.value = el.value.slice(0, 3);
+    }
+
+    if (parseInt(el.value) > max) {
+        document.getElementById("viewError").innerText = "Max 200 views allowed.";
+        el.value = max;
+    } else {
+        document.getElementById("viewError").innerText = "";
+    }
+}
 </script>
+
 @endsection
