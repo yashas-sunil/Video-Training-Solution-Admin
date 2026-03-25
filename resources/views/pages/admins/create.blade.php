@@ -25,11 +25,11 @@
                                         class="form-control @error('name') is-invalid @enderror"
                                         value="{{ old('name') }}"
                                         placeholder="Name">
-                                    @error('name')
-                                        <span class="invalid-feedback d-block text-danger" role="alert">
-                                            {{ $message }}
-                                        </span>
-                                    @enderror
+                                    <div style="min-height:20px;">
+                                        @error('name')
+                                            <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
@@ -47,12 +47,9 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <!-- Fixed height reserved for error so layout never breaks -->
-                                    <div style="min-height: 20px;">
+                                    <div style="min-height:20px;">
                                         @error('role_id')
-                                            <span class="invalid-feedback d-block text-danger" role="alert">
-                                                {{ $message }}
-                                            </span>
+                                            <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
                                         @enderror
                                         <label id="role_id-error" class="error" for="role_id" style="display:none;"></label>
                                     </div>
@@ -75,11 +72,11 @@
                                             oninput="this.value=this.value.replace(/\s/g,'')">
                                         <span class="clear-icon" onclick="clearInput('email')">&times;</span>
                                     </div>
-                                    @error('email')
-                                        <span class="invalid-feedback d-block text-danger" role="alert">
-                                            {{ $message }}
-                                        </span>
-                                    @enderror
+                                    <div style="min-height:20px;">
+                                        @error('email')
+                                            <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
@@ -94,11 +91,11 @@
                                                 name="mobile_code">
                                                 <option value="+91" {{ old('mobile_code') == '+91' ? 'selected' : '' }}>+91</option>
                                             </select>
-                                            @error('mobile_code')
-                                                <span class="invalid-feedback d-block text-danger" role="alert">
-                                                    {{ $message }}
-                                                </span>
-                                            @enderror
+                                            <div style="min-height:20px;">
+                                                @error('mobile_code')
+                                                    <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
+                                                @enderror
+                                            </div>
                                         </div>
                                         <div style="width:70%;">
                                             <input type="text" id="mobile" name="mobile"
@@ -107,11 +104,11 @@
                                                 placeholder="Mobile"
                                                 maxlength="10"
                                                 oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
-                                            @error('mobile')
-                                                <span class="invalid-feedback d-block text-danger" role="alert">
-                                                    {{ $message }}
-                                                </span>
-                                            @enderror
+                                            <div style="min-height:20px;">
+                                                @error('mobile')
+                                                    <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -125,19 +122,24 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="password">Password <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="password" id="password" name="password"
-                                            class="form-control @error('password') is-invalid @enderror"
-                                            placeholder="Password">
-                                        <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
-                                            <i id="toggleIcon" class="fa fa-eye"></i>
-                                        </span>
+                                    <!-- input-group wrapped in a div so error goes BELOW the whole group -->
+                                    <div>
+                                        <div class="input-group">
+                                            <input type="password" id="password" name="password"
+                                                class="form-control @error('password') is-invalid @enderror"
+                                                placeholder="Password">
+                                            <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword()">
+                                                <i id="toggleIcon" class="fa fa-eye"></i>
+                                            </span>
+                                        </div>
+                                        <!-- Error always renders here — below the eye-icon row -->
+                                        <div style="min-height:20px;">
+                                            @error('password')
+                                                <span class="invalid-feedback d-block text-danger" role="alert">{{ $message }}</span>
+                                            @enderror
+                                            <label id="password-error" class="error" for="password" style="display:none;"></label>
+                                        </div>
                                     </div>
-                                    @error('password')
-                                        <span class="invalid-feedback d-block text-danger" role="alert">
-                                            {{ $message }}
-                                        </span>
-                                    @enderror
                                 </div>
                             </div>
 
@@ -145,7 +147,7 @@
 
                     </div>
 
-                    <div class="card-footer d-flex align-items-center" style="gap: 10px">
+                    <div class="card-footer d-flex align-items-center" style="gap:10px;">
                         <a href="{{ route('admins.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
@@ -162,7 +164,7 @@
 
 @section('css')
 <style>
-    /* Input wrapper for clear icon */
+    /* Clear icon */
     .input-wrapper {
         position: relative;
     }
@@ -188,7 +190,7 @@
         padding-right: 2.3rem;
     }
 
-    /* Validation error styles */
+    /* Validation */
     .invalid-feedback {
         color: #dc3545 !important;
         font-size: 0.875rem;
@@ -206,11 +208,15 @@
         display: block;
         margin-top: 4px;
         margin-bottom: 0;
-        min-height: 20px; /* keeps layout stable — no jump when error appears */
+        min-height: 20px;
     }
 
-    /* Select2 error border fix */
-    .select2-invalid + .select2-container .select2-selection {
+    /* Password eye-icon border fix when invalid */
+    .input-group .form-control.is-invalid {
+        border-right: none;
+    }
+
+    .input-group .form-control.is-invalid + .input-group-text {
         border-color: #dc3545 !important;
     }
 </style>
@@ -245,29 +251,28 @@
                 errorClass: 'error',
                 errorPlacement: function (error, element) {
                     if (element.attr('name') === 'role_id') {
-                        // Place error inside the reserved div so layout never shifts
-                        let errorDiv = element.closest('.form-group').find('#role_id-error');
-                        errorDiv.replaceWith(error.attr('id', 'role_id-error'));
+                        // Put inside reserved div
+                        $('#role_id-error').replaceWith(error.attr('id', 'role_id-error'));
+                    } else if (element.attr('name') === 'password') {
+                        // Put inside reserved div below input-group
+                        $('#password-error').replaceWith(error.attr('id', 'password-error'));
                     } else if (element.attr('name') === 'mobile_code') {
                         error.insertAfter(element.closest('select'));
                     } else {
                         error.insertAfter(element);
                     }
                 },
-                // Re-validate role_id when select2 changes
                 submitHandler: function (form) {
                     form.submit();
                 }
             });
 
-            // Select2 init
-            $("#role_id").select2({
-                placeholder: 'Please choose a role'
-            });
+            // Select2
+            $("#role_id").select2({ placeholder: 'Please choose a role' });
 
-            // Trigger jquery-validate on select2 change
+            // Clear role error on select2 change
             $("#role_id").on('change', function () {
-                $('#create').valid(); // re-run validation so role error clears immediately
+                $('#create').valid();
             });
 
             @if (session('success'))
