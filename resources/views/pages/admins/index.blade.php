@@ -13,7 +13,7 @@
             <h1 class="m-0 text-dark">Users</h1>
         </div>
         <div class="col text-right">
-            <a href="{{ route('admins.create') }}" type="button" class="btn btn-success"><i class="fas fa-plus"></i> Create</a>
+            <a href="{{ route('admins.create') }}" type="button" class="btn btn-success"><i class="fas fa-plus"></i> Add User</a>
         </div>
     </div>
 @stop
