@@ -69,7 +69,7 @@
                                 <i class="fas fa-arrow-left mr-1"></i>Back
                             </a>
                             <button type="submit" class="btn btn-success">
-                                Update Course<i class="fas fa-save ml-1"></i>
+                                Update<i class="fas fa-save ml-1"></i>
                             </button>
                         </div>
                     </form>
