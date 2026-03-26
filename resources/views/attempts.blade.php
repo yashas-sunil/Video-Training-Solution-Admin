@@ -415,17 +415,20 @@
                 gap: 4px;
                 padding: 6px 10px;
             }
-                .container_cards {
-                    width: 60%!important;
-                }
+
+            .container_cards {
+                width: 60% !important;
+            }
         }
+
         @media (max-width: 768px) {
             .performance_con {
-                flex-wrap: wrap!important;
+                flex-wrap: wrap !important;
                 gap: 20px;
             }
+
             .container_cards {
-                padding: 20px!important;
+                padding: 20px !important;
                 width: auto;
             }
         }
@@ -475,7 +478,8 @@
     <div class="page-content">
 
         <div class="toolbar" style="margin: 20px 0px;">
-            <div class="toolbar_r"><div class="quiz_name"
+            <div class="toolbar_r">
+                <div class="quiz_name"
                     style="background: #BEDBFF26;border: 2px solid #BEDBFF;border-radius: 13px;padding: 12px;display: flex;align-items: flex-start;flex-direction: column;flex-wrap: nowrap;gap: 10px;margin: 16px;margin-left: 0px;">
                     <p style="margin: 0;font-size: 14px;font-weight: 100;">Course</p>
                     <h2 class="quiz-title">{{ $quizName }}</h2>
@@ -485,7 +489,7 @@
             </div>
             <div class="sub-toolbar"
                 style="display: flex;align-items: center;flex-wrap: nowrap;flex-direction: row;gap: 10px;">
-                
+
                 <div class="toolbar-actions">
 
                     <!-- Filter Button -->
@@ -493,12 +497,13 @@
                         <img src="{{ asset('images/filter.png') }}" alt="Filter" />
                     </button>
 
-                    <!-- Back Button --><button class="btn-link" style="gap: 5px;" onclick="window.history.back()">
+                    <!-- Back Button -->
+                    <a href="{{ url()->previous() }}" class="btn-link"
+                        style="gap: 5px; display:inline-flex; align-items:center;">
                         <img src="{{ asset('images/Left.png') }}" alt="Back"
                             style="width:15px; height:15px; cursor:pointer;" />
-
                         Back
-                    </button>
+                    </a>
 
                 </div>
             </div>
@@ -506,19 +511,15 @@
         </div>
 
         <!-- Performance -->
-       @php
-    $scores = count($attempts) > 0 
-        ? array_column($attempts->toArray(), 'score_percent') 
-        : [];
-    $highestScore = count($scores) > 0 ? max($scores) : 0;
-    $averageScore = count($scores) > 0 
-        ? round(array_sum($scores) / count($scores), 2) 
-        : 0;
-    $totalAttempts = count($attempts);
-@endphp
+        @php
+            $scores = count($attempts) > 0 ? array_column($attempts->toArray(), 'score_percent') : [];
+            $highestScore = count($scores) > 0 ? max($scores) : 0;
+            $averageScore = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
+            $totalAttempts = count($attempts);
+        @endphp
 
         <div class="performance_con">
-            
+
             <div class="container_cards">
                 <img src="{{ asset('images/TTAttempts.png') }}" alt="TTAttempts" style="width:60px; height:60px;" />
 
@@ -543,7 +544,7 @@
                     <p>Best Score</p>
                 </div>
             </div>
-            
+
         </div>
 
 
@@ -552,11 +553,12 @@
         <!-- Attempts -->
         <div class="attempts-grid" id="attemptsGrid">
             @forelse($attempts as $attempt)
-                <div class="attempt-card" data-score="{{ $attempt['score_percent'] }}" style="border:{{ $attempt['score_percent'] >= 60 ? '1px solid #00A63E' : '1px solid #E7000B' }}"
+                <div class="attempt-card" data-score="{{ $attempt['score_percent'] }}"
+                    style="border:{{ $attempt['score_percent'] >= 60 ? '1px solid #00A63E' : '1px solid #E7000B' }}"
                     data-chapter="{{ $attempt['chapter_name'] }}" data-attempt="{{ $attempt['attempt_number'] }}"
                     data-date="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}"
                     data-time="{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i') }}">
-                    
+
                     <div class="sec1"
                         style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-between;align-items: center;">
                         <div class="attempt_se1" style="display: flex;align-items: center;    margin: 10px 0px;">
@@ -586,15 +588,15 @@
                                 Chapter: {{ $attempt['chapter_name'] }}</p>
                             <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
                                 <img src="{{ asset('images/Calendar.png') }}" alt="Date"
-                                style="width:16px;height:auto;margin-right:5px;" />
-                            <span
-                                style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}</span>
+                                    style="width:16px;height:auto;margin-right:5px;" />
+                                <span
+                                    style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('Y-m-d') }}</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px;">
                                 <img src="{{ asset('images/Clock.png') }}" alt="Date"
-                                style="width:16px;height:auto;margin-right:5px;" />
+                                    style="width:16px;height:auto;margin-right:5px;" />
                                 <span
-                                style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000; align-items: center;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i:s') }}</span>
+                                    style="font-family: sans-serif;font-weight:400; font-size:12px; color:#000000; align-items: center;">{{ \Carbon\Carbon::parse($attempt['attempt_time'])->format('H:i:s') }}</span>
                             </div>
                         </div>
                         <div class="sec2_r"
@@ -607,7 +609,7 @@
                     </div>
 
                     <a style="color:#FFFFFF; background-color:#2C3E50; display: flex; padding: 10px 8px;margin-top: 8px; border-radius: 4px; font-size: 12px; justify-content: center;align-items: center;"
-                     href="{{ url('/course-attempts/' . $quizName . '/view/' . $attempt['attempt_number']) }}">
+                        href="{{ url('/course-attempts/' . $quizName . '/view/' . $attempt['attempt_number']) }}">
                         <img src="{{ asset('images/Eye.png') }}" alt="View Questions"
                             style="width:15px; height:15px; vertical-align: middle; margin-right: 5px;" />
                         View Questions
