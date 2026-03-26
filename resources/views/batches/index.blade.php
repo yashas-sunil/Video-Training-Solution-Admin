@@ -59,14 +59,13 @@
                                 @endif
                             </td>
 
-                            <td>
-                                {{ \Carbon\Carbon::parse($batch->start_date)->format('d - m - Y') }}
-                            </td>
+                           <td style="white-space: nowrap;">
+    {{ \Carbon\Carbon::parse($batch->start_date)->format('d-m-Y') }}
+</td>
 
-                            <td>
-                                {{ \Carbon\Carbon::parse($batch->expire_date)->format('d - m - Y') }}
-                            </td>
-
+<td style="white-space: nowrap;">
+    {{ \Carbon\Carbon::parse($batch->expire_date)->format('d-m-Y') }}
+</td>
                             <td>
                                 <span class="badge badge-primary">
                                     {{ $batch->students->count() }}
