@@ -72,7 +72,7 @@
         /* Validation styles */
         .field-error {
             color: #dc3545;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             margin-top: 4px;
             display: none;
         }
@@ -80,6 +80,17 @@
         .is-invalid-field {
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .lesson-file-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            display: none;
         }
     </style>
 
@@ -261,7 +272,7 @@
                                         <i class="fas fa-plus"></i> Add Lesson
                                     </button>
                                 </div>
-                                <small class="field-error d-block mb-2" id="lessonsError">Please add at least one lesson.</small>
+                                <small class="field-error" id="lessonsError">Please add at least one lesson.</small>
                                 <div id="lessonsContainer"></div>
                             </div>
 
@@ -337,12 +348,66 @@
                     showError('manualChapterName', 'manualChapterNameError');
                     isValid = false;
                 }
-                // Lessons
+                
+                // Lessons validation
                 const container = document.getElementById('lessonsContainer');
-                if (container.children.length === 0) {
+                const lessonCards = container.querySelectorAll('.lesson-card');
+                
+                // Check if at least one lesson exists
+                if (lessonCards.length === 0) {
                     let err = document.getElementById('lessonsError');
                     err.style.display = 'block';
                     isValid = false;
+                    
+                    // Scroll to lessons section
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // Hide the main lessons error
+                    document.getElementById('lessonsError').style.display = 'none';
+                    
+                    // Validate each lesson
+                    let hasError = false;
+                    lessonCards.forEach((card) => {
+                        const nameInput = card.querySelector('.lesson-name-input');
+                        const nameError = card.querySelector('.lesson-name-error');
+                        const fileError = card.querySelector('.lesson-file-error');
+                        
+                        // Check lesson name
+                        if (!nameInput.value.trim()) {
+                            nameInput.classList.add('is-invalid-field');
+                            nameError.style.display = 'block';
+                            hasError = true;
+                            isValid = false;
+                        } else {
+                            nameInput.classList.remove('is-invalid-field');
+                            nameError.style.display = 'none';
+                        }
+                        
+                        // Check if at least one file is uploaded in this lesson
+                        const trainerSlides = card.querySelector('input[name*="manual_detailed_trainer_slides"]');
+                        const summarySlides = card.querySelector('input[name*="manual_summary_slides"]');
+                        const videos = card.querySelector('input[name*="manual_videos"]');
+                        
+                        const hasTrainerFiles = trainerSlides && trainerSlides.files.length > 0;
+                        const hasSummaryFiles = summarySlides && summarySlides.files.length > 0;
+                        const hasVideoFiles = videos && videos.files.length > 0;
+                        
+                        if (!hasTrainerFiles && !hasSummaryFiles && !hasVideoFiles) {
+                            fileError.style.display = 'block';
+                            hasError = true;
+                            isValid = false;
+                        } else {
+                            fileError.style.display = 'none';
+                        }
+                    });
+                    
+                    // Scroll to first error if any
+                    if (hasError) {
+                        const firstError = container.querySelector('.is-invalid-field, .lesson-file-error[style*="display: block"]');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
                 }
 
                 if (isValid) {
@@ -405,7 +470,7 @@
                             <label class="form-label">
                                 <i class="fas fa-file-powerpoint"></i> Detailed Trainer Slides
                             </label>
-                            <input type="file" class="form-control"
+                            <input type="file" class="form-control lesson-file-input"
                                    name="lessons[${currentIndex}][manual_detailed_trainer_slides][]"
                                    accept="*/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
@@ -414,7 +479,7 @@
                             <label class="form-label">
                                 <i class="fas fa-file-pdf"></i> Summary Slides
                             </label>
-                            <input type="file" class="form-control"
+                            <input type="file" class="form-control lesson-file-input"
                                    name="lessons[${currentIndex}][manual_summary_slides][]"
                                    accept="*/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
@@ -423,11 +488,15 @@
                             <label class="form-label">
                                 <i class="fas fa-video"></i> Videos
                             </label>
-                            <input type="file" class="form-control"
+                            <input type="file" class="form-control lesson-file-input"
                                    name="lessons[${currentIndex}][manual_videos][]"
                                    accept="video/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
                         </div>
+                    </div>
+                    
+                    <div class="lesson-file-error">
+                        <i class="fas fa-exclamation-triangle"></i> Please upload at least one file (Detailed Trainer Slides, Summary Slides, or Videos) for this lesson.
                     </div>
                 </div>
             `;
@@ -438,11 +507,32 @@
             const newCard = document.getElementById(`lesson-${lessonCount}`);
             const nameInput = newCard.querySelector('.lesson-name-input');
             const nameError = newCard.querySelector('.lesson-name-error');
+            const fileError = newCard.querySelector('.lesson-file-error');
+            const fileInputs = newCard.querySelectorAll('.lesson-file-input');
+            
             nameInput.addEventListener('input', function () {
                 if (this.value.trim()) {
                     this.classList.remove('is-invalid-field');
                     nameError.style.display = 'none';
                 }
+            });
+            
+            // Clear file error when any file is selected
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const trainerSlides = newCard.querySelector('input[name*="manual_detailed_trainer_slides"]');
+                    const summarySlides = newCard.querySelector('input[name*="manual_summary_slides"]');
+                    const videos = newCard.querySelector('input[name*="manual_videos"]');
+                    
+                    const hasAnyFile = 
+                        (trainerSlides && trainerSlides.files.length > 0) ||
+                        (summarySlides && summarySlides.files.length > 0) ||
+                        (videos && videos.files.length > 0);
+                    
+                    if (hasAnyFile) {
+                        fileError.style.display = 'none';
+                    }
+                });
             });
         }
 
@@ -454,6 +544,12 @@
                     const index = activeLessons.indexOf(lessonId);
                     if (index > -1) activeLessons.splice(index, 1);
                     reindexLessons();
+                    
+                    // Show main lesson error if no lessons remain
+                    const container = document.getElementById('lessonsContainer');
+                    if (container.children.length === 0) {
+                        document.getElementById('lessonsError').style.display = 'block';
+                    }
                 }
             }
         }
