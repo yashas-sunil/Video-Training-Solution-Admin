@@ -68,9 +68,7 @@
                                                 @endif
                                             @endforeach
                                         </td>
-                                        {{-- <td>-</td> --}}
                                         <td>{{ $val->total_ques_count }}</td>
-                                        {{-- <td>-</td> --}}
                                         <td>
                                             @if ($val->status == 1)
                                                 <span class="badge badge-success">Active</span>
@@ -79,19 +77,17 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <div
-                                                style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                                <a href="{{ route('admin-test.preview', $val->id) }}"
-                                                    title="Preview Test Questions">
+                                            <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                                                <a href="{{ route('admin-test.preview', $val->id) }}" title="Preview Test Questions">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input status-toggle"
+                                                    <input type="checkbox"
+                                                        class="custom-control-input status-toggle"
                                                         id="status_{{ $val->id }}"
                                                         {{ $val->status == 1 ? 'checked' : '' }}
                                                         data-id="{{ $val->id }}">
-                                                    <label class="custom-control-label"
-                                                        for="status_{{ $val->id }}"></label>
+                                                    <label class="custom-control-label" for="status_{{ $val->id }}"></label>
                                                 </div>
                                             </div>
                                         </td>
@@ -108,56 +104,6 @@
 
 @section('js')
     <script type="text/javascript">
-        $(function() {
-            $('#championship').DataTable({
-                "paging": true,
-                "lengthChange": true,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": true,
-                "responsive": true,
-            });
-
-            // Toggle status handler
-            $('.status-toggle').on('change', function() {
-                let testId = $(this).data('id');
-                let newStatus = $(this).is(':checked') ? 1 : 0;
-                let $checkbox = $(this);
-
-                $.ajax({
-                    url: '{{ url('/admin-test') }}' + '/' + testId + '/toggle-status',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        status: newStatus,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Update the badge
-                            let $badge = $checkbox.closest('tr').find('.badge');
-                            if (newStatus == 1) {
-                                $badge.removeClass('badge-danger').addClass('badge-success')
-                                    .text('Active');
-                            } else {
-                                $badge.removeClass('badge-success').addClass('badge-danger')
-                                    .text('Inactive');
-                            }
-                            // Show success message
-                            toastr.success('Status updated successfully!');
-                        } else {
-                            toastr.error('Error updating status');
-                            $checkbox.prop('checked', !$checkbox.is(':checked'));
-                        }
-                    },
-                    error: function() {
-                        toastr.error('Error updating status');
-                        $checkbox.prop('checked', !$checkbox.is(':checked'));
-                    }
-                });
-            });
-        });
 
         // Toastr options
         toastr.options = {
@@ -167,19 +113,77 @@
             "timeOut": "4000"
         };
 
-        // Flash messages from session
-        @if (session('success'))
-            toastr.success('{{ session('success') }}');
-        @endif
-        @if (session('error'))
-            toastr.error('{{ session('error') }}');
-        @endif
-        @if (session('warning'))
-            toastr.warning('{{ session('warning') }}');
-        @endif
-        @if (session('info'))
-            toastr.info('{{ session('info') }}');
-        @endif
+        $(function () {
+
+            // ── DataTable init ──
+            $('#championship').DataTable({
+                "paging":       true,
+                "lengthChange": true,
+                "searching":    true,
+                "ordering":     true,
+                "info":         true,
+                "autoWidth":    true,
+                "responsive":   true,
+            });
+
+            // ── STATUS TOGGLE ──
+            // WRONG way (old code):
+            //   $('.status-toggle').on('change', ...) — binds only to elements
+            //   present at load time. DataTable moves rows in/out of DOM when
+            //   paginating or searching, so rows not on page 1 never fire.
+            //
+            // CORRECT way — delegate to document so ALL rows always work:
+            $(document).on('change', '.status-toggle', function () {
+
+                let testId    = $(this).data('id');
+                let newStatus = $(this).is(':checked') ? 1 : 0;
+                let $checkbox = $(this);
+
+                $.ajax({
+                    url:      '{{ url('/admin-test') }}' + '/' + testId + '/toggle-status',
+                    type:     'POST',
+                    dataType: 'json',
+                    data: {
+                        status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            let $badge = $checkbox.closest('tr').find('.badge');
+                            if (newStatus == 1) {
+                                $badge.removeClass('badge-danger').addClass('badge-success').text('Active');
+                            } else {
+                                $badge.removeClass('badge-success').addClass('badge-danger').text('Inactive');
+                            }
+                            toastr.success('Status updated successfully!');
+                        } else {
+                            toastr.error('Error updating status');
+                            $checkbox.prop('checked', !$checkbox.is(':checked'));
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Error updating status');
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+                });
+            });
+
+            // ── Flash messages ──
+            @if (session('success'))
+                toastr.success('{{ session('success') }}');
+            @endif
+            @if (session('error'))
+                toastr.error('{{ session('error') }}');
+            @endif
+            @if (session('warning'))
+                toastr.warning('{{ session('warning') }}');
+            @endif
+            @if (session('info'))
+                toastr.info('{{ session('info') }}');
+            @endif
+
+        });
+
     </script>
 @stop
 
