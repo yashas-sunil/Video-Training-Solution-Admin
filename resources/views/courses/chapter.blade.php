@@ -68,6 +68,19 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
+        /* Validation styles */
+        .field-error {
+            color: #dc3545;
+            font-size: 0.82rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .is-invalid-field {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+        }
     </style>
 
     <div id="loaderOverlay">
@@ -97,161 +110,140 @@
                             </button>
                         </div>
 
-                        {{-- SCORM FORM --}}
+                        {{-- ─── SCORM FORM ─── --}}
                         <form method="POST" action="{{ route('chapter.scorm.upload') }}" enctype="multipart/form-data"
                             id="scormForm">
                             @csrf
 
-                            {{-- Course Select --}}
+                            {{-- Course --}}
                             <div class="mb-4">
                                 <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                <select name="course_id" id="scormCourseId" class="form-control" required>
+                                <select name="course_id" id="scormCourseId" class="form-control"
+                                    onchange="clearError('scormCourseId', 'scormCourseError')">
                                     <option value="">-- Select Course --</option>
                                     @foreach ($courses as $course)
                                         <option value="{{ $course->id }}">{{ $course->title }}</option>
                                     @endforeach
                                 </select>
+                                <small class="field-error" id="scormCourseError">Please select a Course.</small>
                             </div>
+
+                            {{-- Subject --}}
                             <div class="mb-4">
                                 <label class="form-label">Subject <span class="text-danger">*</span></label>
-                                <select name="subject_id" id="scormChapterId" class="form-control" required disabled>
+                                <select name="subject_id" id="scormChapterId" class="form-control" disabled
+                                    onchange="clearError('scormChapterId', 'scormSubjectError')">
                                     <option value="">-- Select Subject --</option>
                                 </select>
+                                <small class="field-error" id="scormSubjectError">Please select a Subject.</small>
                             </div>
+
                             {{-- Chapter Name --}}
                             <div class="mb-4">
                                 <label class="form-label">Chapter Name <span class="text-danger">*</span></label>
-                                <input type="text" name="chapter_name" class="form-control"
-                                    placeholder="Enter chapter name" required>
+                                <input type="text" name="chapter_name" id="scormChapterName" class="form-control"
+                                    placeholder="Enter chapter name"
+                                    oninput="clearError('scormChapterName', 'scormChapterNameError')">
+                                <small class="field-error" id="scormChapterNameError">Please enter a Chapter Name.</small>
+                                @if ($errors->has('chapter_name'))
+                                    <div class="alert alert-danger mt-1" id="scormChapterError">{{ $errors->first('chapter_name') }}</div>
+                                    <script>
+                                        setTimeout(function() {
+                                            const el = document.getElementById('scormChapterError');
+                                            if (el) { el.style.transition='opacity 0.5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),500); }
+                                        }, 5000);
+                                    </script>
+                                @endif
                             </div>
-                            @if ($errors->has('chapter_name'))
-                                <div class="alert alert-danger" id="scormChapterError">{{ $errors->first('chapter_name') }}</div>
-                                <script>
-                                    setTimeout(function() {
-                                        const alert = document.getElementById('scormChapterError');
-                                        if (alert) {
-                                            alert.style.transition = 'opacity 0.5s ease';
-                                            alert.style.opacity = '0';
-                                            setTimeout(() => alert.remove(), 500);
-                                        }
-                                    }, 5000);
-                                </script>
-                            @endif
 
                             {{-- SCORM ZIP --}}
                             <div class="mb-4">
                                 <label class="form-label">SCORM Zip File <span class="text-danger">*</span></label>
-                                <input type="file" name="zip_file" class="form-control" accept=".zip" required>
+                                <input type="file" name="zip_file" id="scormZipFile" class="form-control" accept=".zip"
+                                    onchange="clearError('scormZipFile', 'scormZipError')">
+                                <small class="field-error" id="scormZipError">Please upload a SCORM Zip file.</small>
                             </div>
-
-                            {{-- Watch Time --}}
-                            {{-- <div class="mb-4">
-                            <label class="form-label">Total Watch Time (minutes) <span class="text-danger">*</span></label>
-                            <input type="number" name="watch_time" class="form-control"
-                                   placeholder="e.g. 90" min="1" required>
-                        </div> --}}
-
-                            {{-- View Limit --}}
-                            {{-- <div class="mb-4">
-                            <label class="form-label">Validity (View Limit) <span class="text-danger">*</span></label>
-                            <select name="view_limit_option" id="view_limit_option"
-                                    class="form-control" onchange="toggleCustomViewLimit()" required>
-                                <option value="">-- Select --</option>
-                                <option value="1">1 View</option>
-                                <option value="2">2 Views</option>
-                                <option value="3">3 Views</option>
-                                <option value="4">4 Views</option>
-                                <option value="5">5 Views</option>
-                                <option value="custom">Custom</option>
-                            </select>
-                        </div> --}}
-
-                            {{-- Custom Limit --}}
-                            {{-- <div class="mb-4" id="customViewLimitDiv" style="display:none;">
-                            <label class="form-label">Custom View Limit</label>
-                            <input type="number" name="view_limit" id="view_limit"
-                                   class="form-control" min="1">
-                        </div> --}}
 
                             <div class="d-flex" style="gap:10px;">
                                 <a href="{{ route('chapters') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left mr-1"></i> Back
                                 </a>
-
-                                <button id="scormSubmitBtn" type="submit" class="btn btn-success">
+                                <button id="scormSubmitBtn" type="button" class="btn btn-success"
+                                    onclick="validateAndSubmit('scorm')">
                                     Save <i class="fas fa-save ml-1"></i>
                                 </button>
                             </div>
                         </form>
 
-                        {{-- MANUAL FORM --}}
+                        {{-- ─── MANUAL FORM ─── --}}
                         <form method="POST" action="{{ route('chapter.manual.upload') }}" enctype="multipart/form-data"
                             id="manualForm" style="display:none;">
                             @csrf
 
-                            {{-- Course Select --}}
+                            {{-- Course --}}
                             <div class="mb-4">
                                 <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                <select name="course_id" id="manualCourseId" class="form-control" required>
+                                <select name="course_id" id="manualCourseId" class="form-control"
+                                    onchange="clearError('manualCourseId', 'manualCourseError')">
                                     <option value="">-- Select Course --</option>
                                     @foreach ($courses as $course)
-                                        <option value="{{ $course->id }}">
-                                            {{ $course->title }}
-                                        </option>
+                                        <option value="{{ $course->id }}">{{ $course->title }}</option>
                                     @endforeach
                                 </select>
+                                <small class="field-error" id="manualCourseError">Please select a Course.</small>
                             </div>
+
+                            {{-- Subject --}}
                             <div class="mb-4">
                                 <label class="form-label">Subject <span class="text-danger">*</span></label>
-                                <select name="subject_id" id="manualChapterId" class="form-control" required disabled>
+                                <select name="subject_id" id="manualChapterId" class="form-control" disabled
+                                    onchange="clearError('manualChapterId', 'manualSubjectError')">
                                     <option value="">-- Select Subject --</option>
                                 </select>
+                                <small class="field-error" id="manualSubjectError">Please select a Subject.</small>
                             </div>
+
                             {{-- Chapter Name --}}
                             <div class="mb-4">
                                 <label class="form-label">Chapter Name <span class="text-danger">*</span></label>
-                                <input type="text" name="chapter_name" class="form-control"
-                                    placeholder="Enter chapter name" required>
+                                <input type="text" name="chapter_name" id="manualChapterName" class="form-control"
+                                    placeholder="Enter chapter name"
+                                    oninput="clearError('manualChapterName', 'manualChapterNameError')">
+                                <small class="field-error" id="manualChapterNameError">Please enter a Chapter Name.</small>
+                                @if ($errors->has('chapter_name'))
+                                    <div class="alert alert-danger mt-1" id="manualChapterError">{{ $errors->first('chapter_name') }}</div>
+                                    <script>
+                                        setTimeout(function() {
+                                            const el = document.getElementById('manualChapterError');
+                                            if (el) { el.style.transition='opacity 0.5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),250); }
+                                        }, 2500);
+                                    </script>
+                                @endif
                             </div>
-                            @if ($errors->has('chapter_name'))
-                                <div class="alert alert-danger" id="manualChapterError">{{ $errors->first('chapter_name') }}</div>
-                                <script>
-                                    setTimeout(function() {
-                                        const alert = document.getElementById('manualChapterError');
-                                        if (alert) {
-                                            alert.style.transition = 'opacity 0.5s ease';
-                                            alert.style.opacity = '0';
-                                            setTimeout(() => alert.remove(), 250);
-                                        }
-                                    }, 2500);
-                                </script>
-                            @endif
 
                             {{-- Chapter-Level Content --}}
                             <div class="content-section">
                                 <h5 class="mb-3">
-                                    <i class="fas fa-book"></i> Chapter-Level Content 
+                                    <i class="fas fa-book"></i> Chapter-Level Content
                                     <small class="text-muted">(Upload once for entire chapter)</small>
                                 </h5>
-                                
                                 <div class="row">
                                     @php
                                         $chapterLevelTypes = [
-                                            ['key' => 'glossary', 'label' => 'Glossary', 'icon' => 'fa-list'],
-                                            ['key' => 'infographics', 'label' => 'Infographics', 'icon' => 'fa-image'],
-                                            ['key' => 'textbook', 'label' => 'Textbook', 'icon' => 'fa-book-open'],
-                                            ['key' => 'map', 'label' => 'Map', 'icon' => 'fa-map'],
+                                            ['key' => 'glossary',      'label' => 'Glossary',      'icon' => 'fa-list'],
+                                            ['key' => 'infographics',  'label' => 'Infographics',  'icon' => 'fa-image'],
+                                            ['key' => 'textbook',      'label' => 'Textbook',      'icon' => 'fa-book-open'],
+                                            ['key' => 'map',           'label' => 'Map',           'icon' => 'fa-map'],
                                         ];
                                     @endphp
-
                                     @foreach ($chapterLevelTypes as $type)
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
                                                 <i class="fas {{ $type['icon'] }}"></i> {{ $type['label'] }}
                                             </label>
-                                            <input type="file" class="form-control" 
-                                                   name="manual_{{ $type['key'] }}[]" 
-                                                   accept="*/*" multiple>
+                                            <input type="file" class="form-control"
+                                                name="manual_{{ $type['key'] }}[]"
+                                                accept="*/*" multiple>
                                             <small class="text-muted">Optional · Multiple files allowed</small>
                                         </div>
                                     @endforeach
@@ -262,24 +254,23 @@
                             <div class="content-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">
-                                        <i class="fas fa-graduation-cap"></i> Lessons 
+                                        <i class="fas fa-graduation-cap"></i> Lessons
                                         <small class="text-muted">(Add content per lesson)</small>
                                     </h5>
                                     <button type="button" class="btn btn-sm btn-primary" onclick="addLesson()">
                                         <i class="fas fa-plus"></i> Add Lesson
                                     </button>
                                 </div>
-
-                                <div id="lessonsContainer">
-                                    <!-- Lesson templates will be added here dynamically -->
-                                </div>
+                                <small class="field-error d-block mb-2" id="lessonsError">Please add at least one lesson.</small>
+                                <div id="lessonsContainer"></div>
                             </div>
 
                             <div class="d-flex mt-4" style="gap:10px;">
                                 <a href="{{ route('chapters') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left mr-1"></i> Back
                                 </a>
-                                <button id="manualSubmitBtn" type="submit" class="btn btn-success">
+                                <button id="manualSubmitBtn" type="button" class="btn btn-success"
+                                    onclick="validateAndSubmit('manual')">
                                     Save Manual Upload <i class="fas fa-save ml-1"></i>
                                 </button>
                             </div>
@@ -292,45 +283,110 @@
     </div>
 
     <script>
-        // function toggleCustomViewLimit() {
-        //     let v = document.getElementById('view_limit_option').value;
-        //     let div = document.getElementById('customViewLimitDiv');
-        //     let input = document.getElementById('view_limit');
 
-        //     if (v === 'custom') {
-        //         div.style.display = 'block';
-        //         input.required = true;
-        //     } else {
-        //         div.style.display = 'none';
-        //         input.required = false;
-        //         input.value = v;
-        //     }
-        // }
-
-        // document.getElementById('uploadForm').addEventListener('submit', function() {
-        //     document.getElementById('submitBtn').disabled = true;
-        //     document.getElementById('loaderOverlay').style.display = 'flex';
-        // });
-        
-        // Variables
-        let lessonCount = 0;
+        let lessonCount  = 0;
         let activeLessons = [];
 
-        // Function to add lesson
+        /* ─── VALIDATION ─── */
+        function validateAndSubmit(formType) {
+            let isValid = true;
+
+            if (formType === 'scorm') {
+
+                // Course
+                if (!document.getElementById('scormCourseId').value) {
+                    showError('scormCourseId', 'scormCourseError');
+                    isValid = false;
+                }
+                // Subject
+                if (!document.getElementById('scormChapterId').value) {
+                    showError('scormChapterId', 'scormSubjectError');
+                    isValid = false;
+                }
+                // Chapter Name
+                if (!document.getElementById('scormChapterName').value.trim()) {
+                    showError('scormChapterName', 'scormChapterNameError');
+                    isValid = false;
+                }
+                // ZIP file
+                if (!document.getElementById('scormZipFile').files.length) {
+                    showError('scormZipFile', 'scormZipError');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    document.getElementById('scormSubmitBtn').disabled = true;
+                    document.getElementById('loaderOverlay').style.display = 'flex';
+                    document.getElementById('scormForm').submit();
+                }
+
+            } else {
+
+                // Course
+                if (!document.getElementById('manualCourseId').value) {
+                    showError('manualCourseId', 'manualCourseError');
+                    isValid = false;
+                }
+                // Subject
+                if (!document.getElementById('manualChapterId').value) {
+                    showError('manualChapterId', 'manualSubjectError');
+                    isValid = false;
+                }
+                // Chapter Name
+                if (!document.getElementById('manualChapterName').value.trim()) {
+                    showError('manualChapterName', 'manualChapterNameError');
+                    isValid = false;
+                }
+                // Lessons
+                const container = document.getElementById('lessonsContainer');
+                if (container.children.length === 0) {
+                    let err = document.getElementById('lessonsError');
+                    err.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    document.getElementById('manualSubmitBtn').disabled = true;
+                    document.getElementById('loaderOverlay').style.display = 'flex';
+                    document.getElementById('manualForm').submit();
+                }
+            }
+        }
+
+        /* Show error */
+        function showError(fieldId, errorId) {
+            let field = document.getElementById(fieldId);
+            let error = document.getElementById(errorId);
+            if (field)  field.classList.add('is-invalid-field');
+            if (error)  error.style.display = 'block';
+        }
+
+        /* Clear error on input/change */
+        function clearError(fieldId, errorId) {
+            let field = document.getElementById(fieldId);
+            let error = document.getElementById(errorId);
+            if (field)  field.classList.remove('is-invalid-field');
+            if (error)  error.style.display = 'none';
+        }
+
+        /* ─── LESSONS ─── */
         function addLesson() {
             lessonCount++;
             activeLessons.push(lessonCount);
-            
-            const container = document.getElementById('lessonsContainer');
+
+            // Hide lessons error when at least one is added
+            document.getElementById('lessonsError').style.display = 'none';
+
+            const container  = document.getElementById('lessonsContainer');
             const currentIndex = activeLessons.length - 1;
-            
+
             const lessonHTML = `
                 <div class="lesson-card" id="lesson-${lessonCount}" data-lesson-id="${lessonCount}">
                     <div class="lesson-header">
                         <h6 class="mb-0">
                             <i class="fas fa-chalkboard-teacher"></i> Lesson ${activeLessons.length}
                         </h6>
-                        <button type="button" class="btn btn-sm btn-danger remove-lesson-btn" 
+                        <button type="button" class="btn btn-sm btn-danger remove-lesson-btn"
                                 onclick="removeLesson(${lessonCount})">
                             <i class="fas fa-trash"></i> Remove
                         </button>
@@ -338,9 +394,10 @@
 
                     <div class="mb-3">
                         <label class="form-label">Lesson Name <span class="text-danger">*</span></label>
-                        <input type="text" name="lessons[${currentIndex}][lesson_name]" 
-                               class="form-control lesson-name-input" 
-                               placeholder="e.g., Introduction to Topic" required>
+                        <input type="text" name="lessons[${currentIndex}][lesson_name]"
+                               class="form-control lesson-name-input"
+                               placeholder="e.g., Introduction to Topic">
+                        <small class="field-error lesson-name-error">Please enter a Lesson Name.</small>
                     </div>
 
                     <div class="row">
@@ -348,79 +405,75 @@
                             <label class="form-label">
                                 <i class="fas fa-file-powerpoint"></i> Detailed Trainer Slides
                             </label>
-                            <input type="file" class="form-control" 
-                                   name="lessons[${currentIndex}][manual_detailed_trainer_slides][]" 
+                            <input type="file" class="form-control"
+                                   name="lessons[${currentIndex}][manual_detailed_trainer_slides][]"
                                    accept="*/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
                         </div>
-
                         <div class="col-md-4 mb-3">
                             <label class="form-label">
                                 <i class="fas fa-file-pdf"></i> Summary Slides
                             </label>
-                            <input type="file" class="form-control" 
-                                   name="lessons[${currentIndex}][manual_summary_slides][]" 
+                            <input type="file" class="form-control"
+                                   name="lessons[${currentIndex}][manual_summary_slides][]"
                                    accept="*/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
                         </div>
-
                         <div class="col-md-4 mb-3">
                             <label class="form-label">
                                 <i class="fas fa-video"></i> Videos
                             </label>
-                            <input type="file" class="form-control" 
-                                   name="lessons[${currentIndex}][manual_videos][]" 
+                            <input type="file" class="form-control"
+                                   name="lessons[${currentIndex}][manual_videos][]"
                                    accept="video/*" multiple>
                             <small class="text-muted">Optional · Multiple files</small>
                         </div>
                     </div>
                 </div>
             `;
-            
+
             container.insertAdjacentHTML('beforeend', lessonHTML);
+
+            // Attach live clear on lesson name input
+            const newCard = document.getElementById(`lesson-${lessonCount}`);
+            const nameInput = newCard.querySelector('.lesson-name-input');
+            const nameError = newCard.querySelector('.lesson-name-error');
+            nameInput.addEventListener('input', function () {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid-field');
+                    nameError.style.display = 'none';
+                }
+            });
         }
 
-        // Function to remove lesson
         function removeLesson(lessonId) {
             const lessonCard = document.getElementById(`lesson-${lessonId}`);
             if (lessonCard) {
                 if (confirm('Are you sure you want to remove this lesson?')) {
                     lessonCard.remove();
-                    
                     const index = activeLessons.indexOf(lessonId);
-                    if (index > -1) {
-                        activeLessons.splice(index, 1);
-                    }
-                    
+                    if (index > -1) activeLessons.splice(index, 1);
                     reindexLessons();
                 }
             }
         }
 
-        // Function to reindex lessons
         function reindexLessons() {
-            const container = document.getElementById('lessonsContainer');
-            const lessonCards = container.querySelectorAll('.lesson-card');
-            
+            const lessonCards = document.querySelectorAll('#lessonsContainer .lesson-card');
             lessonCards.forEach((card, index) => {
                 const header = card.querySelector('.lesson-header h6');
-                if (header) {
-                    header.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Lesson ${index + 1}`;
-                }
-                
-                const inputs = card.querySelectorAll('input[name^="lessons"]');
-                inputs.forEach(input => {
-                    const name = input.getAttribute('name');
-                    const newName = name.replace(/lessons\[\d+\]/, `lessons[${index}]`);
-                    input.setAttribute('name', newName);
+                if (header) header.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Lesson ${index + 1}`;
+
+                card.querySelectorAll('input[name^="lessons"]').forEach(input => {
+                    input.setAttribute('name', input.getAttribute('name').replace(/lessons\[\d+\]/, `lessons[${index}]`));
                 });
             });
         }
 
-        // Toggle between forms
+        /* ─── FORM TOGGLE ─── */
         const toggles = document.querySelectorAll('.upload-toggle');
         const forms = {
-            scormForm: document.getElementById('scormForm'),
+            scormForm:  document.getElementById('scormForm'),
             manualForm: document.getElementById('manualForm'),
         };
 
@@ -442,96 +495,67 @@
             });
         });
 
-        // Loader overlay
-        const loader = document.getElementById('loaderOverlay');
+        /* ─── DOM READY ─── */
+        document.addEventListener('DOMContentLoaded', function () {
 
-        document.getElementById('scormForm').addEventListener('submit', function () {
-            document.getElementById('scormSubmitBtn').disabled = true;
-            loader.style.display = 'flex';
-        });
-
-        document.getElementById('manualForm').addEventListener('submit', function (e) {
-            const lessonsContainer = document.getElementById('lessonsContainer');
-            if (lessonsContainer.children.length === 0) {
-                e.preventDefault();
-                alert('Please add at least one lesson before submitting.');
-                return false;
-            }
-            document.getElementById('manualSubmitBtn').disabled = true;
-            loader.style.display = 'flex';
-        });
-
-        // Add first lesson when manual form is shown
-        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-add first lesson when manual tab is clicked
             const manualToggle = document.querySelector('[data-target="manualForm"]');
             if (manualToggle) {
-                manualToggle.addEventListener('click', function() {
+                manualToggle.addEventListener('click', function () {
                     const container = document.getElementById('lessonsContainer');
-                    if (container && container.children.length === 0) {
-                        addLesson();
-                    }
+                    if (container && container.children.length === 0) addLesson();
                 });
             }
 
-            // Cascading dropdown for SCORM form
-            const scormCourseId = document.getElementById('scormCourseId');
-            const scormSubjectId = document.getElementById('scormChapterId');
+            // SCORM cascading dropdown
+            document.getElementById('scormCourseId').addEventListener('change', function () {
+                const courseId = this.value;
+                if (courseId) {
+                    fetchSubjects(courseId, document.getElementById('scormChapterId'));
+                } else {
+                    resetSubject(document.getElementById('scormChapterId'));
+                }
+            });
 
-            if (scormCourseId && scormSubjectId) {
-                scormCourseId.addEventListener('change', function() {
-                    const courseId = this.value;
-                    if (courseId) {
-                        fetchSubjects(courseId, scormSubjectId);
-                    } else {
-                        scormSubjectId.innerHTML = '<option value="">-- Select Subject --</option>';
-                        scormSubjectId.disabled = true;
-                    }
-                });
-            }
-
-            // Cascading dropdown for Manual form
-            const manualCourseId = document.getElementById('manualCourseId');
-            const manualSubjectId = document.getElementById('manualChapterId');
-
-            if (manualCourseId && manualSubjectId) {
-                manualCourseId.addEventListener('change', function() {
-                    const courseId = this.value;
-                    if (courseId) {
-                        fetchSubjects(courseId, manualSubjectId);
-                    } else {
-                        manualSubjectId.innerHTML = '<option value="">-- Select Subject --</option>';
-                        manualSubjectId.disabled = true;
-                    }
-                });
-            }
+            // Manual cascading dropdown
+            document.getElementById('manualCourseId').addEventListener('change', function () {
+                const courseId = this.value;
+                if (courseId) {
+                    fetchSubjects(courseId, document.getElementById('manualChapterId'));
+                } else {
+                    resetSubject(document.getElementById('manualChapterId'));
+                }
+            });
         });
 
-        // Function to fetch subjects via AJAX
+        function resetSubject(selectEl) {
+            selectEl.innerHTML = '<option value="">-- Select Subject --</option>';
+            selectEl.disabled  = true;
+        }
+
         function fetchSubjects(courseId, selectElement) {
             fetch(`/api/subjects/${courseId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                .then(res => {
+                    if (!res.ok) throw new Error('Network error');
+                    return res.json();
                 })
                 .then(data => {
                     let html = '<option value="">-- Select Subject --</option>';
                     if (data.subjects && data.subjects.length > 0) {
-                        data.subjects.forEach(subject => {
-                            html += `<option value="${subject.id}">${subject.name}</option>`;
+                        data.subjects.forEach(s => {
+                            html += `<option value="${s.id}">${s.name}</option>`;
                         });
                     }
-                    selectElement.innerHTML = html;
-                    selectElement.disabled = false;
-                    console.log('✅ Subjects loaded:', data.subjects);
+                    selectElement.innerHTML  = html;
+                    selectElement.disabled   = false;
                 })
-                .catch(error => {
-                    console.error('❌ Error fetching subjects:', error);
+                .catch(err => {
+                    console.error('Error fetching subjects:', err);
                     selectElement.innerHTML = '<option value="">-- Error Loading Subjects --</option>';
-                    selectElement.disabled = true;
+                    selectElement.disabled  = true;
                 });
         }
+
     </script>
 
 @endsection
