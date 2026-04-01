@@ -260,7 +260,7 @@
         }
 
         .navbar .logo img {
-            height: 55px;
+            height: 80px;
             width: auto;
         }
 
@@ -330,7 +330,11 @@
     <div class="main-container">
         <div class="navbar">
             <div class="logo">
-                <img src="{{ asset('images/logo-2.png') }}" alt="Company Logo">
+                <img src="{{ asset('images/logo3.png') }}" alt="Company Logo">
+            </div>
+
+              <div class="logo">
+                <img src="{{ asset('images/Bloomberglogo.png') }}" alt="Company Logo">
             </div>
 
             <div class="user-info">

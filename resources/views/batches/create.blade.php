@@ -80,15 +80,14 @@
 
                 </div>
 
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-success">
-                        Create Batch
-                    </button>
-
-                    <a href="{{ route('batches.index') }}" class="btn btn-secondary">
-                        Cancel
-                    </a>
-                </div>
+                 <div class="d-flex mt-4" style="gap: 10px">
+                        <a href="{{ route('batches.index') }}" class="btn btn-secondary px-3">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success px-3">
+                            Save <i class="fas fa-save mr-1"></i>
+                        </button>
+                    </div>
 
             </form>
 

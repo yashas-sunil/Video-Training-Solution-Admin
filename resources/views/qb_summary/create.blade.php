@@ -65,15 +65,16 @@
             <div class="form-group">
               <label>Active / Inactive</label><br>
               <input type="checkbox" id="status" name="status">
+              
             </div>
             
-             <a href="{{ route('question.bank') }}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left mr-1"></i> Back
-                                </a>
-            {{-- Submit --}}
-            <button type="submit" class="btn btn-primary" id="submit">
-              Submit
-            </button>
+             <a href="{{ route('question.bank') }}" class="btn btn-secondary px-3">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                    {{-- Submit --}}
+              <button type="submit" class="btn btn-success px-3">
+                            Save <i class="fas fa-save mr-1"></i>
+                        </button>
 
           </div>
 

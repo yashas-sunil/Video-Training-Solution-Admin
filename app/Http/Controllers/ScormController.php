@@ -38,7 +38,7 @@ class ScormController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'watch_time' => 'required|numeric|min:1',
+               'watch_time' => 'required|integer|min:1|max:3000',
             'view_limit_option' => 'required|string',
             'view_limit' => 'nullable|numeric|min:1',
         ]);
@@ -148,61 +148,61 @@ class ScormController extends Controller
 
 
 
-    public function uploadChapterManual(Request $request)
-    {
-
-        // Content types that are chapter-level (once per chapter)
+        public function uploadChapterManual(Request $request)
+    {// Content types that are chapter-level (once per chapter)
         $chapterLevelTypes = [
-            'glossary' => 'Glossary',
+            'glossary'     => 'Glossary',
             'infographics' => 'Infographics',
-            'textbook' => 'Textbook',
-            'map' => 'Map',
+            'textbook'     => 'Textbook',
+            'map'          => 'Map',
         ];
 
         // Content types that are lesson-level (multiple per chapter)
         $lessonLevelTypes = [
             'detailed_trainer_slides' => 'Detailed Trainer Slides',
-            'summary_slides' => 'Summary Slides',
-            'videos' => 'Videos',
+            'summary_slides'          => 'Summary Slides',
+            'videos'                  => 'Videos',
         ];
 
-        // Build validation rules
+        // ── Build validation rules ──
         $rules = [
-            'course_id' => 'required|integer',
-            'chapter_name' => [
+            'course_id'              => 'required|integer',
+            'subject_id'             => 'required|integer',   // ← FIX: was missing
+            'chapter_name'           => [
                 'required',
                 'string',
                 Rule::unique('chapters', 'name')
-                    ->where('course_id', $request->course_id)
+                    ->where('course_id',  $request->course_id)
                     ->where('subject_id', $request->subject_id)
             ],
-            'lessons' => 'required|array|min:1',
-            'lessons.*.lesson_name' => 'required|string',
+            'lessons'                => 'required|array|min:1',
+            'lessons.*.lesson_name'  => 'required|string',
         ];
 
         // Chapter-level content validation
         foreach ($chapterLevelTypes as $key => $label) {
-            $rules["manual_{$key}"] = 'nullable|array';
-            $rules["manual_{$key}.*"] = 'nullable|file|max:204800';
+            $rules["manual_{$key}"]    = 'nullable|array';
+            $rules["manual_{$key}.*"]  = 'nullable|file|max:204800';
         }
 
         // Lesson-level content validation
         foreach ($lessonLevelTypes as $key => $label) {
-            $rules["lessons.*.manual_{$key}"] = 'nullable|array';
-            $rules["lessons.*.manual_{$key}.*"] = 'nullable|file|max:204800';
+            $rules["lessons.*.manual_{$key}"]    = 'nullable|array';
+            $rules["lessons.*.manual_{$key}.*"]  = 'nullable|file|max:204800';
         }
 
         try {
             $validated = $request->validate($rules);
             Log::info('Validation Passed');
             Log::info('Validated Data Structure:', [
-                'course_id' => $validated['course_id'],
+                'course_id'    => $validated['course_id'],
+                'subject_id'   => $validated['subject_id'],
                 'chapter_name' => $validated['chapter_name'],
-                'lessons_count' => count($validated['lessons']),
+                'lessons_count'=> count($validated['lessons']),
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Failed:', [
-                'errors' => $e->errors(),
+                'errors'   => $e->errors(),
                 'messages' => $e->getMessage()
             ]);
             return back()->withErrors($e->errors())->withInput();
@@ -212,11 +212,10 @@ class ScormController extends Controller
             DB::beginTransaction();
 
             $chapter = Chapter::create([
-                'course_id' => $validated['course_id'],
-                'name' => $validated['chapter_name'],
-                'subject_id' => $validated['subject_id'],
+                'course_id'  => $validated['course_id'],
+                'subject_id' => $validated['subject_id'],   // ← now safely from $validated
+                'name'       => $validated['chapter_name'],
             ]);
-
 
             $chapterFileCount = 0;
 
@@ -224,16 +223,11 @@ class ScormController extends Controller
                 $fieldName = "manual_{$key}";
 
                 if ($request->hasFile($fieldName)) {
-                    $files = $request->file($fieldName);
-
-                    // Ensure files is an array
+                    $files      = $request->file($fieldName);
                     $filesArray = is_array($files) ? $files : [$files];
 
                     foreach ($filesArray as $fileIndex => $file) {
-                        if (!$file || !$file->isValid()) {
-                            continue;
-                        }
-
+                        if (!$file || !$file->isValid()) continue;
                         $this->saveManualFile($file, $chapter, null, $key, $label);
                         $chapterFileCount++;
                     }
@@ -242,34 +236,27 @@ class ScormController extends Controller
                 }
             }
 
-
-            $lessonOrder = 1;
+            $lessonOrder    = 1;
             $lessonFileCount = 0;
-            $totalLessons = 0;
+            $totalLessons   = 0;
 
             foreach ($validated['lessons'] as $index => $lessonData) {
 
-                // Create lesson
                 $lesson = Lesson::create([
-                    'chapter_id' => $chapter->id,
-                    'lesson_name' => $lessonData['lesson_name'],
+                    'chapter_id'   => $chapter->id,
+                    'lesson_name'  => $lessonData['lesson_name'],
                     'lesson_order' => $lessonOrder++,
                 ]);
 
                 $totalLessons++;
 
-                // Upload lesson-level content (detailed slides, summary, videos)
                 foreach ($lessonLevelTypes as $key => $label) {
-                    $fieldName = "manual_{$key}";
+                    $fieldName     = "manual_{$key}";
                     $fullFieldName = "lessons.{$index}.{$fieldName}";
 
                     if ($request->hasFile($fullFieldName)) {
-                        $files = $request->file($fullFieldName);
-
-                        // Ensure it's an array
+                        $files      = $request->file($fullFieldName);
                         $filesArray = is_array($files) ? $files : [$files];
-
-
 
                         foreach ($filesArray as $fileIndex => $file) {
                             if ($file && $file->isValid()) {
@@ -277,7 +264,7 @@ class ScormController extends Controller
                                 $lessonFileCount++;
                             } else {
                                 Log::warning("Invalid lesson file", [
-                                    'lesson_id' => $lesson->id,
+                                    'lesson_id'  => $lesson->id,
                                     'file_index' => $fileIndex
                                 ]);
                             }
@@ -285,12 +272,11 @@ class ScormController extends Controller
                     } else {
                         Log::info("No files for lesson content", [
                             'lesson_id' => $lesson->id,
-                            'field' => $fullFieldName
+                            'field'     => $fullFieldName
                         ]);
                     }
                 }
             }
-
 
             $totalFiles = $chapterFileCount + $lessonFileCount;
 
@@ -305,14 +291,15 @@ class ScormController extends Controller
             return redirect()
                 ->route('chapters')
                 ->with('success', "Manual chapter uploaded successfully with {$totalLessons} lesson(s) and {$totalFiles} file(s).");
+
         } catch (\Exception $e) {
             DB::rollBack();
 
             Log::error('CHAPTER MANUAL UPLOAD FAILED', [
                 'error_message' => $e->getMessage(),
-                'error_file' => $e->getFile(),
-                'error_line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'error_file'    => $e->getFile(),
+                'error_line'    => $e->getLine(),
+                'trace'         => $e->getTraceAsString()
             ]);
 
             return back()

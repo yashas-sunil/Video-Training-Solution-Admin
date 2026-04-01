@@ -203,16 +203,15 @@
                         </div> --}}
 
                         {{-- Buttons --}}
-                        <div class="form-group row">
-                            <div class="col-md-10 offset-md-2">
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save"></i> Save
-                                </button>
-                                <a href="{{ route('admin-test') }}" class="btn btn-secondary ml-2">
-                                    <i class="fas fa-times"></i> Cancel
-                                </a>
-                            </div>
-                        </div>
+                            <div class="d-flex mt-4" style="gap: 10px">
+                        <a href="{{ route('admin-test') }}" class="btn btn-secondary px-3">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success px-3">
+                            Save <i class="fas fa-save mr-1"></i>
+                        </button>
+                    </div>
+                    </div>
                     </form>
                 </div>
             </div>

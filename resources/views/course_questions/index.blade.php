@@ -16,7 +16,7 @@
             <div class="row">
 
                 <!-- Course -->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label><b>Course</b></label>
                     <select id="course_id" class="form-control">
                         <option value="">Select Course</option>
@@ -27,7 +27,7 @@
                 </div>
 
                 <!-- Subject -->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label><b>Subject</b></label>
                     <select id="subject_id" class="form-control">
                         <option value="">Select Subject</option>
@@ -35,7 +35,7 @@
                 </div>
 
                 <!-- Question Bank -->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label><b>Question Bank</b></label>
                     <select id="bank_id" class="form-control">
                         <option value="">Select Bank</option>
@@ -45,22 +45,11 @@
                     </select>
                 </div>
 
-                <!-- Difficulty Level -->
-                <div class="col-md-3">
-                    <label><b>Difficulty Level</b></label>
-                    <select id="difficulty_level" class="form-control">
-                        <option value="">Select Level</option>
-                        @foreach($levels as $level)
-                            <option value="{{ $level->id }}">{{ $level->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
             </div>
 
             <br>
 
-            <!-- Filter Button -->
+            <!-- Filter & Assign Buttons -->
             <div class="text-right">
                 <button class="btn btn-primary" onclick="filterQuestions()">
                     <i class="fas fa-filter"></i> Filter Questions
@@ -109,12 +98,13 @@
 @section('js')
 <script>
 
-    let selectedQuestions = [];
-    let selectAllGlobal = false;
+    // { question_id: 'easy' / 'medium' / 'hard' }
+    let selectedQuestions = {};
+    let selectAllGlobal   = false;
 
-    /* COURSE CHANGE -> LOAD SUBJECTS */
+
     document.getElementById('course_id').addEventListener('change', function () {
-        let course_id = this.value;
+        let course_id       = this.value;
         let subjectDropdown = document.getElementById('subject_id');
 
         subjectDropdown.innerHTML = '<option value="">Loading...</option>';
@@ -134,70 +124,68 @@
     });
 
 
-    /* FILTER QUESTIONS (with pagination support) */
     function filterQuestions(page = 1) {
 
-        let course_id     = document.getElementById('course_id').value;
-        let subject_id    = document.getElementById('subject_id').value;
-        let bank_id       = document.getElementById('bank_id').value;
-        let difficulty    = document.getElementById('difficulty_level').value;
+        let course_id  = document.getElementById('course_id').value;
+        let subject_id = document.getElementById('subject_id').value;
+        let bank_id    = document.getElementById('bank_id').value;
 
         if (course_id === "") {
-            alert("Please select course");
+            alert("Please select Course");
+            return;
+        }
+
+        if (subject_id === "") {
+            alert("Please select Subject");
             return;
         }
 
         if (bank_id === "") {
-            alert("Please select question bank");
+            alert("Please select Question Bank");
             return;
         }
 
-        fetch(`{{ route('course.questions.filter') }}?course_id=${course_id}&subject_id=${subject_id}&bank_id=${bank_id}&difficulty=${difficulty}&page=${page}`)
+        fetch(`{{ route('course.questions.filter') }}?course_id=${course_id}&subject_id=${subject_id}&bank_id=${bank_id}&page=${page}`)
             .then(res => res.text())
-            .then(data => {
+            .then(html => {
 
-                // Show container
                 document.getElementById('questions-container').style.display = 'block';
+                document.getElementById('question-list').innerHTML = html;
 
-                // Load HTML into list
-                document.getElementById('question-list').innerHTML = data;
-
-                // Restore checkbox states
                 document.querySelectorAll('.question-checkbox').forEach(cb => {
+                    let id         = cb.value;
+                    let difficulty = cb.getAttribute('data-difficulty') || '';
+
+                    if (selectedQuestions[id] !== undefined) {
+                        cb.checked = true;
+                        selectedQuestions[id] = difficulty;
+                    }
+
                     if (selectAllGlobal) {
                         cb.checked = true;
-                        if (!selectedQuestions.includes(cb.value)) {
-                            selectedQuestions.push(cb.value);
-                        }
-                    } else {
-                        if (selectedQuestions.includes(cb.value)) {
-                            cb.checked = true;
-                        }
+                        selectedQuestions[id] = difficulty;
                     }
                 });
 
-                // Handle Select All checkbox
                 let selectAll = document.getElementById('selectAll');
                 if (selectAll) {
                     selectAll.checked = selectAllGlobal;
 
-                    selectAll.addEventListener('change', function () {
+                    let newSelectAll = selectAll.cloneNode(true);
+                    selectAll.parentNode.replaceChild(newSelectAll, selectAll);
+
+                    newSelectAll.addEventListener('change', function () {
                         selectAllGlobal = this.checked;
 
-                        document.querySelectorAll('#questionsBody tr').forEach(row => {
-                            if (row.style.display !== 'none') {
-                                let cb = row.querySelector('.question-checkbox');
-                                if (cb) {
-                                    cb.checked = this.checked;
-                                    let id = cb.value;
-                                    if (this.checked) {
-                                        if (!selectedQuestions.includes(id)) {
-                                            selectedQuestions.push(id);
-                                        }
-                                    } else {
-                                        selectedQuestions = selectedQuestions.filter(q => q != id);
-                                    }
-                                }
+                        document.querySelectorAll('.question-checkbox').forEach(cb => {
+                            let id         = cb.value;
+                            let difficulty = cb.getAttribute('data-difficulty') || '';
+                            cb.checked     = this.checked;
+
+                            if (this.checked) {
+                                selectedQuestions[id] = difficulty;
+                            } else {
+                                delete selectedQuestions[id];
                             }
                         });
 
@@ -205,15 +193,18 @@
                     });
                 }
 
-                // Setup search & difficulty filter listeners
-                let questionsSearchInput = document.getElementById('questionsSearchInput');
-                let difficultyFilter     = document.getElementById('difficultyFilter');
-
-                if (questionsSearchInput) {
-                    questionsSearchInput.addEventListener('keyup', filterQuestionsTable);
+                let searchInput = document.getElementById('questionsSearchInput');
+                if (searchInput) {
+                    let newSearch = searchInput.cloneNode(true);
+                    searchInput.parentNode.replaceChild(newSearch, searchInput);
+                    newSearch.addEventListener('keyup', filterQuestionsTable);
                 }
+
+                let difficultyFilter = document.getElementById('difficultyFilter');
                 if (difficultyFilter) {
-                    difficultyFilter.addEventListener('change', filterQuestionsTable);
+                    let newFilter = difficultyFilter.cloneNode(true);
+                    difficultyFilter.parentNode.replaceChild(newFilter, difficultyFilter);
+                    newFilter.addEventListener('change', filterQuestionsTable);
                 }
 
                 updateSelectedCounts();
@@ -221,54 +212,49 @@
     }
 
 
-    /* FILTER QUESTIONS TABLE (client-side search + difficulty) */
     function filterQuestionsTable() {
-        let searchText      = document.getElementById('questionsSearchInput')?.value.toLowerCase() || '';
+        let searchText       = document.getElementById('questionsSearchInput')?.value.toLowerCase() || '';
         let difficultyFilter = document.getElementById('difficultyFilter')?.value.toLowerCase() || '';
 
         document.querySelectorAll('#questionsBody tr').forEach(row => {
-            let questionText = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
-            let difficulty   = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase().trim() || '';
+            let questionText   = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+            let cb             = row.querySelector('.question-checkbox');
+            let rowDifficulty  = cb ? (cb.getAttribute('data-difficulty') || '').toLowerCase() : '';
 
             let searchMatch     = questionText.includes(searchText);
-            let difficultyMatch = !difficultyFilter || difficulty.includes(difficultyFilter);
+            let difficultyMatch = !difficultyFilter || rowDifficulty === difficultyFilter;
 
             row.style.display = (searchMatch && difficultyMatch) ? '' : 'none';
         });
 
-        // Reset select all when filter changes
         let selectAll = document.getElementById('selectAll');
         if (selectAll) selectAll.checked = false;
         selectAllGlobal = false;
     }
 
 
-    /* CHECKBOX TRACKING (delegated) */
     document.addEventListener('change', function (e) {
         if (e.target.classList.contains('question-checkbox')) {
-            let id = e.target.value;
+            let cb         = e.target;
+            let id         = cb.value;
+            let difficulty = cb.getAttribute('data-difficulty') || '';
 
-            if (e.target.checked) {
-                if (!selectedQuestions.includes(id)) {
-                    selectedQuestions.push(id);
-                }
+            if (cb.checked) {
+                selectedQuestions[id] = difficulty;
             } else {
-                selectedQuestions = selectedQuestions.filter(q => q != id);
-                selectAllGlobal   = false;
+                delete selectedQuestions[id];
+                selectAllGlobal = false;
             }
 
             updateSelectedCounts();
 
-            // Sync Select All checkbox state
             let totalVisible    = 0;
             let selectedVisible = 0;
 
             document.querySelectorAll('#questionsBody tr').forEach(row => {
                 if (row.style.display !== 'none') {
                     totalVisible++;
-                    if (row.querySelector('.question-checkbox:checked')) {
-                        selectedVisible++;
-                    }
+                    if (row.querySelector('.question-checkbox:checked')) selectedVisible++;
                 }
             });
 
@@ -280,7 +266,6 @@
     });
 
 
-    /* AJAX PAGINATION */
     document.addEventListener('click', function (e) {
         if (e.target.closest('.pagination a')) {
             e.preventDefault();
@@ -291,10 +276,11 @@
     });
 
 
-    /* ASSIGN QUESTIONS */
     function assignQuestions() {
 
-        if (selectedQuestions.length === 0) {
+        let ids = Object.keys(selectedQuestions);
+
+        if (ids.length === 0) {
             alert("Please select at least one question");
             return;
         }
@@ -303,12 +289,12 @@
         let subject_id = document.getElementById('subject_id').value;
 
         if (course_id === "") {
-            alert("Please select course");
+            alert("Please select Course");
             return;
         }
 
         if (subject_id === "") {
-            alert("Please select subject");
+            alert("Please select Subject");
             return;
         }
 
@@ -321,33 +307,31 @@
             body: JSON.stringify({
                 course_id:    course_id,
                 subject_id:   subject_id,
-                question_ids: selectedQuestions
+                question_ids: ids
             })
         })
         .then(res => res.json())
         .then(data => {
             alert("Questions Assigned Successfully");
-            selectedQuestions = [];
+            selectedQuestions = {};
             selectAllGlobal   = false;
             filterQuestions();
         });
     }
 
 
-    /* UPDATE SELECTED COUNTS */
     function updateSelectedCounts() {
         let totalCount  = 0;
         let easyCount   = 0;
         let mediumCount = 0;
         let hardCount   = 0;
 
-        document.querySelectorAll('.question-checkbox:checked').forEach(cb => {
-            let difficulty = cb.getAttribute('data-difficulty');
+        Object.values(selectedQuestions).forEach(difficulty => {
             totalCount++;
-
-            if (difficulty === 'easy')        easyCount++;
-            else if (difficulty === 'medium') mediumCount++;
-            else if (difficulty === 'hard')   hardCount++;
+            let d = (difficulty || '').toLowerCase().trim();
+            if      (d === 'easy')   easyCount++;
+            else if (d === 'medium') mediumCount++;
+            else if (d === 'hard')   hardCount++;
         });
 
         document.getElementById('selected_total').value  = totalCount;
