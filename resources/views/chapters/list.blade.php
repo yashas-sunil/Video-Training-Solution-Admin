@@ -312,8 +312,9 @@
 
     <div class="page-content">
 
-        <button onclick="window.history.back()" class="back-btn">⬅ Back</button>
-
+<button onclick="window.location.href='/user/dashboard'" class="back-btn">
+  ⬅ Back
+</button>
         <h2>Course Chapters</h2>
 
         <div class="filter-container">
