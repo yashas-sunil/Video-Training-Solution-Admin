@@ -41,7 +41,7 @@
         }
 
         .navbar .logo img {
-            height: 55px;
+            height: 80px;
             width: auto;
         }
 
@@ -535,7 +535,12 @@
         <!-- Left: Company Logo -->
         <div class="logo">
             {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
-            <img src="{{ asset('images/logo-2.png') }}" alt="Company Logo">
+            <img src="{{ asset('images/logo3.png') }}" alt="Company Logo">
+        </div>
+
+        <div class="logo2">
+            {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
+            <img src="{{ asset('images/Bloomberglogo.png') }}" alt="Company Logo">
         </div>
 
         <!-- Right: User Info -->

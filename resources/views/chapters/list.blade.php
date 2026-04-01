@@ -30,7 +30,7 @@
 
 
         .navbar .logo img {
-            height: 55px;
+            height: 80px;
             width: auto;
         }
 
@@ -277,7 +277,11 @@
 
     <div class="navbar">
         <div class="logo">
-            <img src="{{ asset('images/logo-2.png') }}">
+            <img src="{{ asset('images/logo3.png') }}">
+        </div>
+        
+        <div class="logo">
+            <img src="{{ asset('images/Bloomberglogo.png') }}">
         </div>
 
         <div class="user-info">
