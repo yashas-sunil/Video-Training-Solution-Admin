@@ -45,6 +45,16 @@
             width: auto;
         }
 
+     .logo2 {
+    position: relative;
+    left: -80px;   
+}
+
+.logo2 img {
+    height: 100px;   
+    width: auto;    
+}
+
         .navbar .user-info {
             display: flex;
             align-items: center;

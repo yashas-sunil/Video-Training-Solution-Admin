@@ -264,6 +264,16 @@
             width: auto;
         }
 
+          .logo2 {
+    position: relative;
+    left: -80px;   
+}
+
+.logo2 img {
+    height: 100px;   
+    width: auto;    
+}
+
         .navbar .user-info {
             display: flex;
             align-items: center;
@@ -333,7 +343,7 @@
                 <img src="{{ asset('images/logo3.png') }}" alt="Company Logo">
             </div>
 
-              <div class="logo">
+              <div class="logo2">
                 <img src="{{ asset('images/Bloomberglogo.png') }}" alt="Company Logo">
             </div>
 
