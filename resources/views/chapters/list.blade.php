@@ -34,6 +34,16 @@
             width: auto;
         }
 
+        .logo2 {
+            position: relative;
+            left: -80px;
+        }
+
+        .logo2 img {
+            height: 80px;
+            width: auto;
+        }
+
         .navbar .user-info {
             display: flex;
             align-items: center;
@@ -171,6 +181,7 @@
             margin-top: 4px;
             text-align: end;
         }
+
         .list_buttons {
             display: flex;
             justify-content: space-between;
@@ -189,7 +200,7 @@
             font-size: 14px;
             font-family: sans-serif;
             background: #2C2C49;
-        
+
         }
 
         .attempt-btn {
@@ -218,7 +229,8 @@
                 width: 100%;
             }
         }
-         @media (max-width: 425px) {
+
+        @media (max-width: 425px) {
 
             .navbar {
                 padding: 15px 6px !important;
@@ -269,7 +281,6 @@
                 display: none !important;
             }
         }
-
     </style>
 </head>
 
@@ -279,8 +290,8 @@
         <div class="logo">
             <img src="{{ asset('images/logo3.png') }}">
         </div>
-        
-        <div class="logo">
+
+        <div class="logo2">
             <img src="{{ asset('images/Bloomberglogo.png') }}">
         </div>
 
@@ -300,37 +311,37 @@
             </form>
         </div>
         <div class="user-info-mobile">
-                <a href="{{ route('logout') }}"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <div class="user-welcome">
-                        <div style="font-size: 12px;">Welcome back !</div>
-                        <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
-                        <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
-                    </div>
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-            </div>
+            <a href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <div class="user-welcome">
+                    <div style="font-size: 12px;">Welcome back !</div>
+                    <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                    <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                </div>
+            </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </div>
     </div>
 
     <div class="page-content">
 
-<button onclick="window.location.href='/user/dashboard'" class="back-btn">
-  ⬅ Back
-</button>
+        <button onclick="window.location.href='/user/dashboard'" class="back-btn">
+            ⬅ Back
+        </button>
         <h2>Course Chapters</h2>
 
         <div class="filter-container">
             <label for="subjectFilter">Filter by Subject:</label>
             <select id="subjectFilter" onchange="filterChaptersBySubject()">
                 <option value="">-- All Subjects --</option>
-                @foreach($subjects as $subject)
+                @foreach ($subjects as $subject)
                     <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                 @endforeach
             </select>
         </div>
-        
+
 
         <div class="chapter-list" id="chapterListContainer">
             @forelse($chapters as $chapter)
@@ -342,7 +353,8 @@
                     $currentAttempt = $chapter->attempt_count ?? 0;
                 @endphp
 
-                <div class="chapter-item" onclick="openChapter({{ $chapter->id }})" data-subject-id="{{ $chapter->subject_id }}">
+                <div class="chapter-item" onclick="openChapter({{ $chapter->id }})"
+                    data-subject-id="{{ $chapter->subject_id }}">
 
                     <div class="chapter-title">{{ $chapter->name }}</div>
 
@@ -355,7 +367,7 @@
                         </div>
                     </div>
 
-                    
+
 
                     @php
                         if ($percent >= 100 || $chapter->is_completed) {
@@ -368,13 +380,14 @@
                     @endphp
 
                     <div class="list_buttons">
-                    <div class="open-text">
-                        {{ $btnText }}
+                        <div class="open-text">
+                            {{ $btnText }}
+                        </div>
+                        <div class="attempt-btn"
+                            onclick="event.stopPropagation(); showAttempts('{{ $chapter->name }}')">
+                            View Attempts
+                        </div>
                     </div>
-                    <div class="attempt-btn" onclick="event.stopPropagation(); showAttempts('{{ $chapter->name }}')">
-                        View Attempts
-                    </div>
-                </div>
                 </div>
 
             @empty
@@ -460,21 +473,21 @@
                 const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
 
                 return `
-                    <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                        <div style="font-weight:bold; margin-bottom:6px;">
-                            Q${i + 1}: ${q.question_id}
+                        <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
+                            <div style="font-weight:bold; margin-bottom:6px;">
+                                Q${i + 1}: ${q.question_id}
+                            </div>
+                            <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
+                                🧍 Your Answer: ${q.user_answer || '-'}
+                            </div>
+                            <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
+                                📌 Correct Answer: ${q.correct_answer || '-'}
+                            </div>
+                            <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
+                                ${isCorrect}
+                            </div>
                         </div>
-                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                            🧍 Your Answer: ${q.user_answer || '-'}
-                        </div>
-                        <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                            📌 Correct Answer: ${q.correct_answer || '-'}
-                        </div>
-                        <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                            ${isCorrect}
-                        </div>
-                    </div>
-                `;
+                    `;
             }).join('')}
         </div>
     `;
