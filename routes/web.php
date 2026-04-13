@@ -809,3 +809,6 @@ Route::post('batches/{id}/assign', 'BatchController@storeStudents')
 
  Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
  Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+
+ //new
+Route::get('/download-sample-excel', 'BatchController@downloadSampleExcel')->name('download.sample.excel');

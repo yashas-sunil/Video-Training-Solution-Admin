@@ -706,7 +706,7 @@ class ScormController extends Controller
 
     public function viewChapter($id)
     {
-        $chapter = Chapter::with('manualContents')->findOrFail($id);
+       $chapter = Chapter::with(['manualContents', 'lessons'])->findOrFail($id);
         $userId = auth()->id();
 
         // Get user's progress for this chapter
@@ -750,34 +750,32 @@ class ScormController extends Controller
                 });
 
             //  Lessons contents (SORTED BY ID)
-            $lessons = $chapter->manualContents
-                ->whereNotNull('lesson_id')
-                ->whereIn('content_type', $lessonTypes)
-                ->sortBy('id')
-                ->groupBy('lesson_id')
-                ->map(function ($lessonItems) {
+           $lessons = $chapter->lessons   
+    ->map(function ($lesson) use ($chapter, $lessonTypes) {
 
-                    $lesson = \App\Models\Lesson::find($lessonItems->first()->lesson_id);
+        $lessonItems = $chapter->manualContents
+            ->where('lesson_id', $lesson->id)
+            ->whereIn('content_type', $lessonTypes)
+            ->sortBy('id'); 
 
-                    return [
-                        'lesson_id'   => $lesson->id,
-                        'lesson_name' => $lesson->lesson_name,
-                        'contents' => $lessonItems
-                            ->sortBy('id')   //  Added Sorting inside lesson
-                            ->groupBy('content_type')
-                            ->map(function ($items) {
-                                return $items->map(function ($content) {
-                                    return [
-                                        'id' => $content->id,
-                                        'url' => route('secure.file', $content->file_path),
-                                        'original_name' => $content->original_name ?? basename($content->file_path),
-                                        'size' => $content->file_size,
-                                    ];
-                                });
-                            }),
-                    ];
-                })
-                ->values();
+        return [
+            'lesson_id'   => $lesson->id,
+            'lesson_name' => $lesson->lesson_name,
+            'contents' => $lessonItems
+                ->groupBy('content_type')
+                ->map(function ($items) {
+                    return $items->map(function ($content) {
+                        return [
+                            'id' => $content->id,
+                            'url' => route('secure.file', $content->file_path),
+                            'original_name' => $content->original_name ?? basename($content->file_path),
+                            'size' => $content->file_size,
+                        ];
+                    });
+                }),
+        ];
+    })
+    ->values();
             //  dd($lessons);
             return view('chapters.manual', [
                 'chapter' => $chapter,

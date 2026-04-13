@@ -71,4 +71,16 @@ class BatchController extends Controller
             ->with('success', 'Students Assigned Successfully');
     }
 
+      public function downloadSampleExcel()
+    {
+      //  dd("sample excel");
+        $path = public_path('Documents/ExcelSample/new_excel.zip');
+
+        if (!file_exists($path)) {
+            abort(404, 'File not found at: ' . $path);
+        }
+
+        return response()->download($path);
+    }
+
 }
