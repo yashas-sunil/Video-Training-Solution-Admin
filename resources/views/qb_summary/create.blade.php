@@ -81,9 +81,9 @@
           <div class="col-md-3"></div>
 
           <div class="col-md-3">
-            <a href="/Documents/excel/new_excel.zip" download class="btn btn-primary form-control">
-              Download Sample Excel
-            </a>
+            <a href="{{ route('download.sample.excel') }}" class="btn btn-primary form-control">
+                Download Sample Excel
+              </a>
           </div>
         </div>
 
