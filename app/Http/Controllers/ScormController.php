@@ -13,6 +13,7 @@ use App\Models\User;
 use App\ScormPackage as AppScormPackage;
 use App\Services\ScormCloudService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -464,121 +465,167 @@ class ScormController extends Controller
         return back()->with('success', 'Content deleted.');
     }
 
-    public function updateChapterManual(Request $request, Chapter $chapter)
-    {
-        // same maps as upload
-        $chapterLevelTypes = [
-            'glossary' => 'Glossary',
-            'infographics' => 'Infographics',
-            'textbook' => 'Textbook',
-            'map' => 'Map',
-        ];
+    public function deleteLesson(Lesson $lesson)
+{
+    DB::beginTransaction();
 
-        $lessonLevelTypes = [
-            'detailed_trainer_slides' => 'Detailed Trainer Slides',
-            'summary_slides' => 'Summary Slides',
-            'videos' => 'Videos',
-        ];
+    try {
+        // 1️⃣ Is lesson ke saare contents nikaalo
+        $contents = ChapterManualContent::where('lesson_id', $lesson->id)->get();
 
-        $rules = [
-            'chapter_name' => [
-                'required',
-                'string',
-                Rule::unique('chapters', 'name')
-                    ->where('course_id', $chapter->course_id)
-                    ->where('subject_id', $chapter->subject_id)
-                    ->ignore($chapter->id)
-            ],
-            'lessons' => 'nullable|array',
-            'lessons.*.lesson_id' => 'nullable|integer',
-            'lessons.*.lesson_name' => 'required|string',
-        ];
+        foreach ($contents as $content) {
+
+            if (\Storage::exists($content->file_path)) {
+                \Storage::delete($content->file_path);
+            }
+
+            $content->delete();
+        }
+
+        $chapterId = $lesson->chapter_id;
+
+        $lesson->delete();
+
+        $lessons = \App\Models\Lesson::where('chapter_id', $chapterId)
+            ->orderBy('lesson_order')
+            ->get();
+
+        foreach ($lessons as $index => $l) {
+            $l->update(['lesson_order' => $index + 1]);
+        }
+
+        DB::commit();
+
+        return back()->with('success', 'Lesson and all its files deleted successfully.');
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return back()->with('error', $e->getMessage());
+    }
+}
+
+   public function updateChapterManual(Request $request, Chapter $chapter)
+{
+    $chapterLevelTypes = [
+        'glossary' => 'Glossary',
+        'infographics' => 'Infographics',
+        'textbook' => 'Textbook',
+        'map' => 'Map',
+    ];
+
+    $lessonLevelTypes = [
+        'detailed_trainer_slides' => 'Detailed Trainer Slides',
+        'summary_slides' => 'Summary Slides',
+        'videos' => 'Videos',
+    ];
+
+    $rules = [
+        'chapter_name' => [
+            'required',
+            'string',
+            Rule::unique('chapters', 'name')
+                ->where('course_id', $chapter->course_id)
+                ->where('subject_id', $chapter->subject_id)
+                ->ignore($chapter->id),
+        ],
+        'lessons' => 'nullable|array',
+        'lessons.*.lesson_id' => 'nullable|integer',
+        'lessons.*.lesson_name' => 'nullable|string',
+    ];
+
+    foreach ($chapterLevelTypes as $key => $label) {
+        $rules["manual_{$key}"] = 'nullable|array';
+        $rules["manual_{$key}.*"] = 'nullable|file|max:204800';
+    }
+
+    foreach ($lessonLevelTypes as $key => $label) {
+        $rules["lessons.*.manual_{$key}"] = 'nullable|array';
+        $rules["lessons.*.manual_{$key}.*"] = 'nullable|file|max:204800';
+    }
+
+    $validated = $request->validate($rules);
+
+    DB::beginTransaction();
+
+    try {
+        $chapter->update([
+            'name' => $validated['chapter_name'],
+        ]);
 
         foreach ($chapterLevelTypes as $key => $label) {
-            $rules["manual_{$key}"] = 'nullable|array';
-            $rules["manual_{$key}.*"] = 'nullable|file|max:204800';
+            if ($request->hasFile("manual_{$key}")) {
+                foreach ($request->file("manual_{$key}") as $file) {
+                    if ($file && $file->isValid()) {
+                        $this->saveManualFile($file, $chapter, null, $key, $label);
+                    }
+                }
+            }
         }
 
-        foreach ($lessonLevelTypes as $key => $label) {
-            $rules["lessons.*.manual_{$key}"] = 'nullable|array';
-            $rules["lessons.*.manual_{$key}.*"] = 'nullable|file|max:204800';
-        }
+        $lessonsInput = $validated['lessons'] ?? [];
 
-        $validated = $request->validate($rules);
+        foreach ($lessonsInput as $index => $lessonData) {
 
-        DB::beginTransaction();
-        try {
-            $chapter->update([
-                'name' => $validated['chapter_name'],
-            ]);
+            if (empty($lessonData['lesson_name']) && empty($lessonData['lesson_id'])) {
+                continue;
+            }
 
-            foreach ($chapterLevelTypes as $key => $label) {
-                $fieldName = "manual_{$key}";
-                if ($request->hasFile($fieldName)) {
-                    $files = $request->file($fieldName);
-                    $filesArray = is_array($files) ? $files : [$files];
+            if (!empty($lessonData['lesson_id'])) {
+                $lesson = Lesson::where('chapter_id', $chapter->id)
+                    ->where('id', $lessonData['lesson_id'])
+                    ->first();
 
-                    foreach ($filesArray as $file) {
+                if (!$lesson) {
+                    continue;
+                }
+
+                $lesson->update([
+                    'lesson_name' => $lessonData['lesson_name'],
+                ]);
+            } else {
+                $maxOrder = (int) Lesson::where('chapter_id', $chapter->id)->max('lesson_order');
+
+                $lesson = Lesson::create([
+                    'chapter_id' => $chapter->id,
+                    'lesson_name' => $lessonData['lesson_name'],
+                    'lesson_order' => $maxOrder + 1,
+                ]);
+            }
+
+            foreach ($lessonLevelTypes as $key => $label) {
+
+                $files = $request->file("lessons.$index.manual_{$key}");
+
+                if ($files) {
+                    foreach ($files as $file) {
                         if ($file && $file->isValid()) {
-                            $this->saveManualFile($file, $chapter, null, $key, $label);
+                            $this->saveManualFile($file, $chapter, $lesson, $key, $label);
                         }
                     }
                 }
             }
-
-            $lessonFiles = $request->file('lessons', []);
-            $lessonsInput = $validated['lessons'] ?? [];
-
-            foreach ($lessonsInput as $index => $lessonData) {
-
-                // existing lesson or create new
-                if (!empty($lessonData['lesson_id'])) {
-                    $lesson = Lesson::where('chapter_id', $chapter->id)
-                        ->where('id', $lessonData['lesson_id'])
-                        ->firstOrFail();
-
-                    $lesson->update(['lesson_name' => $lessonData['lesson_name']]);
-                } else {
-                    $maxOrder = (int) Lesson::where('chapter_id', $chapter->id)->max('lesson_order');
-                    $lesson = Lesson::create([
-                        'chapter_id' => $chapter->id,
-                        'lesson_name' => $lessonData['lesson_name'],
-                        'lesson_order' => $maxOrder + 1,
-                    ]);
-                }
-
-                // files attach
-                foreach ($lessonLevelTypes as $key => $label) {
-                    $fieldName = "manual_{$key}";
-
-                    if (isset($lessonFiles[$index][$fieldName])) {
-                        $files = $lessonFiles[$index][$fieldName];
-                        $filesArray = is_array($files) ? $files : [$files];
-
-                        foreach ($filesArray as $file) {
-                            if ($file && $file->isValid()) {
-                                $this->saveManualFile($file, $chapter, $lesson, $key, $label);
-                            }
-                        }
-                    }
-                }
-            }
-
-            DB::commit();
-            return redirect()
-    ->route('chapters')
-    ->with('success', 'Chapter manual updated successfully.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->with('error', $e->getMessage())->withInput();
         }
+
+        DB::commit();
+
+        return redirect()
+            ->route('chapters')
+            ->with('success', 'Chapter manual updated successfully.');
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return back()->with('error', $e->getMessage())->withInput();
     }
+}
     public function chapterindex(Builder $builder)
     {
         if (request()->ajax()) {
 
             $query = Chapter::join('scorm_packages', 'chapters.course_id', '=', 'scorm_packages.id')
-                ->leftJoin('lessons', 'chapters.id', '=', 'lessons.chapter_id')
+               ->leftJoin('lessons', function ($join) {
+                $join->on('chapters.id', '=', 'lessons.chapter_id')
+                    ->whereNull('lessons.deleted_at');
+                  })
                 ->select(
                     'chapters.*',
                     'scorm_packages.title as course_title',
@@ -614,7 +661,6 @@ class ScormController extends Controller
                 })
                 ->addColumn('action', function ($chapter) {
                     $editUrl = route('chapter.manual.edit', $chapter->id);
-                    // $viewUrl = route('view.chapter', $chapter->id); // तुझा existing view route असेल
                     return '
                         <a href="' . $editUrl . '" class="btn btn-sm btn-warning">Edit</a>
                         ';
