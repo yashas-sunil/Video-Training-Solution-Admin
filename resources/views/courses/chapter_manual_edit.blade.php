@@ -86,6 +86,25 @@
         transition: box-shadow 0.3s ease;
         box-shadow: 0 0 0 4px rgba(0,123,255,0.25);
     }
+
+    /* Validation error styling */
+    .lesson-card.has-error {
+        border: 2px solid #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    }
+
+    .validation-message {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 </style>
 
 <div id="loaderOverlay">
@@ -211,7 +230,7 @@
                             @endif
                         </div>
 
-                        {{-- Lessons Section (dropdown moved HERE near Add Lesson) --}}
+                        {{-- Lessons Section --}}
                         <div class="content-section">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
@@ -226,7 +245,7 @@
                                 </button>
                             </div>
 
-                            {{-- ✅ DROPDOWN NOW INSIDE LESSON SECTION (as you asked) --}}
+                            {{-- Dropdown --}}
                             <div class="mb-3">
                                 <div class="lesson-jump-row">
                                     <div class="jump-select">
@@ -264,7 +283,8 @@
 
                                     <div class="lesson-card lesson-hidden"
                                          id="lesson-existing-{{ $lesson->id }}"
-                                         data-existing="1">
+                                         data-existing="1"
+                                         data-has-files="1">
 
                                         <div class="lesson-header">
                                             <h6 class="mb-0">
@@ -297,7 +317,7 @@
                                                     <i class="fas fa-file-powerpoint"></i> Detailed Trainer Slides
                                                 </label>
                                                 <input type="file"
-                                                       class="form-control"
+                                                       class="form-control lesson-file-input"
                                                        name="lessons[{{ $idx }}][manual_detailed_trainer_slides][]"
                                                        accept="*/*" multiple>
                                                 <small class="text-muted">Optional · Multiple files</small>
@@ -308,7 +328,7 @@
                                                     <i class="fas fa-file-pdf"></i> Summary Slides
                                                 </label>
                                                 <input type="file"
-                                                       class="form-control"
+                                                       class="form-control lesson-file-input"
                                                        name="lessons[{{ $idx }}][manual_summary_slides][]"
                                                        accept="*/*" multiple>
                                                 <small class="text-muted">Optional · Multiple files</small>
@@ -319,7 +339,7 @@
                                                     <i class="fas fa-video"></i> Videos
                                                 </label>
                                                 <input type="file"
-                                                       class="form-control"
+                                                       class="form-control lesson-file-input"
                                                        name="lessons[{{ $idx }}][manual_videos][]"
                                                        accept="video/*" multiple>
                                                 <small class="text-muted">Optional · Multiple files</small>
@@ -478,6 +498,8 @@
                 showOnlyLesson(targetId);
             });
         }
+
+        attachFileInputListeners();
     });
 
     function getCurrentLessonIndexCount() {
@@ -485,14 +507,104 @@
         return container.querySelectorAll('.lesson-card').length;
     }
 
+    function getLastNewLesson() {
+        const container = document.getElementById('lessonsContainer');
+        const cards = Array.from(container.querySelectorAll('.lesson-card'));
+                for (let i = cards.length - 1; i >= 0; i--) {
+            const card = cards[i];
+            if (card.id.startsWith('lesson-new-')) {
+                return card;
+            }
+        }
+        return null;
+    }
+
+    function hasFilesInLesson(lessonCard) {
+        if (lessonCard.dataset.existing === "1" && lessonCard.dataset.hasFiles === "1") {
+            return true;
+        }
+
+        const fileInputs = lessonCard.querySelectorAll('input[type="file"].lesson-file-input');
+        
+        for (let input of fileInputs) {
+            if (input.files && input.files.length > 0) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    function attachFileInputListeners() {
+        const container = document.getElementById('lessonsContainer');
+        
+        container.addEventListener('change', function(e) {
+            if (e.target.matches('input[type="file"].lesson-file-input')) {
+                const lessonCard = e.target.closest('.lesson-card');
+                if (lessonCard) {
+                    // File upload hone par error message remove karo
+                    const errorMsg = lessonCard.querySelector('.validation-message');
+                    if (errorMsg) {
+                        errorMsg.remove();
+                    }
+                    lessonCard.classList.remove('has-error');
+                }
+            }
+        });
+    }
+
+    function showValidationError(lessonCard, message) {
+        const existingError = lessonCard.querySelector('.validation-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        lessonCard.classList.add('has-error');
+
+        const errorHTML = `
+            <div class="validation-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        const header = lessonCard.querySelector('.lesson-header');
+        header.insertAdjacentHTML('afterend', errorHTML);
+
+        lessonCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     function addLesson() {
+        const lastNewLesson = getLastNewLesson();
+        
+        if (lastNewLesson) {
+            if (!hasFilesInLesson(lastNewLesson)) {
+                const lessonNumber = Array.from(document.querySelectorAll('.lesson-card')).indexOf(lastNewLesson) + 1;
+                
+                showValidationError(
+                    lastNewLesson,
+                    `⚠️ Please upload at least ONE file in Lesson ${lessonNumber} before adding a new lesson!`
+                );
+
+                hideAllLessons();
+                lastNewLesson.classList.remove('lesson-hidden');
+                
+                const dropdown = document.getElementById('lessonJumpSelect');
+                if (dropdown) {
+                    dropdown.value = lastNewLesson.id;
+                }
+
+                return; 
+            }
+        }
+
         lessonCount++;
 
         const container = document.getElementById('lessonsContainer');
         const currentIndex = getCurrentLessonIndexCount();
 
         const lessonHTML = `
-            <div class="lesson-card" id="lesson-new-${lessonCount}" data-existing="0">
+            <div class="lesson-card" id="lesson-new-${lessonCount}" data-existing="0" data-has-files="0">
                 <div class="lesson-header">
                     <h6 class="mb-0">
                         <i class="fas fa-chalkboard-teacher"></i> Lesson ${currentIndex + 1} (New)
@@ -516,7 +628,7 @@
                         <label class="form-label">
                             <i class="fas fa-file-powerpoint"></i> Detailed Trainer Slides
                         </label>
-                        <input type="file" class="form-control"
+                        <input type="file" class="form-control lesson-file-input"
                                name="lessons[${currentIndex}][manual_detailed_trainer_slides][]"
                                accept="*/*" multiple>
                         <small class="text-muted">Optional · Multiple files</small>
@@ -526,7 +638,7 @@
                         <label class="form-label">
                             <i class="fas fa-file-pdf"></i> Summary Slides
                         </label>
-                        <input type="file" class="form-control"
+                        <input type="file" class="form-control lesson-file-input"
                                name="lessons[${currentIndex}][manual_summary_slides][]"
                                accept="*/*" multiple>
                         <small class="text-muted">Optional · Multiple files</small>
@@ -536,7 +648,7 @@
                         <label class="form-label">
                             <i class="fas fa-video"></i> Videos
                         </label>
-                        <input type="file" class="form-control"
+                        <input type="file" class="form-control lesson-file-input"
                                name="lessons[${currentIndex}][manual_videos][]"
                                accept="video/*" multiple>
                         <small class="text-muted">Optional · Multiple files</small>
@@ -551,6 +663,8 @@
         setTimeout(() => {
             showOnlyLesson(`lesson-new-${lessonCount}`);
         }, 50);
+
+        updateLessonDropdown();
     }
 
     function removeNewLesson(id) {
@@ -558,6 +672,7 @@
         if (el && confirm('Remove this new lesson block?')) {
             el.remove();
             reindexLessons();
+            updateLessonDropdown();
             hideAllLessons();
         }
     }
@@ -569,10 +684,11 @@
         cards.forEach((card, index) => {
             const header = card.querySelector('.lesson-header h6');
             if (header) {
-                header.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Lesson ${index + 1}${card.id.startsWith('lesson-new-') ? ' (New)' : ''}`;
+                const isNew = card.id.startsWith('lesson-new-');
+                header.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Lesson ${index + 1}${isNew ? ' (New)' : ''}`;
             }
 
-            const inputs = card.querySelectorAll('input[name^="lessons"]');
+            const inputs = card.querySelectorAll('input[name^="lessons"], select[name^="lessons"], textarea[name^="lessons"]');
             inputs.forEach(input => {
                 const name = input.getAttribute('name');
                 const newName = name.replace(/lessons\[\d+\]/, `lessons[${index}]`);
@@ -581,11 +697,57 @@
         });
     }
 
+    function updateLessonDropdown() {
+        const container = document.getElementById('lessonsContainer');
+        const cards = container.querySelectorAll('.lesson-card');
+        const dropdown = document.getElementById('lessonJumpSelect');
+        
+        if (!dropdown) return;
+
+        dropdown.innerHTML = '<option value="">-- Select Lesson --</option>';
+
+        cards.forEach((card, index) => {
+            const lessonNameInput = card.querySelector('.lesson-name-input');
+            const lessonName = lessonNameInput ? lessonNameInput.value : 'New Lesson';
+            const isNew = card.id.startsWith('lesson-new-');
+            
+            const option = document.createElement('option');
+            option.value = card.id;
+            option.textContent = `Lesson ${index + 1} - ${lessonName}${isNew ? ' (New)' : ''}`;
+            dropdown.appendChild(option);
+        });
+    }
+
     document.getElementById('updateManualBtn').addEventListener('click', function() {
+        const lastNewLesson = getLastNewLesson();
+        
+        if (lastNewLesson && !hasFilesInLesson(lastNewLesson)) {
+            const lessonNumber = Array.from(document.querySelectorAll('.lesson-card')).indexOf(lastNewLesson) + 1;
+            
+            showValidationError(
+                lastNewLesson,
+                `⚠️ Please upload at least ONE file in Lesson ${lessonNumber} before submitting!`
+            );
+
+            hideAllLessons();
+            lastNewLesson.classList.remove('lesson-hidden');
+            
+            const dropdown = document.getElementById('lessonJumpSelect');
+            if (dropdown) {
+                dropdown.value = lastNewLesson.id;
+            }
+
+            return; 
+        }
+
         reindexLessons();
         this.disabled = true;
         loader.style.display = 'flex';
         document.getElementById('editManualForm').submit();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLessonDropdown();
     });
 </script>
 
