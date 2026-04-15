@@ -29,13 +29,27 @@
             background-color: #700002;
             padding: 15px 30px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             color: white;
             position: fixed;
-            top: 0px;
-            width: -webkit-fill-available;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            box-sizing: border-box;
             z-index: 1;
+        }
+
+        .navbar-left,
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .navbar-right {
+            margin-left: auto;
         }
 
         .navbar .logo img {
@@ -43,15 +57,31 @@
             width: auto;
         }
 
-         .logo2 {
-    position: relative;
-    left: -80px;   
-}
+        .divider {
+            width: 1px;
+            height: 40px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
 
-.logo2 img {
-    height: 100px;   
-    width: auto;    
-}
+        .partner-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-start;
+        }
+
+        .partner-text {
+            font-size: 12px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .logo2 img {
+            height: 50px;
+            width: auto;
+        }
 
         .navbar .user-info {
             display: flex;
@@ -447,46 +477,47 @@
 
 <body>
 
-    <!-- Logo -->
+    <!-- Navbar -->
     <div class="navbar">
-        <!-- Left: Company Logo -->
-        <div class="logo">
-            {{-- <img src="{{ asset('images/logo.png') }}" alt="Company Logo"> --}}
-            <img src="{{ asset('images/logo3.png') }}" alt="Company Logo">
-
-        </div>
-
-         <div class="logo2">
-            {{-- <img src="{{ asset('images/Bloomberglogo.png') }}" alt="Company Logo"> --}}
-            <img src="{{ asset('images/Bloomberglogo.png') }}" alt="Company Logo">
-
-        </div>
-
-        <!-- Right: User Info -->
-        <div class="user-info">
-            <div class="user-welcome">
-                <div style="font-size: 14px;">Welcome back !</div>
-                <div style="font-size: 14px;font-weight: bold;">{{ auth()->user()->name }}</div>
+        <div class="navbar-left">
+            <div class="logo">
+                <img src="{{ asset('images/logo1.png') }}" alt="Company Logo">
             </div>
-            <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout<img
-                    src="{{ asset('images/Logout2.png') }}" alt="Logout"></a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
-        </div>
-        <div class="user-info-mobile">
-            <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <div class="user-welcome">
-                    <div style="font-size: 12px;">Welcome back !</div>
-                    <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
-                    <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+            <hr class="divider">
+            <div class="partner-block">
+                <div class="partner-text">EDUCATION PARTNER</div>
+                <div class="logo2">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Partner Logo">
                 </div>
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-info">
+                <div class="user-welcome">
+                    <div style="font-size: 14px;">Welcome back !</div>
+                    <div style="font-size: 14px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                </div>
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout<img
+                        src="{{ asset('images/Logout2.png') }}" alt="Logout"></a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
+            <div class="user-info-mobile">
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <div class="user-welcome">
+                        <div style="font-size: 12px;">Welcome back !</div>
+                        <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                        <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                    </div>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
         </div>
     </div>
 

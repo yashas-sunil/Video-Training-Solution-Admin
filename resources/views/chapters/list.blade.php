@@ -16,34 +16,64 @@
             background-color: #700002;
             padding: 15px 30px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             color: white;
             position: fixed;
-            top: 0px;
-            width: 100%;
+            top: 0;
             left: 0;
+            right: 0;
+            width: 100%;
             box-sizing: border-box;
             z-index: 1;
         }
 
+        .navbar-left,
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
+        .navbar-right {
+            margin-left: auto;
+        }
 
         .navbar .logo img {
             height: 80px;
             width: auto;
         }
 
-        .logo2 {
-            position: relative;
-            left: -80px;
+        .divider {
+            width: 1px;
+            height: 40px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .partner-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-start;
+        }
+
+        .partner-text {
+            font-size: 12px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
         }
 
         .logo2 img {
-            height: 80px;
+            height: 50px;
             width: auto;
         }
+        
 
+        
+
+        
         .navbar .user-info {
             display: flex;
             align-items: center;
@@ -83,14 +113,84 @@
             display: none;
         }
 
-        .page-content {
-            padding: 30px;
-            margin-top: 90px;
+        .user-info-mobile a {
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
+        .user-info-mobile .user-welcome {
+            width: 100%;
+            max-width: 420px;
+            justify-content: center;
+            padding: 10px 15px;
+        }
+
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 10px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+        }
+
+        .user-info a {
+            display: flex;
+            gap: 5px;
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            align-items: center;
+            border-radius: 30px;
+            border-width: 3px;
+            background: #8D8D8D87;
+            border: 3px solid #FFFFFF33;
+            padding: 7px 20px;
+            box-shadow: 0px 4px 18px 10px #FFFFFF30;
+            font-size: 14px;
+        }
+
+        .user-info-mobile {
+            display: none;
+        }
+
+        .page-content {
+            padding: 30px;
+            margin-top: 140px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .back-btn {
+            background: #ffffff;
+            color: #700002;
+            border: 2px solid #700002;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .back-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
         }
 
         .filter-container {
@@ -287,49 +387,57 @@
 <body>
 
     <div class="navbar">
-        <div class="logo">
-            <img src="{{ asset('images/logo3.png') }}">
-        </div>
-
-        <div class="logo2">
-            <img src="{{ asset('images/Bloomberglogo.png') }}">
-        </div>
-
-        <div class="user-info">
-            <div class="user-welcome">
-                <div>Welcome back!</div>
-                <div><b>{{ auth()->user()->name }}</b></div>
+        <div class="navbar-left">
+            <div class="logo">
+                <img src="{{ asset('images/logo1.png') }}" alt="Company Logo">
             </div>
-
-            <a href="{{ route('logout') }}"
-                onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                Logout <img src="{{ asset('images/Logout2.png') }}">
-            </a>
-
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-                @csrf
-            </form>
-        </div>
-        <div class="user-info-mobile">
-            <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <div class="user-welcome">
-                    <div style="font-size: 12px;">Welcome back !</div>
-                    <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
-                    <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+            <hr class="divider">
+            <div class="partner-block">
+                <div class="partner-text">EDUCATION PARTNER</div>
+                <div class="logo2">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Partner Logo">
                 </div>
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-info">
+                <div class="user-welcome">
+                    <div>Welcome back!</div>
+                    <div><b>{{ auth()->user()->name }}</b></div>
+                </div>
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                    Logout <img src="{{ asset('images/Logout2.png') }}">
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
+            </div>
+            <div class="user-info-mobile">
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <div class="user-welcome">
+                        <div style="font-size: 12px;">Welcome back !</div>
+                        <div style="font-size: 12px;font-weight: bold;">{{ auth()->user()->name }}</div>
+                        <img src="{{ asset('images/Logout2.png') }}" alt="Logout" style="margin-left: 5px;">
+                    </div>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
         </div>
     </div>
 
     <div class="page-content">
 
-        <button onclick="window.location.href='/user/dashboard'" class="back-btn">
-            ⬅ Back
-        </button>
+        <div class="page-header">
+            <button onclick="window.location.href='/user/dashboard'" class="back-btn">
+                ⬅ Back
+            </button>
+        </div>
+
         <h2>Course Chapters</h2>
 
         <div class="filter-container">
