@@ -656,13 +656,13 @@
         <div class="navbar-left">
             <!-- Left: Company Logo -->
             <div class="logo">
-                <img src="{{ asset('images/Logo1.png') }}" alt="Company Logo">
+                <img src="{{ asset('images/logo1.png') }}" alt="Company Logo">
             </div>
             <hr class="divider">
             <div class="partner-block">
                 <div class="partner-text">EDUCATION PARTNER</div>
                 <div class="logo2">
-                    <img src="{{ asset('images/Logo2.png') }}" alt="Company Logo">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Company Logo">
                 </div>
             </div>
         </div>
