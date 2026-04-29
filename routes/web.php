@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 /** @noinspection PhpParamsInspection */
 
 Route::get('/', function () {
@@ -57,7 +58,7 @@ Route::get('/secure-pdf/{file}', function ($file) {
 
 
 
-Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class,ReportingMiddleware::class,BackOfficeManagerMiddleware::class,ActivityLog::class,JuniorAdminMiddleware::class,FinanceManagerMiddleware::class])->group(function () {
+Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::class, ContentManagerAdminMiddleware::class, ThirdPartyAgentAdminMiddleware::class, SuperAdminMiddleware::class, AssistantMiddleware::class, ReportingMiddleware::class, BackOfficeManagerMiddleware::class, ActivityLog::class, JuniorAdminMiddleware::class, FinanceManagerMiddleware::class])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
     Route::resource('courses', 'CourseController')->middleware('auth');
@@ -66,7 +67,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::resource('third-party-agents', 'ThirdPartyAgentController');
 
     Route::resource('third-party-orders', 'ThirdPartyOrderController');
-    Route::post('third-party-orders/{id}/cancel','ThirdPartyOrderController@cancel')->name('third-party-orders.cancel');
+    Route::post('third-party-orders/{id}/cancel', 'ThirdPartyOrderController@cancel')->name('third-party-orders.cancel');
 
     Route::get('/get-student', 'ThirdPartyOrderController@getStudent');
 
@@ -109,7 +110,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/search-packages-rule-book', 'RuleBookController@searchPackages')->name('search.rulebook.packages');
     Route::get('/check-package-rulebook-exists', 'RuleBookController@checkPackageRulebookExists')->name('check.package.rulebook.exists');
     Route::post('s3rulebook/uploadS3', 'RuleBookController@uploadS3')->name('s3rulebook.uploadS3.index');
-    
+
     Route::post('videos-add-to-archeive', 'VideoController@archeieveSelectedVideos');
 
     Route::get('fetch-published-videos', 'VideoController@fetchPublishedVideos');
@@ -119,91 +120,91 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     // ----------------------------- Added By TE ----------------------------------------//
     Route::get('packages/subject/fetch-published-videos-for-package', 'SubjectController@fetchPublishedVideos');
 
-    Route::get('fetch-answered-questions' , 'QuestionController@fetchAnsweredQuestions');
+    Route::get('fetch-answered-questions', 'QuestionController@fetchAnsweredQuestions');
 
-    Route::get('fetch-pending-questions' , 'QuestionController@fetchPendingQuestions');
+    Route::get('fetch-pending-questions', 'QuestionController@fetchPendingQuestions');
 
     Route::resource('sms', 'SmsController');
 
 
-    Route::get('admin-test/create','QuestionController@adminTestCreate')->name('admin-test.create');
+    Route::get('admin-test/create', 'QuestionController@adminTestCreate')->name('admin-test.create');
 
-    Route::post('admin-test/save','QuestionController@adminTestSave')->name('admin-test.store');
+    Route::post('admin-test/save', 'QuestionController@adminTestSave')->name('admin-test.store');
 
-    Route::post('admin-test/{id}/toggle-status','QuestionController@toggleAdminTestStatus')->name('admin-test.toggle-status');
+    Route::post('admin-test/{id}/toggle-status', 'QuestionController@toggleAdminTestStatus')->name('admin-test.toggle-status');
 
-    Route::get('/api/questions-by-course-subject','QuestionController@getQuestionsForTest');
+    Route::get('/api/questions-by-course-subject', 'QuestionController@getQuestionsForTest');
 
-    Route::get('custom-notifications/templatebody/{id}','CustomNotificationController@templatebody');
+    Route::get('custom-notifications/templatebody/{id}', 'CustomNotificationController@templatebody');
 
-    Route::get('/getlevels/ajax/{id}','SectionController@getlevels')->name('courses.levels');
-    Route::get('/getsubjects/ajax/{id}','SectionController@getSubjects')->name('levels.subjects');
-    Route::get('/getprofessors/ajax/{id}','SectionController@getprofessors')->name('subjects.professors');
+    Route::get('/getlevels/ajax/{id}', 'SectionController@getlevels')->name('courses.levels');
+    Route::get('/getsubjects/ajax/{id}', 'SectionController@getSubjects')->name('levels.subjects');
+    Route::get('/getprofessors/ajax/{id}', 'SectionController@getprofessors')->name('subjects.professors');
     Route::post('package-add-to-archeive', 'PackageController@archeieveSelectedpackage');
     Route::post('unlink_demo_package', 'FreeResourceController@UnlinkPackage');
-    Route::get('/packages/getvideodetails/{id}','PackageController@getvideodetails');
+    Route::get('/packages/getvideodetails/{id}', 'PackageController@getvideodetails');
     Route::post('unlink_demo_video', 'PackageController@UnlinkVideo');
-    Route::get('/chapter-module/ajax/{id}','ModuleController@ChapterModule')->name('chapter.module');
+    Route::get('/chapter-module/ajax/{id}', 'ModuleController@ChapterModule')->name('chapter.module');
     Route::resource('type', 'PackageTypeController');
     Route::get('updateDuration', 'PackageDuration@update');
 
-    Route::get('student-analytics' ,'Reports\StudentAnalyticsController@index');
+    Route::get('student-analytics', 'Reports\StudentAnalyticsController@index');
 
-    Route::get('invoiceRegenerate','InvoiceRegenerate@search');
-    
-
-    Route::post('invoice/update','InvoiceRegenerate@update');
-    Route::get('invoice/search','InvoiceRegenerate@search')->name('invoice.search');
-    Route::resource('count-setting','HomePageCountController');
+    Route::get('invoiceRegenerate', 'InvoiceRegenerate@search');
 
 
-    Route::get('admin-activity' ,'Reports\AdminActivity@index');
-    Route::get('admin-activity-action' ,'Reports\AdminActivity@indexaction');
+    Route::post('invoice/update', 'InvoiceRegenerate@update');
+    Route::get('invoice/search', 'InvoiceRegenerate@search')->name('invoice.search');
+    Route::resource('count-setting', 'HomePageCountController');
+
+
+    Route::get('admin-activity', 'Reports\AdminActivity@index');
+    Route::get('admin-activity-action', 'Reports\AdminActivity@indexaction');
     Route::get('get-server_var', 'Reports\AdminActivity@getresponse');
     Route::get('get-edit-log', 'Reports\AdminActivity@getEditLog');
 
-    Route::resource('holiday-scheme','HolidaySchemeController');
+    Route::resource('holiday-scheme', 'HolidaySchemeController');
 
-    
 
-    Route::resource('user-list','MobileUserController');
-    Route::resource('holiday-scheme','HolidaySchemeController');
-    Route::get('holiday-scheme-usage','HolidaySchemeController@usage_report');
-    Route::post('publishOffer','HolidaySchemeController@publishOffer')->name('holiday-scheme.publishOffer');
-    Route::get('deal_of_day','DealOfDayController@index');
-    Route::post('deal_ofday/update','DealOfDayController@update')->name('deal_of_day.update');
-    Route::get('/getPackageData/{id}','DealOfDayController@getPackagedata');
-    Route::get('get-levels-by-course','PackageTypeController@getLevelsByCourse');
-    
-    Route::get('/gettypes/ajax/{id}','PackageTypeController@getTypes')->name('levels.types');
+
+    Route::resource('user-list', 'MobileUserController');
+    Route::resource('holiday-scheme', 'HolidaySchemeController');
+    Route::get('holiday-scheme-usage', 'HolidaySchemeController@usage_report');
+    Route::post('publishOffer', 'HolidaySchemeController@publishOffer')->name('holiday-scheme.publishOffer');
+    Route::get('deal_of_day', 'DealOfDayController@index');
+    Route::post('deal_ofday/update', 'DealOfDayController@update')->name('deal_of_day.update');
+    Route::get('/getPackageData/{id}', 'DealOfDayController@getPackagedata');
+    Route::get('get-levels-by-course', 'PackageTypeController@getLevelsByCourse');
+
+    Route::get('/gettypes/ajax/{id}', 'PackageTypeController@getTypes')->name('levels.types');
     Route::get('/get-subjects-by-level', 'PackageTypeController@getSubjectsByLevels');
-    Route::get('/getprofessorPackages/ajax/{id}','QuestionController@getprofessorPackages');
-    Route::get('order-revenue','OrderRevenueController@index');
+    Route::get('/getprofessorPackages/ajax/{id}', 'QuestionController@getprofessorPackages');
+    Route::get('order-revenue', 'OrderRevenueController@index');
     Route::post('order-revenue/export', 'OrderRevenueController@export');
-    Route::resource('techsupport','TechSupportController');
-    Route::post('update-remark','TechSupportController@update_remark')->name('techsupport.update-remark');
-    
+    Route::resource('techsupport', 'TechSupportController');
+    Route::post('update-remark', 'TechSupportController@update_remark')->name('techsupport.update-remark');
+
     //----------------------Email Support --------------------------------------//
 
-    Route::resource('email-support','EmailSupportController');
+    Route::resource('email-support', 'EmailSupportController');
 
-    Route::get('fetch-pending' , 'EmailSupportController@InProgress');
+    Route::get('fetch-pending', 'EmailSupportController@InProgress');
 
-    Route::get('fetch-completed' , 'EmailSupportController@completed');
+    Route::get('fetch-completed', 'EmailSupportController@completed');
 
-    Route::post('update-status','EmailSupportController@update_status')->name('email.update-status');
+    Route::post('update-status', 'EmailSupportController@update_status')->name('email.update-status');
 
-    Route::get('/getStudentData/{id}','EmailSupportController@getdata');
+    Route::get('/getStudentData/{id}', 'EmailSupportController@getdata');
 
-    Route::post('update_extension','EmailSupportController@updateExtension')->name('email.update_extension');
+    Route::post('update_extension', 'EmailSupportController@updateExtension')->name('email.update_extension');
 
-    Route::post('/getPackvalidity','EmailSupportController@getPackvalidity')->name('email.getPackvalidity');
+    Route::post('/getPackvalidity', 'EmailSupportController@getPackvalidity')->name('email.getPackvalidity');
 
     //---------------------------Email support Ends --------------------------------//
 
     /********************Email Log***********/
     Route::resource('email-log', 'EmailLogController');
-    
+
     //-----------------------------------------------------------------------------------//
 
     Route::get('studio-upload-videos', 'VideoController@studioVideos');
@@ -238,16 +239,16 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
 
     Route::resource('admins', 'AdminController');
     Route::patch('/users/{user}/toggle-status', 'AdminController@toggleStatus')->name('users.toggleStatus');
-     Route::post('courses/toggle-status/{id}', 'AdminCourseController@coursetoggleStatus')  ->name('courses.toggle-status');
+    Route::post('courses/toggle-status/{id}', 'AdminCourseController@coursetoggleStatus')->name('courses.toggle-status');
 
     // Route::delete('/courses/toggle-status/{id}', 'AdminController@toggleStatus')->name('courses.toggle-status');
 
     Route::resource('agents', 'AgentController');
     Route::resource('sections', 'SectionController');
-    Route::get('/course-levels/ajax/{id}','SectionController@Courselevels')->name('course.level');
-    Route::get('/level-subjects/ajax/{id}','SubjectController@LevelSubjects')->name('level.subject');
-    Route::get('/subject-chapters/ajax/{id}','ChapterController@SubjectChapters')->name('subject.chapter');
-    Route::get('/subject-professor/ajax/{id}','SubjectController@SubjectProfessors')->name('subject.professor');
+    Route::get('/course-levels/ajax/{id}', 'SectionController@Courselevels')->name('course.level');
+    Route::get('/level-subjects/ajax/{id}', 'SubjectController@LevelSubjects')->name('level.subject');
+    Route::get('/subject-chapters/ajax/{id}', 'ChapterController@SubjectChapters')->name('subject.chapter');
+    Route::get('/subject-professor/ajax/{id}', 'SubjectController@SubjectProfessors')->name('subject.professor');
 
     Route::post('sections/change-order', 'SectionController@changeOrder')->name('sections.change-order');
     Route::get('sections/{id}/section-packages', 'SectionController@createSectionPackages');
@@ -262,7 +263,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::resource('settings', 'SettingController');
 
     Route::resource('custom-notifications', 'CustomNotificationController')->only('index', 'create', 'store');
-//    Route::get('custom-notifications/create', 'CustomNotificationController@create');
+    //    Route::get('custom-notifications/create', 'CustomNotificationController@create');
 
     Route::post('export-call-requests', 'CallRequestController@export');
 
@@ -290,8 +291,8 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::post('students/import', 'StudentController@postImport')->name('students.import.store');
     Route::resource('students', 'StudentController');
 
-    Route::resource('orders', 'OrderController',['names'=>'orders']);
-    Route::get('invoice_generate/{id}','OrderController@invoiceGen');
+    Route::resource('orders', 'OrderController', ['names' => 'orders']);
+    Route::get('invoice_generate/{id}', 'OrderController@invoiceGen');
     Route::get('list-coupons', 'CouponController@listCoupons');
 
     Route::post('packages/publish/{id}', 'PackageController@publish')->name('packages.publish');
@@ -304,10 +305,10 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
 
     Route::get('subjects/level_from_course/{course_id}', 'SubjectController@level_from_course');
 
-//courses new route
+    //courses new route
     // Route::resource('courses', AdminCourseController::class);    
-   Route::resource('courses', 'AdminCourseController');
-   Route::resource('courses', 'AdminCourseController');
+    Route::resource('courses', 'AdminCourseController');
+    Route::resource('courses', 'AdminCourseController');
 
 
 
@@ -358,7 +359,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
         Route::resource('students', 'ThirdParty\StudentController')->only('store');
     });
 
-    Route::resource('agent-orders','ThirdParty\OrderController');
+    Route::resource('agent-orders', 'ThirdParty\OrderController');
 
     Route::get('get-order-response', 'OrderController@getOrderResponse');
     Route::get('get-payment-response', 'OrderController@getPaymentResponse');
@@ -374,7 +375,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
 
     //------------------------- TE Ends ------------------------------//
 
-    Route::resource('prepaid-packages', 'PrepaidPackageController')->only('index', 'show', 'store','edit','update');
+    Route::resource('prepaid-packages', 'PrepaidPackageController')->only('index', 'show', 'store', 'edit', 'update');
     Route::resource('sales', 'SaleController');
     Route::post('export-sales-report', 'SaleController@export');
     Route::post('create-student', 'PrepaidPackageController@createStudent');
@@ -383,22 +384,22 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     /********************Added by TE ************************************/
 
     Route::get('fetch-sales-details', 'SaleController@fetchSaleDetails');
-    Route::resource('cseet-students','CseetController');
-    Route::get('cseet/status-rejected/{id}', [ \App\Http\Controllers\CseetController::class, 'StatusRejected' ])->name('cseet.status_rejected');
-    Route::get('cseet/status-accepted/{id}', [ \App\Http\Controllers\CseetController::class, 'StatusAccepted' ])->name('cseet.status_accepted');
+    Route::resource('cseet-students', 'CseetController');
+    Route::get('cseet/status-rejected/{id}', [\App\Http\Controllers\CseetController::class, 'StatusRejected'])->name('cseet.status_rejected');
+    Route::get('cseet/status-accepted/{id}', [\App\Http\Controllers\CseetController::class, 'StatusAccepted'])->name('cseet.status_accepted');
 
 
     /*********************TE Ends ***********************************/
-    Route::resource('can-not-find-enquire','CanNotFindEnquireController');
+    Route::resource('can-not-find-enquire', 'CanNotFindEnquireController');
     Route::get('change-banners-order', 'BannerController@changeOrder');
     Route::get('change-resources-order', 'FreeResourceController@changeOrder');
 
-    Route::resource('purchases', 'PurchaseController')->only('index', 'update','test');
+    Route::resource('purchases', 'PurchaseController')->only('index', 'update', 'test');
 
     Route::resource('couriers', 'CourierController');
-    Route::get('courier','CourierController@getCouriers');
+    Route::get('courier', 'CourierController@getCouriers');
 
-   // Route::get('test', 'PurchaseController@test');
+    // Route::get('test', 'PurchaseController@test');
     Route::resource('spin-wheel-campaigns', 'SpinWheelCampaignController');
 
     Route::resource('campaign-registrations', 'CampaignRegistrationController');
@@ -417,7 +418,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
         Route::get('user', 'UserController@index')->name('user');
         Route::get('user/edit/{id}', 'UserController@edit')->name('user.edit');
         Route::resource('board', 'BoardController');
-        Route::get('board/destroy/{ID}','BoardController@destroy');
+        Route::get('board/destroy/{ID}', 'BoardController@destroy');
         Route::resource('grade', 'GradeController');
         Route::post('getGrade', 'GradeController@getGrade')->name('getGrade');
         Route::get('grade/destroy/{id}', 'GradeController@destroy');
@@ -445,11 +446,11 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
         Route::resource('module', 'ModuleController');
         Route::post('getConcept', 'ConceptController@getConcept')->name('getConcept');
         Route::post('getModules', 'ModuleController@getModules')->name('getModules');
-        Route::get('module/delete/{ID}','ModuleController@destroy');
+        Route::get('module/delete/{ID}', 'ModuleController@destroy');
         Route::post('getQuestions', 'ModuleController@getQuestions')->name('getQuestions');
         Route::resource('test', 'TestController');
         Route::resource('modules', 'TestModulesController');
-        Route::get('modules/destroy/{ID}','TestModulesController@destroy');
+        Route::get('modules/destroy/{ID}', 'TestModulesController@destroy');
         Route::get('test/getStep2/{ID}', 'TestController@getStep2')->name('test.getStep2');
         Route::post('test/step2-submit/{QID}', 'TestController@Step2Submit')->name('test.step2-submit');
         Route::post('test/step2-submit-auto/{QID}', 'TestController@Step2SubmitAuto')->name('test.step2-submit-auto');
@@ -461,13 +462,13 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
         Route::get('test/delete/{id}', 'TestController@destroy');
 
         Route::resource('question', 'QuestionController');
-        Route::get('question/destroy/{id}','QuestionController@destroy');
+        Route::get('question/destroy/{id}', 'QuestionController@destroy');
         Route::get('uploadExcelView', 'QuestionController@uploadExcelView')->name('uploadExcelView');
         Route::post('uploadQuestionExcel', 'QuestionController@uploadQuestionExcel')->name('uploadQuestionExcel');
         Route::resource('event', 'EventController');
-        Route::get('event/destroy/{ID}','EventController@destroy');
+        Route::get('event/destroy/{ID}', 'EventController@destroy');
         Route::resource('content_library', 'ContentLibraryController');
-        Route::get('content_library/destroy/{id}','ContentLibraryController@destroy');
+        Route::get('content_library/destroy/{id}', 'ContentLibraryController@destroy');
         Route::post('event/addRound', 'EventController@addRound')->name('event.addRound');
         Route::post('event/editRound', 'EventController@editRound')->name('event.editRound');
         Route::post('event/updateRound', 'EventController@updateRound')->name('event.updateRound');
@@ -485,7 +486,6 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
         Route::post('getSelectedConcept', 'TestController@getSelectedConcept')->name('getSelectedConcept');
         Route::post('module/auto-update/{ID}', 'TestModulesController@autoUpdate')->name('module.auto-update');
         Route::get('module/getStep2/{ID}', 'TestModulesController@getStep2')->name('module.getStep2');
-        
     });
     // Quiz end
 
@@ -503,8 +503,8 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
-     Route::get('/get-subjects/{course_id}', 'SubjectController@getSubjects');
-    Route::get('admin-test','QuestionController@adminTest')->name('admin-test');
+    Route::get('/get-subjects/{course_id}', 'SubjectController@getSubjects');
+    Route::get('admin-test', 'QuestionController@adminTest')->name('admin-test');
     Route::get('admin-test/preview/{id}', 'QuestionController@previewAdminTest')->name('admin-test.preview');
     Route::resource('batches', 'BatchController');
     //adminroute
@@ -514,11 +514,11 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::resource('notifications', 'NotificationController')->only('store');
     Route::resource('feedback', 'FeedbackController')->only('index', 'show');
     Route::resource('feedback-list', 'FeedbackListController');
-    Route::post('feedback-list/status-rejected/{id}', [ \App\Http\Controllers\FeedbackListController::class, 'StatusRejected' ])->name('feedback-list.status_rejected');
-    Route::post('feedback-list/status-accepted/{id}', [ \App\Http\Controllers\FeedbackListController::class, 'StatusAccepted' ])->name('feedback-list.status_accepted');
+    Route::post('feedback-list/status-rejected/{id}', [\App\Http\Controllers\FeedbackListController::class, 'StatusRejected'])->name('feedback-list.status_rejected');
+    Route::post('feedback-list/status-accepted/{id}', [\App\Http\Controllers\FeedbackListController::class, 'StatusAccepted'])->name('feedback-list.status_accepted');
 });
 
-Route::middleware('auth')->prefix('tables')->name('tables.')->group(function() {
+Route::middleware('auth')->prefix('tables')->name('tables.')->group(function () {
     Route::get('orders', 'StudentController@getTableOrders')->name('orders');
     Route::get('cart', 'StudentController@getTableCart')->name('cart');
     Route::get('coupons', 'StudentController@getTableCoupons')->name('coupons');
@@ -553,7 +553,7 @@ Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
     Route::resource('third-party-orders', 'Reports\ThirdPartyOrderController');
     Route::resource('associate-orders', 'Reports\AssociateOrderController');
     Route::resource('imported-students', 'Reports\ImportedStudentController');
-    Route::get('vaibhav-registration-details','VaibhavRegController@index');
+    Route::get('vaibhav-registration-details', 'VaibhavRegController@index');
 });
 
 Route::post('video-transcode-webhook', 'VideoController@transcodeWebhook');
@@ -572,8 +572,8 @@ Route::middleware('auth')
 
         Route::resource('courses', 'CourseController')->only('index');
         Route::resource('levels', 'LevelController')->only('index');
-       
-    
+
+
         Route::resource('professors', 'ProfessorController')->only('index');
         Route::resource('languages', 'LanguageController')->only('index');
         Route::resource('countries', 'CountryController')->only('index');
@@ -600,7 +600,6 @@ Route::middleware('auth')
         Route::get('orders/{id}/verify', 'OrderController@verify');
         Route::get('student-packages', 'OrderController@getStudentPackages');
         Route::get('sections/group', 'SectionController@group');
-
     });
 
 Route::get('get-all-packages-table', 'Package\CustomizeController@getAllPackagesTable')->name('get-all-packages-table');
@@ -623,12 +622,12 @@ Route::get('update-package-reviews', 'PackageController@updateReviews');
 Route::get('update-order-item-extension-from-package-extension', 'OrderItemController@updateExtention');
 Route::get('/update-progress-percentage', 'OrderItemController@updateProgressPercentage');
 Route::get('update-selling-amount-of-packages', 'PackageController@updateSellingAmount');
-Route::resource('video-histories', 'VideoHistoryController')->only('index','store');
+Route::resource('video-histories', 'VideoHistoryController')->only('index', 'store');
 Route::get('videos/get-player/{id}', 'VideoController@getPlayer');
 
 //new route add 
 Route::get('/upload', 'ScormController@showForm');
-Route::post('/admin/chapter/upload', 'ScormController@uploadChapterScorm') ->name('chapter.scorm.upload');
+Route::post('/admin/chapter/upload', 'ScormController@uploadChapterScorm')->name('chapter.scorm.upload');
 Route::post('/admin/chapter/manual-upload', 'ScormController@uploadChapterManual')->name('chapter.manual.upload');
 Route::post('/upload', 'ScormController@upload')->name('scorm.upload');
 Route::get('/view/{id}', 'ScormController@view')->middleware('auth');
@@ -639,8 +638,8 @@ Route::get('/chapter', 'ScormController@Chapters')->name('chapter.scorm.create')
 Route::get('/course/{course}/chapters', 'ScormController@getChapters')
     ->name('course.chapters')->middleware('auth');
 
-    // Route::get('/course/{id}/chapters', 'ScormController@getChapters');
-    Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
+// Route::get('/course/{id}/chapters', 'ScormController@getChapters');
+Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
     ->name('chapter.manual.edit');
 
 Route::post('/chapters/{chapter}/manual/update', 'ScormController@updateChapterManual')
@@ -686,7 +685,7 @@ Route::post('/course/progress/update', 'UserDashboardController@resumeupdate')->
 
 // routes/web.php
 Route::get('/dashboard', 'UserDashboardController@dashboard')->name('dashboard')->middleware('auth');
- Route::get('/questions/filter', 'QuestionController@testquestions')->name('questions.filter')->middleware('auth');
+Route::get('/questions/filter', 'QuestionController@testquestions')->name('questions.filter')->middleware('auth');
 
 
 // routes/web.php;
@@ -698,11 +697,10 @@ Route::get('/qbundle/filter', 'FiltertQuestionController@filterQBundle')->name('
 Route::get('/course-mode/{id}', 'FiltertQuestionController@modePage')->name('course.mode')->middleware('auth');
 Route::get('/gettestquestion', 'UserDashboardController@getTestQuestion')->name('gettestquestion');
 // Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
-    Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
+Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
 
 Route::get('/exam-page', function () {
-    return view('exam_page'); 
-
+    return view('exam_page');
 });
 
 
@@ -724,32 +722,32 @@ Route::get('/course-attempts/{quizName}/view/{attemptNumber}', 'CourseProgressCo
 // routes/web.php
 
 Route::get('/course-expire-date/{id}', 'AssignedCourseController@getCourseExpireDate');
-Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus') ->name('assigned-courses.toggleStatus');
+Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@toggleStatus')->name('assigned-courses.toggleStatus');
 
-Route::get('qb-summary','QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
- Route::post('qb-summary-store','QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
+Route::get('qb-summary', 'QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
+Route::post('qb-summary-store', 'QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 
 Route::get('question/bank/{questionBank}', 'QuestionBankController@show')->name('question-bank.show');
 Route::get('fetch-answers-by-questions', 'QuestionBankController@fetchAnswersByQuestions')->name('fetch-answers-by-questions');
-Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth') ;
+Route::get('fetchsolution', 'AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth');
 
- Route::get('fetch-solution-by-questions','AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
-
-
-
-    Route::get('/course-questions/filter', 'CourseQuestionController@filter')
-        ->name('course.questions.filter');
-
-    Route::post('/course-questions/assign', 'CourseQuestionController@assign')
-        ->name('course.questions.assign');
-
-        Route::get('/all-questions', 'CourseQuestionController@getAllQuestions')
-->name('course.questions.all');
+Route::get('fetch-solution-by-questions', 'AnswerController@fetchSolutionByQuestions')->name('fetch-solution-by-questions');
 
 
 
+Route::get('/course-questions/filter', 'CourseQuestionController@filter')
+    ->name('course.questions.filter');
 
-    Route::get('/test-open', function () {
+Route::post('/course-questions/assign', 'CourseQuestionController@assign')
+    ->name('course.questions.assign');
+
+Route::get('/all-questions', 'CourseQuestionController@getAllQuestions')
+    ->name('course.questions.all');
+
+
+
+
+Route::get('/test-open', function () {
     return response()->file(
         storage_path(
             'app/private/manual_uploads/66/lesson_17/detailed_trainer_slides/69804ef8ace1c_1770016504_CFA_Foundation_Module_7_Chapter_20_Lesson_1.pdf'
@@ -758,15 +756,19 @@ Route::get('fetchsolution','AnswerController@fetchSolutionByQuestions')->name('f
 });
 
 Route::get('/f/{path}', function ($path) {
+
     abort_unless(auth()->check(), 403);
 
     $fullPath = storage_path('app/private/' . $path);
-
     abort_unless(file_exists($fullPath), 404);
 
-    return response()->file($fullPath);
+    return response()->file($fullPath, [
+        'Content-Type' => mime_content_type($fullPath),
+        'Cache-Control' => 'no-cache, no-store, must-revalidate, private',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+    ]);
 })->where('path', '.*')->name('secure.file');
-
 
 Route::get('/pdf-stream/{path}', function ($path) {
 
@@ -790,7 +792,6 @@ Route::get('/pdf-stream/{path}', function ($path) {
         true,
         'inline'
     );
-
 })->where('path', '.*')->name('pdf.stream');
 
 Route::get('/pdf-login-required', function () {
@@ -807,8 +808,8 @@ Route::get('batches/{id}/assign', 'BatchController@assignStudents')
 Route::post('batches/{id}/assign', 'BatchController@storeStudents')
     ->name('batches.storeStudents');
 
- Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
- Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
+Route::get('/subjects/edit/{id}', 'SubjectController@subjectedit')->name('subjects.edit');
+Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
 
- //new
+//new
 Route::get('/download-sample-excel', 'BatchController@downloadSampleExcel')->name('download.sample.excel');
