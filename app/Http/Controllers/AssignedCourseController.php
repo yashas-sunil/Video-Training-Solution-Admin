@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 // use App\Models\AssignedCourse;
 use App\Assignedcourse;
 use App\CourseView;
+use App\EmailTemplate;
 use App\Mail\CourseAssignMail;
 use App\Models\Course;
 use App\Models\User;
@@ -11,10 +12,10 @@ use App\ScormPackage as AppScormPackage;
 use App\ScormPackage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
-use Illuminate\Support\Facades\Log;
 
 class AssignedCourseController extends Controller
 {
@@ -78,37 +79,53 @@ class AssignedCourseController extends Controller
             'expire_date' => $expireDate,
             'enrolled_at' => now(),
         ]);
-       $user = User::find($request->user_id);
+        $user = User::findOrFail($request->user_id);
 
-            $attributes = [
-                'name'        => $user->name,
-                'email'       => $user->email,
-                'course'      => $course->title,
-                'expire_date' => $expireDate,
-            ];
+        $template = EmailTemplate::where('name', 'course_assign')
+            ->where('status', 1)
+            ->first();
+
+        if ($template) {
+
+            $loginUrl = config('app.url') . '/login';
+
+            $body = str_replace(
+                ['{{name}}', '{{course}}', '{{expire_date}}', '{{login_url}}'],
+                [$user->name, $course->title, $expireDate, $loginUrl],
+                $template->body
+            );
 
             Log::info('Course Assign Mail START', [
-                'user_id'   => $user->id,
-                'email'     => $user->email,
-                'attributes'=> $attributes,
+                'user_id' => $user->id,
+                'email'   => $user->email,
+                'cc'      => $template->cc,
+                'bcc'     => $template->bcc,
             ]);
 
             try {
 
-                Mail::to($user->email)->send(new CourseAssignMail($attributes));
+                Mail::send([], [], function ($message) use ($user, $template, $body) {
+                    $message->to($user->email)
+                        ->subject($template->subject)
+                        ->setBody($body, 'text/html');
 
-                Log::info('Course Assign Mail SENT SUCCESS', [
-                    'email' => $user->email
-                ]);
+                    if ($template->cc) {
+                        $message->cc(explode(',', $template->cc));
+                    }
 
-            } catch (\Exception $exception) {
+                    if ($template->bcc) {
+                        $message->bcc(explode(',', $template->bcc));
+                    }
+                });
 
+                Log::info('Course Assign Mail SENT SUCCESS');
+            } catch (\Exception $e) {
                 Log::error('Course Assign Mail FAILED', [
-                    'error' => $exception->getMessage()
-            
-               ]);
+                    'error' => $e->getMessage()
+                ]);
             }
-           return redirect()->route('assigned-courses.index')->with('success', 'Course assigned successfully!');
+        }
+        return redirect()->route('assigned-courses.index')->with('success', 'Course assigned successfully!');
     }
 
     public function index(Builder $builder)
