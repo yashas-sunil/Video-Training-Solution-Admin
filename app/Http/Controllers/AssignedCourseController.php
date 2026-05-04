@@ -87,7 +87,7 @@ class AssignedCourseController extends Controller
 
         if ($template) {
 
-            $loginUrl = config('app.url') . '/login';
+            $loginUrl = config('app.url') . 'login';
 
             $body = str_replace(
                 ['{{name}}', '{{course}}', '{{expire_date}}', '{{login_url}}'],
