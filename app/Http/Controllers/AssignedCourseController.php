@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers;
 // use App\Models\AssignedCourse;
-use App\ScormPackage;
-use Yajra\DataTables\Html\Builder;
-use Yajra\DataTables\Facades\DataTables;
-use App\Models\User;
 use App\Assignedcourse;
 use App\CourseView;
+use App\Mail\CourseAssignMail;
 use App\Models\Course;
-use Carbon\Carbon;
-// use App\Models\ScormPackage;
+use App\Models\User;
 use App\ScormPackage as AppScormPackage;
+use App\ScormPackage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
+use Illuminate\Support\Facades\Log;
 
 class AssignedCourseController extends Controller
 {
     public function create()
     {
-        $users = User:: where('status','active')
-                        ->where('role',2)->get();
+        $users = User::where('status', 'active')
+            ->where('role', 2)->get();
 
         $courses = AppScormPackage::where('status', 1)->get();
 
@@ -76,11 +78,39 @@ class AssignedCourseController extends Controller
             'expire_date' => $expireDate,
             'enrolled_at' => now(),
         ]);
+       $user = User::find($request->user_id);
 
-        return redirect()
-            ->route('assigned-courses.index')
-            ->with('success', 'Course successfully assigned to user!');
+            $attributes = [
+                'name'        => $user->name,
+                'email'       => $user->email,
+                'course'      => $course->title,
+                'expire_date' => $expireDate,
+            ];
+
+            Log::info('Course Assign Mail START', [
+                'user_id'   => $user->id,
+                'email'     => $user->email,
+                'attributes'=> $attributes,
+            ]);
+
+            try {
+
+                Mail::to($user->email)->send(new CourseAssignMail($attributes));
+
+                Log::info('Course Assign Mail SENT SUCCESS', [
+                    'email' => $user->email
+                ]);
+
+            } catch (\Exception $exception) {
+
+                Log::error('Course Assign Mail FAILED', [
+                    'error' => $exception->getMessage()
+            
+               ]);
+            }
+           return redirect()->route('assigned-courses.index')->with('success', 'Course assigned successfully!');
     }
+
     public function index(Builder $builder)
     {
         if (request()->ajax()) {
