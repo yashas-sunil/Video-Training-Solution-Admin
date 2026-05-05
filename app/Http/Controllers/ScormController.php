@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Assignedcourse;
 use App\CourseProgress as AppCourseProgress;
 use App\CourseProgress;
 use App\CourseView;
+use App\EmailTemplate;
 use App\Models\Chapter;
 use App\Models\ChapterManualContent;
+use App\Models\EmailLog;
 use App\Models\Lesson;
 use App\Models\Subject;
 use App\Models\User;
@@ -18,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
@@ -141,6 +145,105 @@ class ScormController extends Controller
         ]);
 
         Log::info("Chapter SCORM uploaded successfully");
+
+        //  Send mail to all users of this course (content upload)
+
+        Log::info('CONTENT UPLOAD MAIL PROCESS START', [
+            'course_id' => $request->course_id
+        ]);
+
+        $template = EmailTemplate::where('name', 'course_content_upload')
+            ->where('status', 1)
+            ->first();
+
+        if (!$template) {
+            Log::warning('Email template not found or inactive', [
+                'template_name' => 'course_content_upload'
+            ]);
+            return;
+        }
+
+        Log::info('Email template found', [
+            'subject' => $template->subject
+        ]);
+
+        $loginUrl = config('app.url') . '/login';
+
+        // Is course ke sab users nikaalo
+        $users = AssignedCourse::where('course_id', $request->course_id)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        Log::info('Total users found for this course', [
+            'count' => $users->count()
+        ]);
+
+        foreach ($users as $user) {
+
+            Log::info('Preparing mail for user', [
+                'user_id' => $user->id,
+                'email'   => $user->email
+            ]);
+
+            $body = str_replace(
+                ['{{name}}', '{{login_url}}'],
+                [$user->name, $loginUrl],
+                $template->body
+            );
+
+            try {
+
+                Mail::send([], [], function ($message) use ($user, $template, $body) {
+                    $message->to($user->email)
+                        ->subject($template->subject)
+                        ->setBody($body, 'text/html');
+
+                    if ($template->cc) {
+                        $message->cc(explode(',', $template->cc));
+                    }
+
+                    if ($template->bcc) {
+                        $message->bcc(explode(',', $template->bcc));
+                    }
+                });
+
+                Log::info('Mail SENT SUCCESS', [
+                    'email' => $user->email
+                ]);
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'sent',
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
+                ]);
+
+            } catch (\Exception $e) {
+
+                Log::error('Mail FAILED for user', [
+                    'email' => $user->email,
+                    'error' => $e->getMessage()
+                ]);
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
+                ]);
+            }
+        }
+
+        Log::info('CONTENT UPLOAD MAIL PROCESS END');
 
         return redirect()
             ->route('chapters')
@@ -288,6 +391,106 @@ class ScormController extends Controller
             }
 
             DB::commit();
+
+
+            //  Send mail to all users of this course (content upload)
+
+            Log::info('CONTENT UPLOAD MAIL PROCESS START', [
+                'course_id' => $request->course_id
+            ]);
+
+            $template = EmailTemplate::where('name', 'course_content_upload')
+                ->where('status', 1)
+                ->first();
+
+            if (!$template) {
+                Log::warning('Email template not found or inactive', [
+                    'template_name' => 'course_content_upload'
+                ]);
+                return;
+            }
+
+            Log::info('Email template found', [
+                'subject' => $template->subject
+            ]);
+
+            $loginUrl = config('app.url') . '/login';
+
+            // Is course ke sab users nikaalo
+            $users = Assignedcourse::where('course_id', $request->course_id)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+
+            Log::info('Total users found for this course', [
+                'count' => $users->count()
+            ]);
+
+            foreach ($users as $user) {
+
+                Log::info('Preparing mail for user', [
+                    'user_id' => $user->id,
+                    'email'   => $user->email
+                ]);
+
+                $body = str_replace(
+                    ['{{name}}', '{{login_url}}'],
+                    [$user->name, $loginUrl],
+                    $template->body
+                );
+
+                try {
+
+                    Mail::send([], [], function ($message) use ($user, $template, $body) {
+                        $message->to($user->email)
+                            ->subject($template->subject)
+                            ->setBody($body, 'text/html');
+
+                        if ($template->cc) {
+                            $message->cc(explode(',', $template->cc));
+                        }
+
+                        if ($template->bcc) {
+                            $message->bcc(explode(',', $template->bcc));
+                        }
+                    });
+
+                    Log::info('Mail SENT SUCCESS', [
+                        'email' => $user->email
+                    ]);
+
+                    EmailLog::create([
+                        'user_id' => $user->id,
+                        'email'   => $user->email,
+                        'subject' => $template->subject,
+                        'body'    => $body,
+                        'status'  => 'sent',
+                        'cc'      => $template->cc,
+                        'bcc'     => $template->bcc,
+                    ]);
+
+                } catch (\Exception $e) {
+
+                    Log::error('Mail FAILED for user', [
+                        'email' => $user->email,
+                        'error' => $e->getMessage()
+                    ]);
+
+                    EmailLog::create([
+                        'user_id' => $user->id,
+                        'email'   => $user->email,
+                        'subject' => $template->subject,
+                        'body'    => $body,
+                        'status'  => 'failed',
+                        'error_message' => $e->getMessage(),
+                        'cc'      => $template->cc,
+                        'bcc'     => $template->bcc,
+                    ]);
+                }
+            }
+
+            Log::info('CONTENT UPLOAD MAIL PROCESS END');
 
             return redirect()
                 ->route('chapters')
@@ -469,7 +672,6 @@ class ScormController extends Controller
         DB::beginTransaction();
 
         try {
-            // 1️⃣ Is lesson ke saare contents nikaalo
             $contents = ChapterManualContent::where('lesson_id', $lesson->id)->get();
 
             foreach ($contents as $content) {
