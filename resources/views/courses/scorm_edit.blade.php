@@ -86,13 +86,17 @@
                         @endif
 
                         {{-- SCORM EDIT FORM --}}
-                        <form method="POST" action="{{ route('chapter.scorm.update', $chapter->id) }}" 
-                              enctype="multipart/form-data" id="scormEditForm">
+                        <form method="POST" action="{{ route('chapter.scorm.update', $chapter->id) }}"
+                            enctype="multipart/form-data" id="scormEditForm">
                             @php
                                 $selectedCourseId = old('course_id', $chapter->course_id ?? '');
                                 $selectedSubjectId = old('subject_id', $chapter->subject_id ?? '');
-                                $selectedCourseTitle = optional($courses->firstWhere('id', $selectedCourseId))->title ?? '-- Select Course --';
-                                $selectedSubjectName = optional($subjects->firstWhere('id', $selectedSubjectId))->name ?? optional($chapter->subject)->name ?? '-- Select Subject --';
+                                $selectedCourseTitle =
+                                    optional($courses->firstWhere('id', $selectedCourseId))->title ??
+                                    '-- Select Course --';
+                                $selectedSubjectName =
+                                    optional($subjects->firstWhere('id', $selectedSubjectId))->name ??
+                                    (optional($chapter->subject)->name ?? '-- Select Subject --');
                             @endphp
                             @csrf
                             @method('PUT')
@@ -101,34 +105,44 @@
                             {{-- Course --}}
                             <div class="mb-4">
                                 <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                <select name="course_id" id="scormCourseId" class="form-control"
-                                    onchange="clearError('scormCourseId', 'scormCourseError')">
+
+                                <select name="course_id" id="scormCourseId" class="form-control" disabled>
                                     <option value="">-- Select Course --</option>
                                     @foreach ($courses as $course)
-                                        <option value="{{ $course->id }}" 
+                                        <option value="{{ $course->id }}"
                                             {{ old('course_id', $chapter->course_id ?? '') == $course->id ? 'selected' : '' }}>
                                             {{ $course->title }}
                                         </option>
                                     @endforeach
                                 </select>
+
+                                <!-- IMPORTANT: disabled select submit nahi hota, isliye hidden input -->
+                                <input type="hidden" name="course_id"
+                                    value="{{ old('course_id', $chapter->course_id ?? '') }}">
+
                                 <small class="field-error" id="scormCourseError">Please select a Course.</small>
                             </div>
 
                             {{-- Subject --}}
                             <div class="mb-4">
                                 <label class="form-label">Subject <span class="text-danger">*</span></label>
-                                <select name="subject_id" id="scormChapterId" class="form-control"
-                                    onchange="clearError('scormChapterId', 'scormSubjectError')">
+
+                                <select name="subject_id" id="scormChapterId" class="form-control" disabled>
                                     <option value="">-- Select Subject --</option>
-                                    @if(isset($chapter->subject))
+                                    @if (isset($chapter->subject))
                                         @foreach ($subjects as $subject)
-                                            <option value="{{ $subject->id }}" 
+                                            <option value="{{ $subject->id }}"
                                                 {{ old('subject_id', $chapter->subject_id) == $subject->id ? 'selected' : '' }}>
                                                 {{ $subject->name }}
                                             </option>
                                         @endforeach
                                     @endif
                                 </select>
+
+                                <!-- Disabled select submit nahi hota, isliye hidden input -->
+                                <input type="hidden" name="subject_id"
+                                    value="{{ old('subject_id', $chapter->subject_id) }}">
+
                                 <small class="field-error" id="scormSubjectError">Please select a Subject.</small>
                             </div>
 
@@ -140,11 +154,16 @@
                                     oninput="clearError('scormChapterName', 'scormChapterNameError')">
                                 <small class="field-error" id="scormChapterNameError">Please enter a Chapter Name.</small>
                                 @if ($errors->has('chapter_name'))
-                                    <div class="alert alert-danger mt-1" id="scormChapterError">{{ $errors->first('chapter_name') }}</div>
+                                    <div class="alert alert-danger mt-1" id="scormChapterError">
+                                        {{ $errors->first('chapter_name') }}</div>
                                     <script>
                                         setTimeout(function() {
                                             const el = document.getElementById('scormChapterError');
-                                            if (el) { el.style.transition='opacity 0.5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),500); }
+                                            if (el) {
+                                                el.style.transition = 'opacity 0.5s';
+                                                el.style.opacity = '0';
+                                                setTimeout(() => el.remove(), 500);
+                                            }
                                         }, 5000);
                                     </script>
                                 @endif
@@ -153,22 +172,28 @@
                             {{-- SCORM ZIP --}}
                             <div class="mb-4">
                                 <label class="form-label">
-                                    SCORM Zip File 
+                                    SCORM Zip File
                                     <span class="text-muted">(Optional - Upload only if you want to replace)</span>
                                 </label>
                                 <input type="file" name="zip_file" id="scormZipFile" class="form-control" accept=".zip"
                                     onchange="onZipFileChange(this)">
-                                <small class="text-muted">Leave empty to keep existing SCORM package. Upload new ZIP to replace.</small>
+                                <small class="text-muted">Leave empty to keep existing SCORM package. Upload new ZIP to
+                                    replace.</small>
                                 <div id="zipFileInfo" class="text-muted mt-2">
                                     Current package folder: <strong>{{ $chapter->folder_name }}</strong>
                                 </div>
                                 <small class="field-error" id="scormZipError">Please upload a valid SCORM Zip file.</small>
                                 @if ($errors->has('zip_file'))
-                                    <div class="alert alert-danger mt-1" id="scormZipFileError">{{ $errors->first('zip_file') }}</div>
+                                    <div class="alert alert-danger mt-1" id="scormZipFileError">
+                                        {{ $errors->first('zip_file') }}</div>
                                     <script>
                                         setTimeout(function() {
                                             const el = document.getElementById('scormZipFileError');
-                                            if (el) { el.style.transition='opacity 0.5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),500); }
+                                            if (el) {
+                                                el.style.transition = 'opacity 0.5s';
+                                                el.style.opacity = '0';
+                                                setTimeout(() => el.remove(), 500);
+                                            }
                                         }, 5000);
                                     </script>
                                 @endif
@@ -192,7 +217,6 @@
     </div>
 
     <script>
-
         /* ─── VALIDATION ─── */
         function validateAndSubmit() {
             let isValid = true;
@@ -202,13 +226,13 @@
                 showError('scormCourseId', 'scormCourseError');
                 isValid = false;
             }
-            
+
             // Subject
             if (!document.getElementById('scormChapterId').value) {
                 showError('scormChapterId', 'scormSubjectError');
                 isValid = false;
             }
-            
+
             // Chapter Name
             if (!document.getElementById('scormChapterName').value.trim()) {
                 showError('scormChapterName', 'scormChapterNameError');
@@ -228,16 +252,16 @@
         function showError(fieldId, errorId) {
             let field = document.getElementById(fieldId);
             let error = document.getElementById(errorId);
-            if (field)  field.classList.add('is-invalid-field');
-            if (error)  error.style.display = 'block';
+            if (field) field.classList.add('is-invalid-field');
+            if (error) error.style.display = 'block';
         }
 
         /* Clear error on input/change */
         function clearError(fieldId, errorId) {
             let field = document.getElementById(fieldId);
             let error = document.getElementById(errorId);
-            if (field)  field.classList.remove('is-invalid-field');
-            if (error)  error.style.display = 'none';
+            if (field) field.classList.remove('is-invalid-field');
+            if (error) error.style.display = 'none';
         }
 
         function onZipFileChange(input) {
@@ -252,7 +276,7 @@
         }
 
         /* ─── DOM READY ─── */
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const courseSelect = document.getElementById('scormCourseId');
             const subjectSelect = document.getElementById('scormChapterId');
             const initialCourseId = '{{ old('course_id', $chapter->course_id ?? '') }}';
@@ -261,19 +285,21 @@
             const selectedCourseTitle = document.getElementById('selectedCourseTitle');
             const selectedSubjectName = document.getElementById('selectedSubjectName');
 
-            courseSelect.addEventListener('change', function () {
+            courseSelect.addEventListener('change', function() {
                 const courseId = this.value;
                 if (courseId) {
                     fetchSubjects(courseId, subjectSelect, null);
                 } else {
                     resetSubject(subjectSelect);
                 }
-                selectedCourseTitle.textContent = courseSelect.options[courseSelect.selectedIndex].text || '-- Select Course --';
+                selectedCourseTitle.textContent = courseSelect.options[courseSelect.selectedIndex].text ||
+                    '-- Select Course --';
                 selectedSubjectName.textContent = '-- Select Subject --';
             });
 
-            subjectSelect.addEventListener('change', function () {
-                selectedSubjectName.textContent = subjectSelect.options[subjectSelect.selectedIndex].text || '-- Select Subject --';
+            subjectSelect.addEventListener('change', function() {
+                selectedSubjectName.textContent = subjectSelect.options[subjectSelect.selectedIndex].text ||
+                    '-- Select Subject --';
             });
 
             if (initialCourseId) {
@@ -283,12 +309,12 @@
 
         function resetSubject(selectEl) {
             selectEl.innerHTML = '<option value="">-- Select Subject --</option>';
-            selectEl.disabled  = true;
+            selectEl.disabled = true;
         }
 
         function fetchSubjects(courseId, selectElement, selectedSubjectId = null) {
             const currentSubjectId = selectedSubjectId || {{ $chapter->subject_id ?? 'null' }};
-            
+
             fetch(`/api/subjects/${courseId}`)
                 .then(res => {
                     if (!res.ok) throw new Error('Network error');
@@ -302,16 +328,15 @@
                             html += `<option value="${s.id}" ${selected}>${s.name}</option>`;
                         });
                     }
-                    selectElement.innerHTML  = html;
-                    selectElement.disabled   = false;
+                    selectElement.innerHTML = html;
+                    // selectElement.disabled   = false;
                 })
                 .catch(err => {
                     console.error('Error fetching subjects:', err);
                     selectElement.innerHTML = '<option value="">-- Error Loading Subjects --</option>';
-                    selectElement.disabled  = true;
+                    // selectElement.disabled  = true;
                 });
         }
-
     </script>
 
 @endsection
