@@ -642,6 +642,11 @@ Route::get('/course/{course}/chapters', 'ScormController@getChapters')
 Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
     ->name('chapter.manual.edit');
 
+ Route::get('/chapter/scorm/edit/{id}', 'ScormController@scormEdit')->name('chapter.scorm.edit');
+
+ Route::put('/chapter/scorm/update/{id}', 'ScormController@updateScormChapter')
+    ->name('chapter.scorm.update');
+
 Route::post('/chapters/{chapter}/manual/update', 'ScormController@updateChapterManual')
     ->name('chapter.manual.update');
 

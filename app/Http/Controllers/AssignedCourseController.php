@@ -7,6 +7,7 @@ use App\CourseView;
 use App\EmailTemplate;
 use App\Mail\CourseAssignMail;
 use App\Models\Course;
+use App\Models\EmailLog;
 use App\Models\User;
 use App\ScormPackage as AppScormPackage;
 use App\ScormPackage;
@@ -87,7 +88,7 @@ class AssignedCourseController extends Controller
 
         if ($template) {
 
-            $loginUrl = config('app.url') . '/login';
+            $loginUrl = config('app.url') . 'login';
 
             $body = str_replace(
                 ['{{name}}', '{{course}}', '{{expire_date}}', '{{login_url}}'],
@@ -119,9 +120,31 @@ class AssignedCourseController extends Controller
                 });
 
                 Log::info('Course Assign Mail SENT SUCCESS');
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'sent',
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
+                ]);
             } catch (\Exception $e) {
+
                 Log::error('Course Assign Mail FAILED', [
                     'error' => $e->getMessage()
+                ]);
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
                 ]);
             }
         }
