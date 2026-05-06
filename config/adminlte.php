@@ -575,10 +575,10 @@ return [
 //             'url'         => 'refunds',
 //             'icon'        => 'fa fa-users',
 //         ],
-//         [
-//             'text'    => 'Reports',
-//             'icon'    => 'fa fa-file',
-//             'submenu' => [
+        [
+            'text'    => 'Reports',
+            'icon'    => 'fa fa-file',
+            'submenu' => [
 //                 [
 
 //                     'text'        => 'Admin Activity',
@@ -674,7 +674,10 @@ return [
 //                     'text'        => 'Videos',
 //                     'url'         => 'reports/videos',
 //                 ],
-               
+               [
+                    'text'        => 'Activity Report',
+                    'url'         => 'activity-report',
+                ],
               
                
                
@@ -682,8 +685,8 @@ return [
              
               
                
-//             ],
-//         ],
+            ],
+        ],
 //         [
 //             'text'        => 'Settings',
 //             'url'         => 'settings',
