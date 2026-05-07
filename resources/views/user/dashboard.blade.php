@@ -5,6 +5,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>User Dashboard</title>
     <link href="https://fonts.cdnfonts.com/css/digital-numbers" rel="stylesheet">
     <style>
@@ -1279,16 +1280,24 @@
                 document.getElementById('modeModal').style.display = 'none';
             }
 
-            function goStudy() {
-                if (!selectedCourseId) {
-                    alert('Course ID missing!');
-                    return;
-                }
+            async function goStudy() {
 
-                closeModeModal();
+    if (!selectedCourseId) {
+        alert('Course ID missing!');
+        return;
+    }
 
-                window.location.href = `/course/${selectedCourseId}/chapters`;
-            }
+    const result = await saveAttempt(selectedCourseId);
+
+    if (!result.success) {
+        alert(result.message);
+        return;
+    }
+
+    closeModeModal();
+
+    window.location.href = `/course/${selectedCourseId}/chapters`;
+}
 
             function openChapter(chapterId) {
 
@@ -1313,15 +1322,40 @@
                 }
             }
 
-            function goTest() {
-                if (!selectedCourseId) {
-                    alert('Course ID missing!');
-                    return;
-                }
+            async function goTest() {
 
-                closeModeModal();
-                window.location.href = `/user/${selectedCourseId}`;
-            }
+    if (!selectedCourseId) {
+        alert('Course ID missing!');
+        return;
+    }
+
+    const result = await saveAttempt(selectedCourseId);
+
+    if (!result.success) {
+        alert(result.message);
+        return;
+    }
+
+    closeModeModal();
+
+    window.location.href = `/user/${selectedCourseId}`;
+}
+
+              async function saveAttempt(courseId) {
+
+    const response = await fetch('/course/increment-attempt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            course_id: courseId
+        })
+    });
+
+    return await response.json();
+}
         </script>
 
 </body>
