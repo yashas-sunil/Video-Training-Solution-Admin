@@ -500,6 +500,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     // Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
     Route::get('test-result', 'AnswerController@dashboard');
     Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+    Route::post('/question-bank/update-status/{id}', 'QuestionBankController@updateStatus')->name('questionbank.update.status');
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
@@ -659,6 +660,8 @@ Route::post('/lessons/{lesson}/delete', 'ScormController@deleteLesson')
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
     ->name('chapter.view')->middleware('auth');
 
+    Route::post('/course/increment-attempt', 'ScormController@incrementAttempt')
+    ->name('course.incrementAttempt');
 Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
 
 

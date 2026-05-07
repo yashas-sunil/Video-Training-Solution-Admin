@@ -586,29 +586,29 @@ class ScormController extends Controller
         $watchTime = $package->watch_time * 60;
 
         // Get existing view record for this user & course
-        $courseView = CourseView::where('user_id', $userId)
-            ->where('course_id', $id)
-            ->first();
+        // $courseView = CourseView::where('user_id', $userId)
+        //     ->where('course_id', $id)
+        //     ->first();
 
-        if (!$courseView) {
-            $courseView = CourseView::create([
-                'user_id' => $userId,
-                'course_id' => $id,
-                'view_limit' => 1,
-            ]);
-        }
+        // if (!$courseView) {
+        //     $courseView = CourseView::create([
+        //         'user_id' => $userId,
+        //         'course_id' => $id,
+        //         'view_limit' => 1,
+        //     ]);
+        // }
 
         $totalSessionTime = AppCourseProgress::where('user_id', $userId)
             ->where('course_id', $id)
             ->sum('session_time');
 
         // Formula: totalSessionTime - ((attempt_no - 1) * watchTime)
-        $currentAttemptTime = max(0, $totalSessionTime - (($courseView->view_limit - 1) * $watchTime));
+        // $currentAttemptTime = max(0, $totalSessionTime - (($courseView->view_limit - 1) * $watchTime));
 
-        if ($currentAttemptTime >= $watchTime) {
-            $courseView->increment('view_limit');
-            $courseView->update(['last_reset_time' => now()]);
-        }
+        // if ($currentAttemptTime >= $watchTime) {
+        //     $courseView->increment('view_limit');
+        //     $courseView->update(['last_reset_time' => now()]);
+        // }
 
         $launchUrl = asset('scorm_packages/' . $package->folder_name . '/' . $package->launch_file);
 
@@ -1183,7 +1183,40 @@ class ScormController extends Controller
         ]);
     }
 
+         public function incrementAttempt(Request $request)
+{
+   // dd($request->all());
+    $userId = auth()->id();
+    $courseId = $request->course_id;
+   // dd($userId, $courseId);
 
+    $course = AppScormPackage::findOrFail($courseId);
+
+    $courseView = CourseView::firstOrCreate(
+        [
+            'user_id' => $userId,
+            'course_id' => $courseId,
+        ],
+        [
+            'view_limit' => 0,
+        ]
+    );
+     // dd($courseView->view_limit, $course->view_limit);
+    if ($courseView->view_limit < $course->view_limit) {
+
+        $courseView->increment('view_limit');
+
+        return response()->json([
+            'success' => true,
+            'attempt' => $courseView->view_limit
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Maximum attempt limit reached.'
+    ]);
+}
 
     public function getChapters($courseId)
     {
