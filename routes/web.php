@@ -206,6 +206,10 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::resource('email-log', 'EmailLogController');
 
     //-----------------------------------------------------------------------------------//
+    /********************Activity Report***********/
+    Route::resource('activity-report', 'ActivityController');
+
+    //-----------------------------------------------------------------------------------//
 
     Route::get('studio-upload-videos', 'VideoController@studioVideos');
 
