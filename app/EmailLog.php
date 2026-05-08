@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmailLog  extends Model
+class EmailLog extends Model
 {
-    protected $table = 'email_logs';
-     protected $fillable = [
+    protected $fillable = [
         'user_id',
         'email',
         'subject',
+        'message',
         'body',
-        'status',
         'error_message',
         'cc',
-        'bcc'
+        'bcc',
+        'status',
     ];
+
 }

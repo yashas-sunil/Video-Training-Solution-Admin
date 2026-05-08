@@ -206,6 +206,10 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     Route::resource('email-log', 'EmailLogController');
 
     //-----------------------------------------------------------------------------------//
+    /********************Activity Report***********/
+    Route::resource('activity-report', 'ActivityController');
+
+    //-----------------------------------------------------------------------------------//
 
     Route::get('studio-upload-videos', 'VideoController@studioVideos');
 
@@ -500,6 +504,7 @@ Route::middleware(['auth', AdminOnlyMiddleware::class, ReportAdminMiddleware::cl
     // Route::post('/subjects/update/{id}', 'SubjectController@subjectupdate')->name('subjects.update');
     Route::get('test-result', 'AnswerController@dashboard');
     Route::get('question/bank', 'QuestionBankController@index')->name('question.bank');
+    Route::post('/question-bank/update-status/{id}', 'QuestionBankController@updateStatus')->name('questionbank.update.status');
     Route::get('/chapters', 'ScormController@chapterindex')->name('chapters');
     Route::get('/course-questions', 'CourseQuestionController@index')
         ->name('course.questions.index');
@@ -642,6 +647,11 @@ Route::get('/course/{course}/chapters', 'ScormController@getChapters')
 Route::get('/chapters/{chapter}/manual/edit', 'ScormController@editChapterManual')
     ->name('chapter.manual.edit');
 
+ Route::get('/chapter/scorm/edit/{id}', 'ScormController@scormEdit')->name('chapter.scorm.edit');
+
+ Route::put('/chapter/scorm/update/{id}', 'ScormController@updateScormChapter')
+    ->name('chapter.scorm.update');
+
 Route::post('/chapters/{chapter}/manual/update', 'ScormController@updateChapterManual')
     ->name('chapter.manual.update');
 
@@ -654,6 +664,8 @@ Route::post('/lessons/{lesson}/delete', 'ScormController@deleteLesson')
 Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
     ->name('chapter.view')->middleware('auth');
 
+    Route::post('/course/increment-attempt', 'ScormController@incrementAttempt')
+    ->name('course.incrementAttempt');
 Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
 
 
