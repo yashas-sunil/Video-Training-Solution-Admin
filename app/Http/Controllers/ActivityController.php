@@ -58,6 +58,11 @@ class ActivityController extends Controller
                     $query->whereBetween('al.created_at', [$from, $to]);
                 }
         })
+        ->editColumn('url', function($row) {
+
+        return strtok($row->url, '?');
+
+    })
             ->addColumn('created_at', function($query) {
                 if(!empty($query->created_at)){
                     $datetime = explode(" ",$query->created_at);
@@ -83,6 +88,7 @@ class ActivityController extends Controller
     ['data' => 'device', 'name' => 'al.device', 'title' => 'Device' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'browser', 'name' => 'al.browser', 'title' => 'Browser' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'platform', 'name' => 'al.platform', 'title' => 'Platform' , 'defaultContent' => '-', 'orderable' => false],
+    ['data' => 'url', 'name' => 'al.url', 'title' => 'URL' , 'defaultContent' => '-', 'orderable' => false, 'className' => 'text-wrap-url'],
     ['data' => 'created_at', 'name' => 'al.created_at', 'title' => 'Created Date', 'orderable' => false],
      
         ])->parameters([
