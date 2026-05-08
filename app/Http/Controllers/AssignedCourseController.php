@@ -2,24 +2,28 @@
 
 namespace App\Http\Controllers;
 // use App\Models\AssignedCourse;
-use App\ScormPackage;
-use Yajra\DataTables\Html\Builder;
-use Yajra\DataTables\Facades\DataTables;
-use App\Models\User;
 use App\Assignedcourse;
 use App\CourseView;
+use App\EmailTemplate;
+use App\Mail\CourseAssignMail;
 use App\Models\Course;
-use Carbon\Carbon;
-// use App\Models\ScormPackage;
+use App\Models\EmailLog;
+use App\Models\User;
 use App\ScormPackage as AppScormPackage;
+use App\ScormPackage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class AssignedCourseController extends Controller
 {
     public function create()
     {
-        $users = User:: where('status','active')
-                        ->where('role',2)->get();
+        $users = User::where('status', 'active')
+            ->where('role', 2)->get();
 
         $courses = AppScormPackage::where('status', 1)->get();
 
@@ -76,11 +80,77 @@ class AssignedCourseController extends Controller
             'expire_date' => $expireDate,
             'enrolled_at' => now(),
         ]);
+        $user = User::findOrFail($request->user_id);
 
-        return redirect()
-            ->route('assigned-courses.index')
-            ->with('success', 'Course successfully assigned to user!');
+        $template = EmailTemplate::where('name', 'course_assign')
+            ->where('status', 1)
+            ->first();
+
+        if ($template) {
+
+            $loginUrl = config('app.url') . 'login';
+
+            $body = str_replace(
+                ['{{name}}', '{{course}}', '{{expire_date}}', '{{login_url}}'],
+                [$user->name, $course->title, $expireDate, $loginUrl],
+                $template->body
+            );
+
+            Log::info('Course Assign Mail START', [
+                'user_id' => $user->id,
+                'email'   => $user->email,
+                'cc'      => $template->cc,
+                'bcc'     => $template->bcc,
+            ]);
+
+            try {
+
+                Mail::send([], [], function ($message) use ($user, $template, $body) {
+                    $message->to($user->email)
+                        ->subject($template->subject)
+                        ->setBody($body, 'text/html');
+
+                    if ($template->cc) {
+                        $message->cc(explode(',', $template->cc));
+                    }
+
+                    if ($template->bcc) {
+                        $message->bcc(explode(',', $template->bcc));
+                    }
+                });
+
+                Log::info('Course Assign Mail SENT SUCCESS');
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'sent',
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
+                ]);
+            } catch (\Exception $e) {
+
+                Log::error('Course Assign Mail FAILED', [
+                    'error' => $e->getMessage()
+                ]);
+
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'email'   => $user->email,
+                    'subject' => $template->subject,
+                    'body'    => $body,
+                    'status'  => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'cc'      => $template->cc,
+                    'bcc'     => $template->bcc,
+                ]);
+            }
+        }
+        return redirect()->route('assigned-courses.index')->with('success', 'Course assigned successfully!');
     }
+
     public function index(Builder $builder)
     {
         if (request()->ajax()) {
