@@ -22,25 +22,25 @@ class ActivityLogMiddleware
 
         $agent = new Agent();
 
-        $source = 'web';
+        $source = 'ios_app';
 
         // Detect mobile app
-        if (request()->header('X-App-Type') === 'android') {
+        if (request()->header('sec-ch-ua-platform') === '"Android"') {
             $source = 'android_app';
         }
 
-        if (request()->header('X-App-Type') === 'ios') {
-            $source = 'ios_app';
+        if (request()->header('sec-ch-ua-platform') === '"Windows"') {
+            $source = 'Windows';
         }
 
         ActivityLog::create([
             'user_id'    => auth()->id(),
             'role'       => auth()->user()->role ?? 'user',
-            'module'     => $request->segment(1), // url ka first part
+            'module'     => $request->segment(1), 
             'action'     => $request->method(),   // GET, POST
             'message'    => 'Visited '.$request->path(),
             'ip_address' => $request->ip(),
-            'device'     => $source,
+            'device'     => $request->userAgent(),
             'browser'    => $agent->browser(),
             'platform'   => $agent->platform(),
             'url'        => $request->fullUrl(),
