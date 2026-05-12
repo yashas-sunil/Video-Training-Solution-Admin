@@ -22,6 +22,17 @@ class ActivityLogMiddleware
 
         $agent = new Agent();
 
+        $source = 'web';
+
+        // Detect mobile app
+        if (request()->header('X-App-Type') === 'android') {
+            $source = 'android_app';
+        }
+
+        if (request()->header('X-App-Type') === 'ios') {
+            $source = 'ios_app';
+        }
+
         ActivityLog::create([
             'user_id'    => auth()->id(),
             'role'       => auth()->user()->role ?? 'user',
@@ -29,7 +40,7 @@ class ActivityLogMiddleware
             'action'     => $request->method(),   // GET, POST
             'message'    => 'Visited '.$request->path(),
             'ip_address' => $request->ip(),
-            'device'     => $agent->device(),
+            'device'     => $source,
             'browser'    => $agent->browser(),
             'platform'   => $agent->platform(),
             'url'        => $request->fullUrl(),
