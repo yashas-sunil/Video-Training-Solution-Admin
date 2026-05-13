@@ -668,6 +668,17 @@ Route::get('/view/chapter/{chapter}', 'ScormController@viewChapter')
     ->name('course.incrementAttempt');
 Route::get('/auto-login/course/{courseId}', 'ScormController@autoLoginChapter');
 
+  Route::post('/chapter/record-click', 'ScormController@recordClick')
+        ->name('chapter.record-click');
+    
+    // Get click statistics for a chapter
+    Route::get('/chapter/{chapterId}/click-stats', 'ScormController@getClickStats')
+        ->name('chapter.click-stats');
+    
+    // Get all user's chapter click statistics
+    Route::get('/user/chapter-stats', 'ScormController@getUserChapterStats')
+        ->name('user.chapter-stats');
+
 
 Route::get('/test-token', function () {
 

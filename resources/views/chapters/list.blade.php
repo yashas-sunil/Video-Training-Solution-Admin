@@ -3,6 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Course Chapters</title>
 
     <style>
@@ -69,11 +70,7 @@
             height: 50px;
             width: auto;
         }
-        
 
-        
-
-        
         .navbar .user-info {
             display: flex;
             align-items: center;
@@ -126,39 +123,6 @@
             max-width: 420px;
             justify-content: center;
             padding: 10px 15px;
-        }
-
-        .user-welcome {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 1;
-            border-radius: 30px;
-            border-width: 3px;
-            background: #8D8D8D87;
-            border: 3px solid #FFFFFF33;
-            padding: 10px 20px;
-            box-shadow: 0px 4px 18px 10px #FFFFFF30;
-        }
-
-        .user-info a {
-            display: flex;
-            gap: 5px;
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            align-items: center;
-            border-radius: 30px;
-            border-width: 3px;
-            background: #8D8D8D87;
-            border: 3px solid #FFFFFF33;
-            padding: 7px 20px;
-            box-shadow: 0px 4px 18px 10px #FFFFFF30;
-            font-size: 14px;
-        }
-
-        .user-info-mobile {
-            display: none;
         }
 
         .page-content {
@@ -252,6 +216,13 @@
             transform: translateY(-2px);
         }
 
+        .chapter-item.locked-chapter {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed !important;
+            border-color: #999;
+        }
+
         .chapter-title {
             font-size: 16px;
             font-weight: 500;
@@ -300,7 +271,16 @@
             font-size: 14px;
             font-family: sans-serif;
             background: #2C2C49;
+        }
 
+        .open-text:hover {
+            background: #1f1f35;
+        }
+
+        .open-text.locked {
+            background: #999 !important;
+            cursor: not-allowed !important;
+            pointer-events: all;
         }
 
         .attempt-btn {
@@ -317,11 +297,52 @@
             font-family: sans-serif;
         }
 
+        .attempt-btn:hover {
+            background: #f0f0f0;
+        }
+
         .attempt-btn.disabled {
             background: #ccc;
             cursor: not-allowed;
             opacity: 0.7;
             border: 2px solid #999;
+        }
+
+        /* Loading indicator */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #700002;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
@@ -331,7 +352,6 @@
         }
 
         @media (max-width: 425px) {
-
             .navbar {
                 padding: 15px 6px !important;
             }
@@ -361,22 +381,6 @@
                 gap: 8px !important;
             }
 
-            .user-welcome {
-                gap: 4px !important;
-                padding: 6px 10px !important;
-            }
-
-            .user-info a {
-                margin-left: 0px !important;
-                padding: 3px 10px !important;
-                font-size: 12px !important;
-            }
-
-            .user-info-mobile a {
-                color: white !important;
-                text-decoration: none !important;
-            }
-
             .user-info {
                 display: none !important;
             }
@@ -385,6 +389,10 @@
 </head>
 
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
 
     <div class="navbar">
         <div class="navbar-left">
@@ -431,7 +439,6 @@
     </div>
 
     <div class="page-content">
-
         <div class="page-header">
             <button onclick="window.location.href='/user/dashboard'" class="back-btn">
                 ⬅ Back
@@ -450,7 +457,6 @@
             </select>
         </div>
 
-
         <div class="chapter-list" id="chapterListContainer">
             @forelse($chapters as $chapter)
                 @php
@@ -458,10 +464,11 @@
                     if ($percent > 0 && $percent < 1) {
                         $percent = 1;
                     }
-                    $currentAttempt = $chapter->attempt_count ?? 0;
+                    $isLocked = $chapter->is_locked ?? false;
                 @endphp
 
-                <div class="chapter-item" onclick="openChapter({{ $chapter->id }})"
+                <div class="chapter-item {{ $isLocked ? 'locked-chapter' : '' }}"
+                    data-chapter-id="{{ $chapter->id }}" data-course-id="{{ $chapter->course_id ?? '' }}"
                     data-subject-id="{{ $chapter->subject_id }}">
 
                     <div class="chapter-title">{{ $chapter->name }}</div>
@@ -475,24 +482,34 @@
                         </div>
                     </div>
 
-
-
                     @php
                         if ($percent >= 100 || $chapter->is_completed) {
                             $btnText = 'Completed';
+                            $btnType = 'completed';
                         } elseif ($percent > 0) {
                             $btnText = 'Resume';
+                            $btnType = 'resume';
                         } else {
                             $btnText = 'Start';
+                            $btnType = 'start';
                         }
                     @endphp
 
                     <div class="list_buttons">
-                        <div class="open-text">
-                            {{ $btnText }}
-                        </div>
-                        <div class="attempt-btn"
-                            onclick="event.stopPropagation(); showAttempts('{{ $chapter->name }}')">
+                        @if ($isLocked)
+                            <div class="open-text locked"
+                                onclick="event.stopPropagation(); alert('Course attempt limit reached. Please contact administrator.');">
+                                🔒 Limit Reached
+                            </div>
+                        @else
+                            <div class="open-text" data-button-type="{{ $btnType }}"
+                                onclick="handleChapterClick(event, {{ $chapter->id }}, '{{ $btnType }}')">
+                                {{ $btnText }}
+                            </div>
+                        @endif
+
+                        <div class="attempt-btn {{ $isLocked ? 'disabled' : '' }}"
+                            onclick="event.stopPropagation(); {{ $isLocked ? '' : "showAttempts('" . addslashes($chapter->name) . "')" }}">
                             View Attempts
                         </div>
                     </div>
@@ -504,103 +521,136 @@
         </div>
     </div>
 
-    <script>
-        // Show all chapters on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            filterChaptersBySubject();
+   <script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        filterChaptersBySubject();
+    });
+
+    function filterChaptersBySubject() {
+        const selectedSubjectId = document.getElementById('subjectFilter').value;
+        const chapterItems = document.querySelectorAll('.chapter-item');
+
+        const oldMsg = document.getElementById('noChaptersMsg');
+        if (oldMsg) oldMsg.remove();
+
+        let visibleCount = 0;
+
+        chapterItems.forEach(item => {
+            if (selectedSubjectId === '' || item.getAttribute('data-subject-id') === selectedSubjectId) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
         });
 
-        function filterChaptersBySubject() {
-            const selectedSubjectId = document.getElementById('subjectFilter').value;
-            const chapterItems = document.querySelectorAll('.chapter-item');
+        if (visibleCount === 0) {
+            const container = document.getElementById('chapterListContainer');
+            const noChaptersMsg = document.createElement('div');
+            noChaptersMsg.id = 'noChaptersMsg';
+            noChaptersMsg.textContent = 'No chapters available for this subject.';
+            noChaptersMsg.style.cssText = 'text-align: center; padding: 20px; color: #666;';
+            container.appendChild(noChaptersMsg);
+        }
+    }
 
-            // Remove any old "no chapters" message
-            const oldMsg = document.getElementById('noChaptersMsg');
-            if (oldMsg) oldMsg.remove();
+    // 🔥 MAIN CLICK HANDLER
+    async function handleChapterClick(event, chapterId, buttonType) {
+        event.stopPropagation();
 
-            let visibleCount = 0;
+        const chapterItem = event.target.closest('.chapter-item');
 
-            chapterItems.forEach(item => {
-                // If "All Subjects" selected OR subject matches — show it
-                if (selectedSubjectId === '' || item.getAttribute('data-subject-id') === selectedSubjectId) {
-                    item.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            // Show "No chapters" message if none found for selected subject
-            if (visibleCount === 0) {
-                const container = document.getElementById('chapterListContainer');
-                const noChaptersMsg = document.createElement('div');
-                noChaptersMsg.id = 'noChaptersMsg';
-                noChaptersMsg.textContent = 'No chapters available for this subject.';
-                noChaptersMsg.style.cssText = 'text-align: center; padding: 20px; color: #666;';
-                container.appendChild(noChaptersMsg);
-            }
+        if (chapterItem.classList.contains('locked-chapter')) {
+            alert('Course attempt limit reached. Please contact administrator.');
+            return;
         }
 
-        function openChapter(chapterId) {
-            const w = window.screen.availWidth;
-            const h = window.screen.availHeight;
+        const courseId = chapterItem.getAttribute('data-course-id');
 
-            window.open(
-                `/view/chapter/${chapterId}`,
-                '_blank',
-                `width=${w},height=${h},top=0,left=0,resizable=yes,scrollbars=yes`
-            );
+        showLoading(true);
+
+        try {
+            // 1️⃣ Record click
+            await recordButtonClick(chapterId, courseId, buttonType);
+
+            // 2️⃣ 🔥 Attempt API call (IMPORTANT)
+            await incrementCourseAttempt(courseId);
+
+            // 3️⃣ Open chapter AFTER API
+            openChapter(chapterId);
+
+        } catch (err) {
+            console.error(err);
+        } finally {
+            showLoading(false);
         }
+    }
 
-        function showAttempts(quizName) {
-            window.location.href = `/get-attempts?quiz_name=${encodeURIComponent(quizName)}`;
+    // ✅ Record click API
+    async function recordButtonClick(chapterId, courseId, buttonType) {
+        const response = await fetch('/chapter/record-click', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                chapter_id: chapterId,
+                course_id: courseId || null,
+                button_type: buttonType
+            })
+        });
+
+        return await response.json();
+    }
+
+    // ✅ YOUR ATTEMPT API
+    async function incrementCourseAttempt(courseId) {
+        const response = await fetch('/course/increment-attempt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                course_id: courseId
+            })
+        });
+
+        const data = await response.json();
+        console.log("Attempt Response:", data);
+
+        if (!data.success) {
+            alert(data.message);
+            throw new Error("Attempt limit reached");
         }
+    }
 
-        function viewAttemptQuestions(index, quizName) {
-            const attempt = window.attemptData[index];
-            const box = document.getElementById('attemptContent');
+    function openChapter(chapterId) {
+        const w = window.screen.availWidth;
+        const h = window.screen.availHeight;
 
-            box.innerHTML = `
-        <button onclick="showAttempts('${quizName}')" 
-            style="margin-bottom:15px; padding:6px 12px; border:none; background:#3498db; color:white; border-radius:4px; cursor:pointer;">
-            ⬅ Back
-        </button>
+        window.open(
+            `/view/chapter/${chapterId}`,
+            '_blank',
+            `width=${w},height=${h},top=0,left=0,resizable=yes,scrollbars=yes`
+        );
+    }
 
-        <div style="padding:15px; background:#f7f9fc; border-radius:6px; border:1px solid #ddd; margin-bottom:20px;">
-            <p style="margin:4px 0;"><strong>Chapter:</strong> ${attempt.chapter_name}</p>
-            <p style="margin:4px 0;">
-                <strong>Attempt:</strong> ${attempt.attempt_number} 
-                <span style="color:#555; font-size:13px;">(${attempt.attempt_time})</span>
-            </p>
-            <p style="margin:4px 0;"><strong>Score:</strong> ${attempt.score_percent}%</p>
-        </div>
+    function showAttempts(quizName) {
+        window.location.href = `/get-attempts?quiz_name=${encodeURIComponent(quizName)}`;
+    }
 
-        <div>
-            ${attempt.questions.map((q, i) => {
-                const isCorrect = q.is_correct ? '✅ Correct' : '❌ Wrong';
-                const answerColor = q.is_correct ? '#e6ffed' : '#ffecec';
-
-                return `
-                        <div style="background:white; padding:12px; border-radius:6px; border:1px solid #ddd; margin-bottom:10px;">
-                            <div style="font-weight:bold; margin-bottom:6px;">
-                                Q${i + 1}: ${q.question_id}
-                            </div>
-                            <div style="margin:3px 0; padding:6px; border-radius:4px; background:${answerColor};">
-                                🧍 Your Answer: ${q.user_answer || '-'}
-                            </div>
-                            <div style="margin:3px 0; padding:6px; border-radius:4px; background:#f0f0f0;">
-                                📌 Correct Answer: ${q.correct_answer || '-'}
-                            </div>
-                            <div style="margin-top:5px; font-weight:bold; color:${q.is_correct ? 'green' : 'red'};">
-                                ${isCorrect}
-                            </div>
-                        </div>
-                    `;
-            }).join('')}
-        </div>
-    `;
-        }
-    </script>
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) overlay.classList.add('active');
+        else overlay.classList.remove('active');
+    }
+</script>
 
 </body>
 
