@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Assignedcourse;
+use App\ChapterButtonClick;
+use App\ChapterRoundView;
 use App\CourseProgress as AppCourseProgress;
 use App\CourseProgress;
 use App\CourseView;
@@ -222,7 +224,6 @@ class ScormController extends Controller
                     'cc'      => $template->cc,
                     'bcc'     => $template->bcc,
                 ]);
-
             } catch (\Exception $e) {
 
                 Log::error('Mail FAILED for user', [
@@ -469,7 +470,6 @@ class ScormController extends Controller
                         'cc'      => $template->cc,
                         'bcc'     => $template->bcc,
                     ]);
-
                 } catch (\Exception $e) {
 
                     Log::error('Mail FAILED for user', [
@@ -949,7 +949,7 @@ class ScormController extends Controller
         $courses = AppScormPackage::all();
 
         // subjects of selected course
-        $subjects = Subject::where('course_id',$chapter->course_id ?? null)->get();
+        $subjects = Subject::where('course_id', $chapter->course_id ?? null)->get();
 
         return view('courses.scorm_edit', compact('chapter', 'scormPath', 'courses', 'subjects'));
     }
@@ -1050,171 +1050,141 @@ class ScormController extends Controller
         ]);
     }
 
-    public function viewChapter($id)
-    {
-        $chapter = Chapter::with(['manualContents', 'lessons'])->findOrFail($id);
-        $userId = auth()->id();
+public function viewChapter($id)
+{
+    $chapter = Chapter::with(['manualContents', 'lessons'])->findOrFail($id);
+    $userId = auth()->id();
+    $courseId = request()->get('scorm_packages') ?? $chapter->course_id;
 
-        // Get user's progress for this chapter
-        $courseId = request()->get('course') ?? $chapter->course_id;
-        $progress = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->where('chapter_id', $chapter->id)
-            ->first();
+  // Is specific chapter ka last round nikalo (NOT course ka)
+$lastRoundOfThisChapter = ChapterRoundView::where('user_id', $userId)
+    ->where('course_id', $courseId)
+    ->where('chapter_id', $chapter->id)
+    ->max('round_no');
 
-        if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
+$currentRound = $lastRoundOfThisChapter ? $lastRoundOfThisChapter + 1 : 1;
 
-            $overviewTypes = [
-                'Glossary',
-                'Infographics',
-                'Textbook',
-                'Map',
-            ];
+ChapterRoundView::create([
+    'user_id'    => $userId,
+    'course_id'  => $courseId,
+    'chapter_id' => $chapter->id,
+    'round_no'   => $currentRound,
+]);
 
-            $lessonTypes = [
-                'Detailed Trainer Slides',
-                'Summary Slides',
-                'Videos',
-            ];
+    $progress = AppCourseProgress::where('user_id', $userId)
+        ->where('course_id', $courseId)
+        ->where('chapter_id', $chapter->id)
+        ->first();
 
-            //  Overview contents (SORTED BY ID)
-            $overview = $chapter->manualContents
-                ->whereNull('lesson_id')
-                ->whereIn('content_type', $overviewTypes)
-                ->sortBy('id')
-                ->groupBy('content_type')
-                ->map(function ($items) {
-                    return $items->map(function ($content) {
-                        return [
-                            'id' => $content->id,
-                            'label' => $content->content_type,
-                            'url' => route('pdf.stream', $content->file_path),
-                            'original_name' => $content->original_name ?? basename($content->file_path),
-                            'size' => $content->file_size,
-                        ];
-                    });
-                });
+    if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
 
-            //  Lessons contents (SORTED BY ID)
-            $lessons = $chapter->lessons
-                ->map(function ($lesson) use ($chapter, $lessonTypes) {
+        $overviewTypes = ['Glossary','Infographics','Textbook','Map'];
+        $lessonTypes = ['Detailed Trainer Slides','Summary Slides','Videos'];
 
-                    $lessonItems = $chapter->manualContents
-                        ->where('lesson_id', $lesson->id)
-                        ->whereIn('content_type', $lessonTypes)
-                        ->sortBy('id');
-
+        $overview = $chapter->manualContents
+            ->whereNull('lesson_id')
+            ->whereIn('content_type', $overviewTypes)
+            ->sortBy('id')
+            ->groupBy('content_type')
+            ->map(function ($items) {
+                return $items->map(function ($content) {
                     return [
-                        'lesson_id'   => $lesson->id,
-                        'lesson_name' => $lesson->lesson_name,
-                        'contents' => $lessonItems
-                            ->groupBy('content_type')
-                            ->map(function ($items) {
-                                return $items->map(function ($content) {
-                                    return [
-                                        'id' => $content->id,
-                                        'url' => route('secure.file', $content->file_path),
-                                        'original_name' => $content->original_name ?? basename($content->file_path),
-                                        'size' => $content->file_size,
-                                    ];
-                                });
-                            }),
+                        'id' => $content->id,
+                        'label' => $content->content_type,
+                        'url' => route('pdf.stream', $content->file_path),
+                        'original_name' => $content->original_name ?? basename($content->file_path),
+                        'size' => $content->file_size,
                     ];
-                })
-                ->values();
-            //  dd($lessons);
-            return view('chapters.manual', [
-                'chapter' => $chapter,
-                'overview' => $overview,
-                'lessons' => $lessons,
-                'userProgress' => $progress ? $progress->progress_percent : 0,
-            ]);
-        }
+                });
+            });
 
-        // ---------- SCORM PART (UNCHANGED) ----------
-        $userId = auth()->id();
+        $lessons = $chapter->lessons->map(function ($lesson) use ($chapter, $lessonTypes) {
 
-        $watchTime = ($chapter->watch_time ?? 0) * 60;
+            $lessonItems = $chapter->manualContents
+                ->where('lesson_id', $lesson->id)
+                ->whereIn('content_type', $lessonTypes)
+                ->sortBy('id');
 
-        $courseView = CourseView::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->first();
+            return [
+                'lesson_id'   => $lesson->id,
+                'lesson_name' => $lesson->lesson_name,
+                'contents' => $lessonItems
+                    ->groupBy('content_type')
+                    ->map(function ($items) {
+                        return $items->map(function ($content) {
+                            return [
+                                'id' => $content->id,
+                                'url' => route('secure.file', $content->file_path),
+                                'original_name' => $content->original_name ?? basename($content->file_path),
+                                'size' => $content->file_size,
+                            ];
+                        });
+                    }),
+            ];
+        })->values();
 
-        if (!$courseView) {
-            $courseView = CourseView::create([
-                'user_id' => $userId,
-                'course_id' => $chapter->course_id,
-                'view_limit' => 1,
-            ]);
-        }
-
-        $totalSessionTime = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->sum('session_time');
-
-        $currentAttemptTime = max(
-            0,
-            $totalSessionTime - (($courseView->view_limit - 1) * $watchTime)
-        );
-
-        if ($watchTime > 0 && $currentAttemptTime >= $watchTime) {
-            $courseView->increment('view_limit');
-            $courseView->update(['last_reset_time' => now()]);
-        }
-
-        $launchUrl = asset(
-            'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
-        );
-
-        $progress = AppCourseProgress::where('user_id', $userId)
-            ->where('course_id', $chapter->course_id)
-            ->first();
-
-        return view('view', [
-            'launchUrl'    => $launchUrl,
-            'title'        => $chapter->name,
-            'courseId'     => $chapter->course_id,
-            'chapterId'    => $chapter->id,
-            'resumeTime'   => $progress->resume_from_time ?? 0,
-            'lastLocation' => $progress->cmi_core_lesson_location ?? '',
-            'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
-            'score'        => $progress->cmi_core_score_raw ?? '',
-            'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
+        return view('chapters.manual', [
+            'chapter' => $chapter,
+            'overview' => $overview,
+            'lessons' => $lessons,
+            'userProgress' => $progress ? $progress->progress_percent : 0,
         ]);
     }
 
-         public function incrementAttempt(Request $request)
+    // ===== SCORM VIEW PART =====
+    $launchUrl = asset(
+        'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
+    );
+
+    $progress = AppCourseProgress::where('user_id', $userId)
+        ->where('course_id', $chapter->course_id)
+        ->first();
+
+    return view('view', [
+        'launchUrl'    => $launchUrl,
+        'title'        => $chapter->name,
+        'courseId'     => $chapter->course_id,
+        'chapterId'    => $chapter->id,
+        'resumeTime'   => $progress->resume_from_time ?? 0,
+        'lastLocation' => $progress->cmi_core_lesson_location ?? '',
+        'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
+        'score'        => $progress->cmi_core_score_raw ?? '',
+        'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
+    ]);
+}
+
+public function incrementAttempt(Request $request)
 {
-   // dd($request->all());
-    $userId = auth()->id();
+    $userId   = auth()->id();
     $courseId = $request->course_id;
-   // dd($userId, $courseId);
 
     $course = AppScormPackage::findOrFail($courseId);
 
-    $courseView = CourseView::firstOrCreate(
+    $totalChapters = Chapter::where('course_id', $courseId)->count();
+
+    // Get completed rounds
+    $completedRounds = ChapterRoundView::where('user_id', $userId)
+        ->where('course_id', $courseId)
+        ->select('round_no')
+        ->groupBy('round_no')
+        ->havingRaw('COUNT(DISTINCT chapter_id) = ?', [$totalChapters])
+        ->pluck('round_no');
+
+    $attempt = $completedRounds->count();
+
+    $courseView = CourseView::updateOrCreate(
         [
-            'user_id' => $userId,
+            'user_id'   => $userId,
             'course_id' => $courseId,
         ],
         [
-            'view_limit' => 0,
+            'view_limit' => $attempt,
         ]
     );
-     // dd($courseView->view_limit, $course->view_limit);
-    if ($courseView->view_limit < $course->view_limit) {
-
-        $courseView->increment('view_limit');
-
-        return response()->json([
-            'success' => true,
-            'attempt' => $courseView->view_limit
-        ]);
-    }
 
     return response()->json([
-        'success' => false,
-        'message' => 'Maximum attempt limit reached.'
+        'success' => true,
+        'attempt' => $attempt
     ]);
 }
 
@@ -1222,10 +1192,21 @@ class ScormController extends Controller
     {
         $userId = auth()->id();
 
+        $course = AppScormPackage::find($courseId);
+        $attemptLimit = (int) ($course->view_limit ?? 0);
+
         $chapters = Chapter::where('course_id', $courseId)
             ->orderBy('id', 'asc')
             ->get()
-            ->map(function ($chapter) use ($userId, $courseId) {
+            ->map(function ($chapter) use ($userId, $courseId, $attemptLimit) {
+
+                //  Chapter wise attempt check
+                $chapterClicks = ChapterButtonClick::where('user_id', $userId)
+                    ->where('course_id', $courseId)
+                    ->where('chapter_id', $chapter->id)
+                    ->sum('click_count');
+
+                $isChapterLocked = $attemptLimit > 0 && $chapterClicks >= $attemptLimit;
 
                 // First, check if there's manual chapter progress saved
                 $progress = AppCourseProgress::where('user_id', $userId)
@@ -1233,22 +1214,22 @@ class ScormController extends Controller
                     ->where('chapter_id', $chapter->id)
                     ->first();
 
-                // Check if chapter has manual content (no launch_file)
                 $hasManualContent = $chapter->manualContents()->count() > 0 && empty($chapter->launch_file);
 
-                // If manual content exists and progress is recorded (even if 0%), use it
                 if ($hasManualContent && $progress) {
                     $chapter->progress_percent = (int) $progress->progress_percent;
+                    $chapter->is_completed = $progress->progress_percent >= 100;
+                    $chapter->is_locked = $isChapterLocked;
                     return $chapter;
                 }
 
-                // If manual content exists but no progress yet, set to 0
                 if ($hasManualContent && !$progress) {
                     $chapter->progress_percent = 0;
+                    $chapter->is_completed = false;
+                    $chapter->is_locked = $isChapterLocked;
                     return $chapter;
                 }
 
-                // Otherwise calculate from SCORM session time
                 $allProgress = AppCourseProgress::where('user_id', $userId)
                     ->where('course_id', $courseId)
                     ->whereNotNull('chapter_id')
@@ -1258,26 +1239,21 @@ class ScormController extends Controller
 
                 $totalSessionTime = (int) $chapterProgress->sum('session_time');
 
-                // duration in seconds
                 $duration = (!empty($chapter->watch_time) && $chapter->watch_time > 0)
                     ? (int) $chapter->watch_time
                     : 30 * 60;
 
                 if ($totalSessionTime > 0 && $duration > 0) {
-
                     $rawPercent = ($totalSessionTime / $duration) * 80;
-
                     $percent = max(1, floor($rawPercent));
                 } else {
                     $percent = 0;
                 }
 
-                // cap at 80
                 if ($percent > 80) {
                     $percent = 80;
                 }
 
-                // SCORM completion
                 $isCompleted = $chapterProgress
                     ->whereIn('cmi_core_lesson_status', ['completed', 'passed'])
                     ->isNotEmpty();
@@ -1289,12 +1265,16 @@ class ScormController extends Controller
                 $chapter->progress_percent = $percent;
                 $chapter->is_completed = $isCompleted;
 
+                //  Final lock only chapter wise
+                $chapter->is_locked = $isChapterLocked;
+
                 return $chapter;
             });
+
         $subjects = Subject::where('course_id', $courseId)->where('status', 1)->get();
+
         return view('chapters.list', compact('chapters', 'courseId', 'subjects'));
     }
-
     public function autoLoginChapter(Request $request, $courseId)
     {
         $uid   = $request->uid;
@@ -1334,6 +1314,66 @@ class ScormController extends Controller
             'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
             'Accept-Ranges'       => 'bytes',
             'Cache-Control'       => 'private, no-store, no-cache',
+        ]);
+    }
+
+    public function recordClick(Request $request)
+    {
+        $validated = $request->validate([
+            'chapter_id' => 'required|integer|exists:chapters,id',
+            'course_id' => 'nullable|integer|exists:scorm_packages,id',
+            'button_type' => 'required|in:start,resume,completed'
+        ]);
+
+        try {
+            $click = ChapterButtonClick::recordClick(
+                Auth::id(),
+                $validated['chapter_id'],
+                $validated['course_id'] ?? null,
+                $validated['button_type']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Click recorded successfully',
+                'data' => $click
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to record click',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getClickStats(Request $request, $chapterId)
+    {
+        $userId = Auth::id();
+
+        $stats = ChapterButtonClick::where('user_id', $userId)
+            ->where('chapter_id', $chapterId)
+            ->get()
+            ->keyBy('button_type');
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats
+        ]);
+    }
+
+    public function getUserChapterStats(Request $request)
+    {
+        $userId = Auth::id();
+
+        $stats = ChapterButtonClick::where('user_id', $userId)
+            ->with('chapter:id,name')
+            ->orderBy('last_clicked_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats
         ]);
     }
 }
