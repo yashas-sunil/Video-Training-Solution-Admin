@@ -439,11 +439,11 @@
     </div>
 
     <div class="page-content">
-        <div class="page-header">
-            <button onclick="window.location.href='/user/dashboard'" class="back-btn">
-                ⬅ Back
-            </button>
-        </div>
+       <div class="page-header">
+    <button onclick="handleBack({{ $courseId }})" class="back-btn">
+    ⬅ Back
+</button>
+</div>
 
         <h2>Course Chapters</h2>
 
@@ -650,6 +650,16 @@
         if (show) overlay.classList.add('active');
         else overlay.classList.remove('active');
     }
+    
+    async function handleBack(courseId) {
+    try {
+        await incrementCourseAttempt(courseId); 
+    } catch (e) {
+        console.log(e);
+    } finally {
+        window.location.href = '/user/dashboard'; // redirect
+    }
+}
 </script>
 
 </body>
