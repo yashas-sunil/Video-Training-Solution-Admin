@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Exam Mode</title>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -435,13 +436,13 @@
                 <button class="tab-btn active" onclick="openTab('examTab')">
                     <img src="{{ asset('images/user-test.png') }}" alt="User-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                      Create User Questions
+                    Create User Questions
                 </button>
 
                 <button class="tab-btn" onclick="openTab('questionTab')">
                     <img src="{{ asset('images/create-test.png') }}" alt="create-test"
                         style="width: 20px;height: 20px;margin-right: 5px;">
-                     Eduedge Created Questions
+                    Eduedge Created Questions
                 </button>
             </div>
         </div>
@@ -455,7 +456,7 @@
                         <div class="col">
                             <label>Course<span class="required"> *</span></label>
                             <select id="course_id" disabled>
-                                <option value="{{$courseName ?? ''}}">{{ $courseName ?? '' }}</option>
+                                <option value="{{ $courseName ?? '' }}">{{ $courseName ?? '' }}</option>
                             </select>
                             <div class="error-text" id="course_error"></div>
                         </div>
@@ -516,7 +517,7 @@
                             <input type="number" id="limit" value="20">
                         </div>
                     </div>
-
+                    <input type="hidden" id="real_course_id" value="{{ request()->route('id') }}">
                     <button id="filterBtn">
                         <img src="{{ asset('images/start-test.png') }}" alt="start-test"
                             style="width: 20px;height: 20px;margin-right: 5px;">
@@ -539,7 +540,8 @@
                             <thead>
                                 <tr style="border-bottom: 2px solid #ddd;background: #f8f9fa;">
                                     <th style="padding: 10px; text-align: left;">
-                                        <input type="checkbox" id="selectAllTests" style="cursor: pointer; display:none;" >
+                                        <input type="checkbox" id="selectAllTests"
+                                            style="cursor: pointer; display:none;">
                                     </th>
                                     <th style="padding: 10px; text-align: left;">Test Name</th>
                                     <th style="padding: 10px; text-align: left;">Subjects</th>
@@ -549,33 +551,36 @@
                             </thead>
                             <tbody id="testsList">
                                 @php
-                                    $tests = $admintest instanceof \Illuminate\Database\Eloquent\Builder 
-                                        ? $admintest->get() 
-                                        : $admintest;
+                                    $tests =
+                                        $admintest instanceof \Illuminate\Database\Eloquent\Builder
+                                            ? $admintest->get()
+                                            : $admintest;
                                 @endphp
-                                @if(is_iterable($tests) && count($tests) > 0)
-                                    @foreach($tests as $test)
-                                    <tr style="border-bottom: 1px solid #eee;">
-                                        <td style="padding: 10px;">
-                                            <input type="checkbox" class="test-checkbox" value="{{ $test->id }}" style="cursor: pointer;">
-                                        </td>
-                                        <td style="padding: 10px;">{{ $test->test_name }}</td>
-                                        <td style="padding: 10px;">
-                                            @php
-                                                $subjectIds = explode(',', $test->subject_id);
-                                                $subjectNames = [];
-                                                foreach($subjectIds as $subjectId) {
-                                                    $subject = \App\Models\Subject::find(trim($subjectId));
-                                                    if($subject) {
-                                                        $subjectNames[] = $subject->name;
+                                @if (is_iterable($tests) && count($tests) > 0)
+                                    @foreach ($tests as $test)
+                                        <tr style="border-bottom: 1px solid #eee;">
+                                            <td style="padding: 10px;">
+                                                <input type="checkbox" class="test-checkbox"
+                                                    value="{{ $test->id }}" style="cursor: pointer;">
+                                            </td>
+                                            <td style="padding: 10px;">{{ $test->test_name }}</td>
+                                            <td style="padding: 10px;">
+                                                @php
+                                                    $subjectIds = explode(',', $test->subject_id);
+                                                    $subjectNames = [];
+                                                    foreach ($subjectIds as $subjectId) {
+                                                        $subject = \App\Models\Subject::find(trim($subjectId));
+                                                        if ($subject) {
+                                                            $subjectNames[] = $subject->name;
+                                                        }
                                                     }
-                                                }
-                                            @endphp
-                                            {{ implode(', ', $subjectNames) ?: 'N/A' }}
-                                        </td>
-                                        <td style="padding: 10px;">{{ $test->total_ques_count }}</td>
-                                        <td style="padding: 10px; text-align: center;">
-                                                <button class="start-btn" style="
+                                                @endphp
+                                                {{ implode(', ', $subjectNames) ?: 'N/A' }}
+                                            </td>
+                                            <td style="padding: 10px;">{{ $test->total_ques_count }}</td>
+                                            <td style="padding: 10px; text-align: center;">
+                                                <button class="start-btn"
+                                                    style="
                                                         display: none;
                                                         background:#2d89ff;
                                                         color:#fff;
@@ -584,12 +589,13 @@
                                                         border-radius:8px;
                                                         font-size:13.5px;
                                                         cursor:pointer;
-                                                    " onclick="startTest({{ $test->id }})">
-                                                        📚 Start Exam 
-                                                    </button>
-                                            
-                                        </td>
-                                    </tr>
+                                                    "
+                                                    onclick="startTest({{ $test->id }})">
+                                                    📚 Start Exam
+                                                </button>
+
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 @else
                                     <tr>
@@ -605,7 +611,24 @@
             </div>
 
             <script>
-                // ✅ tabs function
+                function hitStartExamLog() {
+                    fetch('/exam/start-log', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            course_id: $("#real_course_id").val(), // ✅ FIX
+                            subject_id: $("#subject_id").val(),
+                            chapter_id: $("#chapter_id").val(),
+                            mode: $("#exam_mode").val(),
+                            difficult_level_id: $("#difficult_level_id").val()
+                        })
+                    }).catch(err => console.log('Start log error:', err));
+                }
+
                 function openTab(tabId) {
                     document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
                     document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
@@ -643,13 +666,10 @@
                         $("#chapter_id").html(html);
                     });
                 });
-                $(document).on('change', '.test-checkbox', function () {
+
+                $(document).on('change', '.test-checkbox', function() {
                     $('.test-checkbox').not(this).prop('checked', false);
-                    
-                    // Hide all start buttons
                     $('.start-btn').hide();
-                    
-                    // Show start button in the checked row
                     if ($(this).is(':checked')) {
                         $(this).closest('tr').find('.start-btn').show();
                     }
@@ -676,7 +696,6 @@
                         isValid = false;
                     }
 
-                    // ✅ NEW: mode required
                     if ($("#exam_mode").val() === "") {
                         $("#exam_mode").addClass("error");
                         $("#mode_error").text("Mode is required");
@@ -693,7 +712,24 @@
                         return false;
                     }
 
+                    fetch('/exam/start-log', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            course_id: $("#real_course_id").val(),
+                            subject_id: $("#subject_id").val(),
+                            chapter_id: $("#chapter_id").val(),
+                            mode: $("#exam_mode").val(),
+                            difficult_level_id: $("#difficult_level_id").val()
+                        })
+                    });
+
                     let params = $.param({
+                        course_id: $("#real_course_id").val(), // ✅ URL me bhi
                         subject_id: $("#subject_id").val(),
                         chapter_id: $("#chapter_id").val(),
                         mode: $("#exam_mode").val(),
@@ -715,8 +751,6 @@
                 $("#selectAllTests").on("change", function() {
                     let isChecked = $(this).is(":checked");
                     $(".test-checkbox").prop("checked", isChecked);
-                    
-                    // Show/hide start buttons based on select all checkbox
                     if (isChecked) {
                         $('.start-btn').show();
                     } else {
@@ -727,15 +761,13 @@
                 $(document).on("change", ".test-checkbox", function() {
                     let totalCheckboxes = $(".test-checkbox").length;
                     let checkedCheckboxes = $(".test-checkbox:checked").length;
-                    
-                    // Update select all checkbox
+
                     if (totalCheckboxes === checkedCheckboxes) {
                         $("#selectAllTests").prop("checked", true);
                     } else {
                         $("#selectAllTests").prop("checked", false);
                     }
-                    
-                    // Update button visibility - hide all buttons if nothing is checked
+
                     if (checkedCheckboxes === 0) {
                         $('.start-btn').hide();
                     }
@@ -751,86 +783,47 @@
 
                 function showAlreadyAttemptedModal() {
                     $("#alertModal").remove();
-                    $("body").append(`
-                        <div id="alertModal" style="
-                            position: fixed;
-                            top: 0; left: 0;
-                            width: 100%; height: 100%;
-                            background: rgba(0,0,0,0.5);
-                            z-index: 9999;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        ">
-                            <div style="
-                                background: white;
-                                border-radius: 16px;
-                                padding: 35px 30px;
-                                max-width: 420px;
-                                width: 90%;
-                                text-align: center;
-                                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                            ">
-                                <div style="font-size: 55px; margin-bottom: 12px;">⚠️</div>
-                                <h2 style="
-                                    color: #b45309;
-                                    margin: 0 0 10px 0;
-                                    font-size: 20px;
-                                    font-family: Arial;
-                                ">Test Already Attempted</h2>
-                                <p style="
-                                    color: #78350f;
-                                    font-size: 15px;
-                                    margin: 0 0 25px 0;
-                                    font-family: Arial;
-                                    line-height: 1.6;
-                                ">
-                                    You have already attempted this test.<br>
-                                    Each test can only be taken <b>once</b>.
-                                </p>
-                                <button onclick="$('#alertModal').remove();" style="
-                                    background: linear-gradient(180deg, #700002 0%, #700002e0 100%);
-                                    color: white;
-                                    border: none;
-                                    padding: 12px 30px;
-                                    border-radius: 10px;
-                                    font-size: 15px;
-                                    cursor: pointer;
-                                    font-family: Arial;
-                                ">OK, Got it</button>
-                            </div>
-                        </div>
-                    `);
+                    $("body").append(`<div id="alertModal">...</div>`);
                 }
 
-                function startTest(testId) {
+                function startTest(testId, courseId, subjectId, chapterId) {
                     $.ajax({
-                        type    : "GET",
-                        url     : "/gettestquestion",
-                        data    : { test_id: testId },
-                        success : function(res) {
-
+                        type: "GET",
+                        url: "/gettestquestion",
+                        data: {
+                            test_id: testId
+                        },
+                        success: function(res) {
                             if (res.already_attempted === true || res.status === false) {
                                 showAlreadyAttemptedModal();
                                 return;
                             }
 
+                            hitStartLog(courseId, subjectId, chapterId);
+
                             let params = $.param({
-                                test_ids : testId,
-                                mode     : "test"
+                                test_ids: testId,
+                                mode: "test"
                             });
+
                             window.location.href = "/exam-page?" + params;
-                        },
-                        error : function(err) {
-
-                            if (err.status === 403) {
-                                showAlreadyAttemptedModal();
-                                return;
-                            }
-
-                            alert("Something went wrong. Please try again.");
-                            console.error("API Error:", err);
                         }
+                    });
+                }
+
+                function hitStartLog(courseId, subjectId, chapterId) {
+                    fetch('/exam/start-log', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            course_id: $("#real_course_id").val(),
+                            subject_id: subjectId,
+                            chapter_id: chapterId
+                        })
                     });
                 }
             </script>

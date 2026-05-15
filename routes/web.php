@@ -722,6 +722,8 @@ Route::get('/gettestquestion', 'UserDashboardController@getTestQuestion')->name(
 // Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
 Route::post('/save-admin-test-answers', 'AnswerController@saveAnswers')->name('save-admin-test-answers')->middleware('auth');
 
+Route::post('/exam/start-log', 'UserDashboardController@storeStartLog')->name('exam.start-log')->middleware('auth');
+
 Route::get('/exam-page', function () {
     return view('exam_page');
 });
