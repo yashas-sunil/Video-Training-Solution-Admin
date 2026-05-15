@@ -1050,143 +1050,141 @@ class ScormController extends Controller
         ]);
     }
 
-public function viewChapter($id)
-{
-    $chapter = Chapter::with(['manualContents', 'lessons'])->findOrFail($id);
-    $userId = auth()->id();
-    $courseId = request()->get('scorm_packages') ?? $chapter->course_id;
+    public function viewChapter($id)
+    {
+        $chapter = Chapter::with(['manualContents', 'lessons'])->findOrFail($id);
+        $userId = auth()->id();
+        $courseId = request()->get('scorm_packages') ?? $chapter->course_id;
+        $lastRoundOfThisChapter = ChapterRoundView::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->where('chapter_id', $chapter->id)
+            ->max('round_no');
 
-  // Is specific chapter ka last round nikalo (NOT course ka)
-$lastRoundOfThisChapter = ChapterRoundView::where('user_id', $userId)
-    ->where('course_id', $courseId)
-    ->where('chapter_id', $chapter->id)
-    ->max('round_no');
+        $currentRound = $lastRoundOfThisChapter ? $lastRoundOfThisChapter + 1 : 1;
 
-$currentRound = $lastRoundOfThisChapter ? $lastRoundOfThisChapter + 1 : 1;
+        ChapterRoundView::create([
+            'user_id'    => $userId,
+            'course_id'  => $courseId,
+            'chapter_id' => $chapter->id,
+            'round_no'   => $currentRound,
+        ]);
 
-ChapterRoundView::create([
-    'user_id'    => $userId,
-    'course_id'  => $courseId,
-    'chapter_id' => $chapter->id,
-    'round_no'   => $currentRound,
-]);
+        $progress = AppCourseProgress::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->where('chapter_id', $chapter->id)
+            ->first();
 
-    $progress = AppCourseProgress::where('user_id', $userId)
-        ->where('course_id', $courseId)
-        ->where('chapter_id', $chapter->id)
-        ->first();
+        if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
 
-    if ($chapter->manualContents->isNotEmpty() && empty($chapter->launch_file)) {
+            $overviewTypes = ['Glossary', 'Infographics', 'Textbook', 'Map'];
+            $lessonTypes = ['Detailed Trainer Slides', 'Summary Slides', 'Videos'];
 
-        $overviewTypes = ['Glossary','Infographics','Textbook','Map'];
-        $lessonTypes = ['Detailed Trainer Slides','Summary Slides','Videos'];
-
-        $overview = $chapter->manualContents
-            ->whereNull('lesson_id')
-            ->whereIn('content_type', $overviewTypes)
-            ->sortBy('id')
-            ->groupBy('content_type')
-            ->map(function ($items) {
-                return $items->map(function ($content) {
-                    return [
-                        'id' => $content->id,
-                        'label' => $content->content_type,
-                        'url' => route('pdf.stream', $content->file_path),
-                        'original_name' => $content->original_name ?? basename($content->file_path),
-                        'size' => $content->file_size,
-                    ];
+            $overview = $chapter->manualContents
+                ->whereNull('lesson_id')
+                ->whereIn('content_type', $overviewTypes)
+                ->sortBy('id')
+                ->groupBy('content_type')
+                ->map(function ($items) {
+                    return $items->map(function ($content) {
+                        return [
+                            'id' => $content->id,
+                            'label' => $content->content_type,
+                            'url' => route('pdf.stream', $content->file_path),
+                            'original_name' => $content->original_name ?? basename($content->file_path),
+                            'size' => $content->file_size,
+                        ];
+                    });
                 });
-            });
 
-        $lessons = $chapter->lessons->map(function ($lesson) use ($chapter, $lessonTypes) {
+            $lessons = $chapter->lessons->map(function ($lesson) use ($chapter, $lessonTypes) {
 
-            $lessonItems = $chapter->manualContents
-                ->where('lesson_id', $lesson->id)
-                ->whereIn('content_type', $lessonTypes)
-                ->sortBy('id');
+                $lessonItems = $chapter->manualContents
+                    ->where('lesson_id', $lesson->id)
+                    ->whereIn('content_type', $lessonTypes)
+                    ->sortBy('id');
 
-            return [
-                'lesson_id'   => $lesson->id,
-                'lesson_name' => $lesson->lesson_name,
-                'contents' => $lessonItems
-                    ->groupBy('content_type')
-                    ->map(function ($items) {
-                        return $items->map(function ($content) {
-                            return [
-                                'id' => $content->id,
-                                'url' => route('secure.file', $content->file_path),
-                                'original_name' => $content->original_name ?? basename($content->file_path),
-                                'size' => $content->file_size,
-                            ];
-                        });
-                    }),
-            ];
-        })->values();
+                return [
+                    'lesson_id'   => $lesson->id,
+                    'lesson_name' => $lesson->lesson_name,
+                    'contents' => $lessonItems
+                        ->groupBy('content_type')
+                        ->map(function ($items) {
+                            return $items->map(function ($content) {
+                                return [
+                                    'id' => $content->id,
+                                    'url' => route('secure.file', $content->file_path),
+                                    'original_name' => $content->original_name ?? basename($content->file_path),
+                                    'size' => $content->file_size,
+                                ];
+                            });
+                        }),
+                ];
+            })->values();
 
-        return view('chapters.manual', [
-            'chapter' => $chapter,
-            'overview' => $overview,
-            'lessons' => $lessons,
-            'userProgress' => $progress ? $progress->progress_percent : 0,
+            return view('chapters.manual', [
+                'chapter' => $chapter,
+                'overview' => $overview,
+                'lessons' => $lessons,
+                'userProgress' => $progress ? $progress->progress_percent : 0,
+            ]);
+        }
+
+        // ===== SCORM VIEW PART =====
+        $launchUrl = asset(
+            'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
+        );
+
+        $progress = AppCourseProgress::where('user_id', $userId)
+            ->where('course_id', $chapter->course_id)
+            ->first();
+
+        return view('view', [
+            'launchUrl'    => $launchUrl,
+            'title'        => $chapter->name,
+            'courseId'     => $chapter->course_id,
+            'chapterId'    => $chapter->id,
+            'resumeTime'   => $progress->resume_from_time ?? 0,
+            'lastLocation' => $progress->cmi_core_lesson_location ?? '',
+            'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
+            'score'        => $progress->cmi_core_score_raw ?? '',
+            'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
         ]);
     }
 
-    // ===== SCORM VIEW PART =====
-    $launchUrl = asset(
-        'scorm_packages/' . $chapter->folder_name . '/' . $chapter->launch_file
-    );
+    public function incrementAttempt(Request $request)
+    {
+        $userId   = auth()->id();
+        $courseId = $request->course_id;
 
-    $progress = AppCourseProgress::where('user_id', $userId)
-        ->where('course_id', $chapter->course_id)
-        ->first();
+        $course = AppScormPackage::findOrFail($courseId);
 
-    return view('view', [
-        'launchUrl'    => $launchUrl,
-        'title'        => $chapter->name,
-        'courseId'     => $chapter->course_id,
-        'chapterId'    => $chapter->id,
-        'resumeTime'   => $progress->resume_from_time ?? 0,
-        'lastLocation' => $progress->cmi_core_lesson_location ?? '',
-        'lessonStatus' => $progress->cmi_core_lesson_status ?? '',
-        'score'        => $progress->cmi_core_score_raw ?? '',
-        'suspendData'  => $progress->progress_data['suspend_data'] ?? '',
-    ]);
-}
+        $totalChapters = Chapter::where('course_id', $courseId)->count();
 
-public function incrementAttempt(Request $request)
-{
-    $userId   = auth()->id();
-    $courseId = $request->course_id;
+        // Get completed rounds
+        $completedRounds = ChapterRoundView::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->select('round_no')
+            ->groupBy('round_no')
+            ->havingRaw('COUNT(DISTINCT chapter_id) = ?', [$totalChapters])
+            ->pluck('round_no');
 
-    $course = AppScormPackage::findOrFail($courseId);
+        $attempt = $completedRounds->count();
 
-    $totalChapters = Chapter::where('course_id', $courseId)->count();
+        $courseView = CourseView::updateOrCreate(
+            [
+                'user_id'   => $userId,
+                'course_id' => $courseId,
+            ],
+            [
+                'view_limit' => $attempt,
+            ]
+        );
 
-    // Get completed rounds
-    $completedRounds = ChapterRoundView::where('user_id', $userId)
-        ->where('course_id', $courseId)
-        ->select('round_no')
-        ->groupBy('round_no')
-        ->havingRaw('COUNT(DISTINCT chapter_id) = ?', [$totalChapters])
-        ->pluck('round_no');
-
-    $attempt = $completedRounds->count();
-
-    $courseView = CourseView::updateOrCreate(
-        [
-            'user_id'   => $userId,
-            'course_id' => $courseId,
-        ],
-        [
-            'view_limit' => $attempt,
-        ]
-    );
-
-    return response()->json([
-        'success' => true,
-        'attempt' => $attempt
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'attempt' => $attempt
+        ]);
+    }
 
     public function getChapters($courseId)
     {
