@@ -739,6 +739,10 @@ Route::post('/assigned-courses/toggle-status/{id}', 'AssignedCourseController@to
 Route::get('qb-summary', 'QBSummaryController@create')->name('qb.summary.create')->middleware('auth');
 Route::post('qb-summary-store', 'QBSummaryController@store')->name('qb.summary.store')->middleware('auth');
 
+// Dependent Dropdown Routes
+Route::get('get-subjects-by-course', 'QBSummaryController@getSubjectsByCourse')->name('get.subjects.by.course')->middleware('auth');
+Route::get('get-chapters-by-subject', 'QBSummaryController@getChaptersBySubject')->name('get.chapters.by.subject')->middleware('auth');
+
 Route::get('question/bank/{questionBank}', 'QuestionBankController@show')->name('question-bank.show');
 Route::get('fetch-answers-by-questions', 'QuestionBankController@fetchAnswersByQuestions')->name('fetch-answers-by-questions');
 Route::get('fetchsolution', 'AnswerController@fetchSolutionByQuestions')->name('fetchsolution')->middleware('auth');
