@@ -6,6 +6,7 @@ use App\admin_test;
 use App\Assignedcourse;
 use App\CourseProgress;
 use App\DifficultLevel;
+use App\ExamStartLog;
 use App\Models\Subject;
 use App\ScormPackage;
 use Auth;
@@ -277,5 +278,24 @@ public function getTestQuestion(Request $request)
         'data'   => $questions
     ]);
 
+}
+     public function storeStartLog(Request $request)
+{
+    $log = ExamStartLog::firstOrCreate(
+        [
+            'user_id'    => auth()->id(),
+            'course_id'  => $request->course_id,
+            'subject_id' => $request->subject_id,
+            'chapter_id' => $request->chapter_id,
+            'test_id'    => $request->test_id,
+        ],
+        [
+            'open_count' => 0
+        ]
+    );
+
+    $log->increment('open_count');
+
+    return response()->json(['success' => true]);
 }
 }
