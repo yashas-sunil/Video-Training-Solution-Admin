@@ -6,6 +6,25 @@
 
 @section('content')
 
+{{-- Toast notifications for flash messages --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="pdf-success-alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px;">
+        <strong><i class="fas fa-check-circle mr-2"></i> Success!</strong> {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="pdf-error-alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px;">
+        <strong><i class="fas fa-times-circle mr-2"></i> Error!</strong> {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12 col-md-12 mt-3">
@@ -25,8 +44,8 @@
                                 <tr>
                                     <th class="fname">Name</th>
                                     <th hidden>Question Bank ID</th>
-                                    <th class="email">Status</th>
                                     <th class="cretated">Created At</th>
+                                    <th class="email">Status</th>
                                     <th class="action">Action</th>
                                 </tr>
                             </thead>
@@ -35,6 +54,7 @@
                                 <tr>
                                     <td class="text-start">{{$val->name}}</td>
                                     <td hidden>{{$val->id}}</td>
+                                    <td>{{$val->created_at->format('d-m-Y H:i:s')}}</td>
                                     <td>
                                         @if($val->status==1)
                                             Active 
@@ -42,7 +62,6 @@
                                             Inactive 
                                         @endif
                                     </td>
-                                    <td>{{$val->created_at->format('d-m-Y H:i:s')}}</td>
                                     <td class="edit_delete action1">
                                         <a href="{{ route('question-bank.show',$val->id) }}" class="btn btn-primary"><i class="fas fa-eye"></i></a>
                                     </td>
