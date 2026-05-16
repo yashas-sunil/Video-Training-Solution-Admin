@@ -76,6 +76,7 @@ class QuestionBankController extends Controller
 
    public function store(StoreQuestionBankRequest $request)
 {
+    // dd($request->all());
     Log::info('QB STEP 1: QuestionBankController@store HIT');
     Log::info('QB STEP 1.1: Raw Request Data', $request->all());
     Log::info('QB STEP 1.2: Request Files', $request->files->all());

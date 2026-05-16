@@ -87,7 +87,7 @@
             });
             $('#user_filter').select2({
     placeholder: "Select Users",
-    allowClear: true
+   // allowClear: true
 });
 
     
