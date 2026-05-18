@@ -82,7 +82,7 @@ class ActivityController extends Controller
     ['data' => 'user_name', 'name' => 'u.name', 'title' => 'User Name' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'role', 'name' => 'al.role', 'title' => 'Role' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'module', 'name' => 'al.module', 'title' => 'Module' , 'defaultContent' => '-', 'orderable' => false],
-    ['data' => 'action', 'name' => 'al.action', 'title' => 'Action' , 'defaultContent' => '-', 'orderable' => false],
+    // ['data' => 'action', 'name' => 'al.action', 'title' => 'Action' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'message', 'name' => 'al.message', 'title' => 'Message' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'ip_address', 'name' => 'al.ip_address', 'title' => 'IP' , 'defaultContent' => '-', 'orderable' => false],
     ['data' => 'device', 'name' => 'al.device', 'title' => 'Device' , 'defaultContent' => '-', 'orderable' => false],
@@ -95,10 +95,10 @@ class ActivityController extends Controller
             'searching' => false,
             'ordering' => false,
             'processing' =>true,
-            'lengthChange' => false,
+            'lengthChange' => true,
             'stateSave'=>true,
             'bInfo' => false,
-            'pageLength'=> 75,
+            'pageLength'=> 10,
         ])->orderBy(0, 'desc');
 
         return view('pages.activity-report.index', compact('table','users'));
