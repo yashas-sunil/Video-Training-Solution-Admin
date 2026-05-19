@@ -269,6 +269,7 @@ public function create()
             $qb->status = $request->has('status') ? QuestionBank::ACTIVE : QuestionBank::INACTIVE;
             $qb->created_by = $userId;
             $qb->updated_by = $userId;
+            $qb->status = 1;
             $qb->save();
             $qbId = $qb->id;
 
